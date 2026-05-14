@@ -200,8 +200,73 @@
     .start-btn:hover { opacity: .88; }
 
     #vMain { background: #111114; display: flex; flex-direction: column; overflow-y: auto; }
+    #vTheme, #vNotif { background: #111114; display: flex; flex-direction: column; position: absolute; inset: 0; overflow-y: auto; transform: translateX(100%); opacity: 0; pointer-events: none; transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .3s; }
+    #vTheme.visible, #vNotif.visible { transform: translateX(0); opacity: 1; pointer-events: auto; }
     .sb { padding: 10px 18px 4px; display: flex; justify-content: space-between; font-size: 11px; color: #888; }
     .top-bar { padding: 10px 16px 12px; border-bottom: .5px solid #222228; }
+    
+    /* ── SHARED OVERLAY SCREENS ── */
+    .screen-header { padding: 12px 16px; border-bottom: .5px solid #222228; display: flex; align-items: center; gap: 10px; }
+    .back-btn { width: 30px; height: 30px; border-radius: 8px; background: #1c1c22; border: .5px solid #2e2e38; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background .15s; }
+    .back-btn:hover { background: #26262e; }
+    .screen-title { font-size: 15px; font-weight: 500; color: #f0f0f2; flex: 1; }
+    .screen-subtitle { font-size: 11px; color: #555; }
+
+    /* ── THEME SCREEN ── */
+    .t-grid { padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .t-card { background: #1a1a20; border-radius: 16px; padding: 12px; border: 2px solid transparent; cursor: pointer; transition: .2s; }
+    .t-card:hover { background: #1e1e28; }
+    .t-card.active { border-color: var(--accent, #5b5bdc); background: #1e1e2a; }
+    .t-preview { height: 60px; border-radius: 8px; margin-bottom: 8px; }
+    .t-name { font-size: 12px; font-weight: 500; text-align: center; color: #ccc; }
+    .apply-btn { margin: 4px 12px 16px; border-radius: 13px; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 500; color: #fff; cursor: pointer; transition: opacity .15s, transform .1s; animation: fabPop .5s .4s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes fabPop { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
+    .apply-btn:hover { opacity: .88; }
+    .apply-btn:active { transform: scale(.97); }
+
+    /* ── NOTIF SCREEN ── */
+    .notif-count { font-size: 9px; background: #5b5bdc; color: #fff; padding: 2px 6px; border-radius: 8px; font-weight: 500; }
+    @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+    .global-card { margin: 12px 12px 4px; background: #1e1e2a; border-radius: 14px; border: .5px solid #5b5bdc44; padding: 12px 14px; display: flex; align-items: center; gap: 12px; animation: slideIn .3s ease both; }
+    .global-icon { font-size: 22px; }
+    .global-info { flex: 1; }
+    .global-info p { margin: 0; }
+    .gi-title { font-size: 13px; font-weight: 500; color: #e0e0f0; }
+    .gi-sub { font-size: 11px; color: #666; margin-top: 2px; }
+    .toggle-wrap { position: relative; flex-shrink: 0; }
+    .toggle-input { display: none; }
+    .toggle-label { display: block; width: 38px; height: 22px; background: #2e2e38; border-radius: 11px; cursor: pointer; position: relative; transition: background .25s; }
+    .toggle-label::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #666; transition: transform .25s, background .25s; }
+    .toggle-input:checked + .toggle-label { background: #5b5bdc; }
+    .toggle-input:checked + .toggle-label::after { transform: translateX(16px); background: #fff; }
+    .divider-label { padding: 10px 16px 4px; font-size: 10px; color: #444; letter-spacing: .5px; }
+    .notif-channels { padding: 0 12px; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .notif-row { background: #1a1a20; border-radius: 14px; border: .5px solid #272730; padding: 10px 12px; display: flex; align-items: center; gap: 10px; animation: slideIn .4s ease both; overflow: hidden; position: relative; transition: opacity .3s; }
+    .notif-row::before { content:''; position:absolute; inset:0; background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.025) 50%,transparent 60%); background-size:200% 100%; animation:shimmer 3.5s infinite; }
+    .notif-row:nth-child(1){animation-delay:.05s} .notif-row:nth-child(2){animation-delay:.12s} .notif-row:nth-child(3){animation-delay:.19s}
+    .notif-row.muted { opacity: 0.45; }
+    .card-high { border-color: #e0525222; } .card-mid { border-color: #d49a2e22; } .card-low { border-color: #3aaa6e22; }
+    .nr-avatar { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500; flex-shrink:0; position:relative; }
+    .av-red { background:#2a1010; color:#e05252; } .av-amber { background:#221a08; color:#d49a2e; } .av-green { background:#0c1f16; color:#3aaa6e; }
+    .nr-emoji { position:absolute; bottom:-4px; right:-4px; font-size:12px; animation:float 2.5s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-3px) rotate(5deg)} }
+    .nr-info { flex:1; min-width:0; }
+    .nr-name { font-size:13px; font-weight:500; color:#e8e8f0; margin:0 0 2px; }
+    .nr-meta { font-size:11px; color:#555; display:flex; align-items:center; gap:6px; }
+    .nr-badge { font-size:9px; padding:2px 7px; border-radius:6px; font-weight:500; }
+    .badge-high { background:#2a1010; color:#e05252; border:.5px solid #e0525244; }
+    .badge-mid  { background:#221a08; color:#d49a2e; border:.5px solid #d49a2e44; }
+    .badge-low  { background:#0c1f16; color:#3aaa6e; border:.5px solid #3aaa6e44; }
+    .sound-row { display:flex; align-items:center; gap:6px; margin-top:6px; }
+    .sound-label { font-size:10px; color:#444; }
+    .sound-select { font-size:10px; background:#111118; border:.5px solid #2e2e38; color:#888; border-radius:7px; padding:3px 6px; outline:none; cursor:pointer; }
+    .save-btn { margin:14px 12px 16px; background:#5b5bdc; border-radius:13px; padding:11px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:500; color:#fff; cursor:pointer; transition:opacity .2s; animation:fabPop .5s .5s cubic-bezier(.34,1.56,.64,1) both; }
+    .save-btn:hover { opacity: .88; }
+    .save-btn:active { transform: scale(.97); }
+
+    /* ── TOAST (shared) ── */
+    .toast { position:absolute; bottom:20px; left:50%; transform:translateX(-50%) translateY(10px); background:#1e1e2a; border:.5px solid #5b5bdc55; border-radius:10px; padding:8px 16px; font-size:12px; color:#c0c0e0; white-space:nowrap; opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; z-index:99; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
     
     .at {
       font-size: 17px; font-weight: 500; color: #f0f0f2;
@@ -273,7 +338,7 @@
   <div class="view" id="vSplash">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
       <div class="logo-ring">
-        <img src="https://i.ibb.co/Xz9k56W/image-1.png" alt="Clearly Logo" class="logo-funnel">
+        <img src="https://i.imgur.com/svkaG7f.png" alt="Clearly Logo" class="logo-funnel">
       </div>
       <p class="splash-title">Clearly</p>
       <p class="splash-tagline">All info in one message</p>
@@ -311,7 +376,7 @@
       <p class="done-sub">Настройки сохранены. Начинаем работу вместе — добро пожаловать в <strong style="color:#b0a8ff;">Clearly</strong>!</p>
       <div class="logo-reveal">
         <div class="lr-ring">
-          <img src="https://i.ibb.co/Xz9k56W/image-1.png" alt="Clearly Logo" class="logo-funnel">
+          <img src="https://i.imgur.com/svkaG7f.png" alt="Clearly Logo" class="logo-funnel">
         </div>
         <p class="lr-name">Clearly</p>
         <p class="lr-tag">All info in one message</p>
@@ -321,16 +386,15 @@
   </div>
 
   <div class="view out-right" id="vMain">
-    <div class="sb"><span>9:41</span><span>●●●</span></div>
     <div class="top-bar">
       <p class="at">
-        <img src="https://i.ibb.co/Xz9k56W/image-1.png" alt="Clearly Header Logo" class="header-logo-funnel">
+        <img src="https://i.imgur.com/svkaG7f.png" alt="Clearly Header Logo" class="header-logo-funnel">
         <span style="background:linear-gradient(135deg,#a78bfa,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">Clearly</span>
       </p>
       <div class="qa">
         <div class="qb"><i class="ti ti-user-circle" aria-hidden="true" style="font-size:16px;color:#7c7cdc;"></i><span class="ql">Профиль</span></div>
-        <div class="qb"><i class="ti ti-bell" aria-hidden="true" style="font-size:16px;color:#7c7cdc;"></i><span class="ql">Уведомления</span></div>
-        <div class="qb"><i class="ti ti-palette" aria-hidden="true" style="font-size:16px;color:#7c7cdc;"></i><span class="ql">Тема</span></div>
+        <div class="qb" onclick="openNotifScreen()"><i class="ti ti-bell" aria-hidden="true" style="font-size:16px;color:#7c7cdc;"></i><span class="ql">Уведомления</span></div>
+        <div class="qb" onclick="openThemeScreen()"><i class="ti ti-palette" aria-hidden="true" style="font-size:16px;color:#7c7cdc;"></i><span class="ql">Тема</span></div>
         <div class="qb"><i class="ti ti-settings" aria-hidden="true" style="font-size:16px;color:#7c7cdc;"></i><span class="ql">Настройки</span></div>
       </div>
     </div>
@@ -376,6 +440,112 @@
     </div>
   </div>
 
+  <!-- THEME SCREEN -->
+  <div id="vTheme">
+    <div class="screen-header">
+      <div class="back-btn" onclick="closeThemeScreen()"><i class="ti ti-arrow-left" aria-hidden="true" style="font-size:15px;color:#aaa;"></i></div>
+      <div>
+        <p class="screen-title">🎨 Тема оформления</p>
+        <p class="screen-subtitle">Выберите стиль интерфейса</p>
+      </div>
+    </div>
+    <div class="t-grid" id="themeGrid"></div>
+    <div class="apply-btn" id="applyBtn" onclick="applyTheme()" style="background:var(--accent,#5b5bdc);">
+      <i class="ti ti-palette" aria-hidden="true"></i> Применить тему
+    </div>
+    <div class="toast" id="themeToast"></div>
+  </div>
+
+  <!-- NOTIFICATIONS SCREEN -->
+  <div id="vNotif">
+    <div class="screen-header">
+      <div class="back-btn" onclick="closeNotifScreen()"><i class="ti ti-arrow-left" aria-hidden="true" style="font-size:15px;color:#aaa;"></i></div>
+      <div>
+        <p class="screen-title">🔔 Уведомления</p>
+        <p class="screen-subtitle">Управление оповещениями</p>
+      </div>
+      <span class="notif-count" id="notifCount">2 вкл</span>
+    </div>
+
+    <div class="global-card">
+      <div class="global-icon">🔔</div>
+      <div class="global-info">
+        <p class="gi-title">Все уведомления</p>
+        <p class="gi-sub">Включить или выключить всё</p>
+      </div>
+      <div class="toggle-wrap">
+        <input type="checkbox" class="toggle-input" id="globalToggle" checked onchange="toggleAll(this)">
+        <label class="toggle-label" for="globalToggle"></label>
+      </div>
+    </div>
+
+    <div class="divider-label">КАНАЛЫ ПОЛЬЗОВАТЕЛЯ</div>
+
+    <div class="notif-channels">
+      <div class="notif-row card-high" id="row0">
+        <div class="nr-avatar av-red">BC<span class="nr-emoji">🔥</span></div>
+        <div class="nr-info">
+          <p class="nr-name">@BreakingCrypto</p>
+          <div class="nr-meta">
+            <span class="nr-badge badge-high">🔴 Важно</span>
+            <span style="color:#555;">2.1M</span>
+          </div>
+          <div class="sound-row">
+            <span class="sound-label">Звук:</span>
+            <select class="sound-select"><option>🔔 Стандартный</option><option>📢 Громкий</option><option>🔕 Без звука</option></select>
+          </div>
+        </div>
+        <div class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="t0" checked onchange="toggleRow(0,this)">
+          <label class="toggle-label" for="t0"></label>
+        </div>
+      </div>
+
+      <div class="notif-row card-mid muted" id="row1">
+        <div class="nr-avatar av-amber">TN<span class="nr-emoji">⚡</span></div>
+        <div class="nr-info">
+          <p class="nr-name">@TechNews</p>
+          <div class="nr-meta">
+            <span class="nr-badge badge-mid">🟡 Среднее</span>
+            <span style="color:#555;">890K</span>
+          </div>
+          <div class="sound-row">
+            <span class="sound-label">Звук:</span>
+            <select class="sound-select"><option>🔔 Стандартный</option><option>📢 Громкий</option><option selected>🔕 Без звука</option></select>
+          </div>
+        </div>
+        <div class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="t1" onchange="toggleRow(1,this)">
+          <label class="toggle-label" for="t1"></label>
+        </div>
+      </div>
+
+      <div class="notif-row card-low" id="row2">
+        <div class="nr-avatar av-green">DM<span class="nr-emoji">😂</span></div>
+        <div class="nr-info">
+          <p class="nr-name">@DailyMemes</p>
+          <div class="nr-meta">
+            <span class="nr-badge badge-low">🟢 Не важно</span>
+            <span style="color:#555;">340K</span>
+          </div>
+          <div class="sound-row">
+            <span class="sound-label">Звук:</span>
+            <select class="sound-select"><option>🔔 Стандартный</option><option>📢 Громкий</option><option>🔕 Без звука</option></select>
+          </div>
+        </div>
+        <div class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="t2" checked onchange="toggleRow(2,this)">
+          <label class="toggle-label" for="t2"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="save-btn" onclick="saveNotif()">
+      <i class="ti ti-check" aria-hidden="true"></i> Сохранить настройки
+    </div>
+    <div class="toast" id="notifToast">✅ Настройки сохранены!</div>
+  </div>
+
 </div>
 
 <script>
@@ -383,64 +553,16 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
 
+// ===== QUIZ =====
 const questions = [
-  {
-    id: 'sphere',
-    q: 'Ваша сфера деятельности?',
-    sub: 'Выберите один вариант',
-    opts: [
-      { icon: '💎', label: 'Крипта' },
-      { icon: '📈', label: 'Трейдинг' },
-      { icon: '🤖', label: 'AI' },
-      { icon: '📊', label: 'Stocks' }
-    ]
-  },
-  {
-    id: 'style',
-    q: 'Ваш стиль торговли?',
-    sub: 'Только для трейдеров',
-    opts: [
-      { icon: '⚡', label: 'Скальпинг' },
-      { icon: '☀️', label: 'Дей-трейдинг' },
-      { icon: '🌊', label: 'Свинг-трейдинг' }
-    ]
-  },
-  {
-    id: 'capital',
-    q: 'Ваш капитал?',
-    sub: 'Поможет подобрать тариф',
-    opts: [
-      { icon: '🌱', label: 'До $500' },
-      { icon: '💼', label: 'До $1 000' },
-      { icon: '🚀', label: 'От $5 000+' }
-    ]
-  },
-  {
-    id: 'exp',
-    q: 'Ваш опыт в криптосфере?',
-    sub: 'Будем честны',
-    opts: [
-      { icon: '🐣', label: 'Новичок' },
-      { icon: '🧐', label: 'Много не знаю' },
-      { icon: '🔥', label: 'Прошаренный криптан' }
-    ]
-  },
-  {
-    id: 'goal',
-    q: 'Цель использования инструмента?',
-    sub: 'Для чего вы здесь',
-    opts: [
-      { icon: '⚡', label: 'Открывать сделки на инфо из новостей' },
-      { icon: '🌐', label: 'Иметь общую картину рынка' },
-      { icon: '📋', label: 'Составлять анализ из полученной инфо' }
-    ]
-  }
+  { id:'sphere', q:'Ваша сфера деятельности?', sub:'Выберите один вариант', opts:[{icon:'💎',label:'Крипта'},{icon:'📈',label:'Трейдинг'},{icon:'🤖',label:'AI'},{icon:'📊',label:'Stocks'}] },
+  { id:'style',  q:'Ваш стиль торговли?', sub:'Только для трейдеров', opts:[{icon:'⚡',label:'Скальпинг'},{icon:'☀️',label:'Дей-трейдинг'},{icon:'🌊',label:'Свинг-трейдинг'}] },
+  { id:'capital',q:'Ваш капитал?', sub:'Поможет подобрать тариф', opts:[{icon:'🌱',label:'До $500'},{icon:'💼',label:'До $1 000'},{icon:'🚀',label:'От $5 000+'}] },
+  { id:'exp',    q:'Ваш опыт в криптосфере?', sub:'Будем честны', opts:[{icon:'🐣',label:'Новичок'},{icon:'🧐',label:'Много не знаю'},{icon:'🔥',label:'Прошаренный криптан'}] },
+  { id:'goal',   q:'Цель использования инструмента?', sub:'Для чего вы здесь', opts:[{icon:'⚡',label:'Открывать сделки на инфо из новостей'},{icon:'🌐',label:'Иметь общую картину рынка'},{icon:'📋',label:'Составлять анализ из полученной инфо'}] }
 ];
 
-let steps = [];
-let stepIdx = 0;
-let answers = {};
-let selected = null;
+let steps = [], stepIdx = 0, answers = {}, selected = null;
 
 function buildSteps(sphereAnswer) {
   steps = [questions[0]];
@@ -455,20 +577,15 @@ function goTo(fromId, toId) {
 }
 
 function startQuiz() {
-  buildSteps(null);
-  stepIdx = 0;
-  renderStep();
-  goTo('vWelcome', 'vQuiz');
+  buildSteps(null); stepIdx = 0; renderStep(); goTo('vWelcome','vQuiz');
 }
 
 function renderStep() {
-  const q = steps[stepIdx];
-  const total = steps.length;
+  const q = steps[stepIdx], total = steps.length;
   document.getElementById('qStepLbl').textContent = `Вопрос ${stepIdx+1} из ${total}`;
   document.getElementById('qTitle').textContent = q.q;
   document.getElementById('qSub').textContent = q.sub;
   selected = null;
-
   const body = document.getElementById('qBody');
   body.innerHTML = '';
   q.opts.forEach((o, i) => {
@@ -479,17 +596,14 @@ function renderStep() {
     btn.style.animation = 'slideIn .35s ease both';
     btn.onclick = () => {
       body.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('sel'));
-      btn.classList.add('sel');
-      selected = o.label;
+      btn.classList.add('sel'); selected = o.label;
       document.getElementById('nextBtn').classList.add('ready');
     };
     body.appendChild(btn);
   });
-
   const nb = document.getElementById('nextBtn');
   nb.classList.remove('ready');
   nb.textContent = stepIdx === steps.length - 1 ? 'Готово ✅' : 'Далее →';
-
   renderDots(total);
 }
 
@@ -508,17 +622,100 @@ function renderDots(total) {
 function nextStep() {
   if (!selected) return;
   answers[steps[stepIdx].id] = selected;
+  if (steps[stepIdx].id === 'sphere') buildSteps(selected);
+  if (stepIdx < steps.length - 1) { stepIdx++; renderStep(); }
+  else goTo('vQuiz','vDone');
+}
 
-  if (steps[stepIdx].id === 'sphere') {
-    buildSteps(selected);
-  }
+// ===== THEMES =====
+const themes = [
+  { id:'midnight', name:'Midnight', accent:'#7f77dd', gradient:'linear-gradient(135deg,#7f77dd,#534ab7)', preview:'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)' },
+  { id:'aurora',   name:'Aurora',   accent:'#1d9e75', gradient:'linear-gradient(135deg,#1d9e75,#0f6e56)', preview:'linear-gradient(135deg,#0d2b1f 0%,#1a4a30 50%,#0f6e56 100%)' },
+  { id:'sunset',   name:'Sunset',   accent:'#d85a30', gradient:'linear-gradient(135deg,#d85a30,#993c1d)', preview:'linear-gradient(135deg,#2b1207 0%,#4a1b0c 50%,#d85a30 100%)' },
+  { id:'rose',     name:'Rose',     accent:'#d4537e', gradient:'linear-gradient(135deg,#d4537e,#993556)', preview:'linear-gradient(135deg,#2b0f1a 0%,#4b1528 50%,#d4537e 100%)' },
+  { id:'ocean',    name:'Ocean',    accent:'#378add', gradient:'linear-gradient(135deg,#378add,#185fa5)', preview:'linear-gradient(135deg,#04152d 0%,#0c447c 50%,#378add 100%)' },
+  { id:'golden',   name:'Golden',   accent:'#ef9f27', gradient:'linear-gradient(135deg,#ef9f27,#ba7517)', preview:'linear-gradient(135deg,#1a0e02 0%,#412402 50%,#ef9f27 100%)' }
+];
 
-  if (stepIdx < steps.length - 1) {
-    stepIdx++;
-    renderStep();
-  } else {
-    goTo('vQuiz', 'vDone');
-  }
+let currentTheme = 'midnight', tempTheme = 'midnight';
+
+function renderThemes() {
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = '';
+  themes.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 't-card' + (t.id === tempTheme ? ' active' : '');
+    card.innerHTML = `<div class="t-preview" style="background:${t.preview}"></div><div class="t-name">${t.name}</div>`;
+    card.onclick = () => { tempTheme = t.id; renderThemes(); };
+    grid.appendChild(card);
+  });
+}
+
+function applyTheme() {
+  currentTheme = tempTheme;
+  const t = themes.find(x => x.id === currentTheme);
+  document.documentElement.style.setProperty('--accent', t.accent);
+  document.documentElement.style.setProperty('--accent-gradient', t.gradient);
+  document.getElementById('applyBtn').style.background = t.accent;
+  showToast('themeToast', `Тема «${t.name}» применена`);
+  closeThemeScreen();
+}
+
+function openThemeScreen() {
+  renderThemes();
+  document.getElementById('vMain').style.opacity = '.5';
+  document.getElementById('vTheme').classList.add('visible');
+}
+
+function closeThemeScreen() {
+  document.getElementById('vTheme').classList.remove('visible');
+  document.getElementById('vMain').style.opacity = '1';
+}
+
+// ===== NOTIFICATIONS =====
+function openNotifScreen() {
+  document.getElementById('vMain').style.opacity = '.5';
+  document.getElementById('vNotif').classList.add('visible');
+  updateCount();
+}
+
+function closeNotifScreen() {
+  document.getElementById('vNotif').classList.remove('visible');
+  document.getElementById('vMain').style.opacity = '1';
+}
+
+function toggleRow(idx, checkbox) {
+  document.getElementById('row' + idx).classList.toggle('muted', !checkbox.checked);
+  updateCount();
+}
+
+function toggleAll(globalCb) {
+  [0,1,2].forEach(i => {
+    const cb = document.getElementById('t' + i);
+    cb.checked = globalCb.checked;
+    document.getElementById('row' + i).classList.toggle('muted', !globalCb.checked);
+  });
+  updateCount();
+}
+
+function updateCount() {
+  const on = [0,1,2].filter(i => document.getElementById('t'+i).checked).length;
+  const el = document.getElementById('notifCount');
+  el.textContent = on + ' вкл';
+  el.style.animation = 'none';
+  setTimeout(() => el.style.animation = 'popIn .3s cubic-bezier(0.34,1.56,0.64,1) both', 10);
+}
+
+function saveNotif() {
+  showToast('notifToast', '✅ Настройки сохранены!');
+}
+
+// ===== SHARED TOAST =====
+function showToast(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
 }
 </script>
 
