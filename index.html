@@ -520,9 +520,9 @@
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
-tg.ready();
+const tg = window.Telegram?.WebApp || {};
+if (tg.expand) tg.expand();
+if (tg.ready) tg.ready();
 
 // Detect language from Telegram WebApp
 function detectLang() {
