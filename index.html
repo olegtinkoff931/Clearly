@@ -198,15 +198,50 @@
 <body>
 <div class="app-container">
 
-  <div class="view" id="vSplash">
+  <!-- Language picker — shown first, before splash -->
+  <div class="view" id="vLang" style="background:#111114;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:340px;">
+      <div class="logo-ring" style="margin-bottom:24px;">
+        <img src="https://i.imgur.com/svkaG7f.png" alt="Clearly Logo" class="logo-funnel">
+      </div>
+      <p class="splash-title" style="margin-bottom:6px;">Clearly</p>
+      <p style="font-size:13px;color:#666;margin-bottom:36px;letter-spacing:.3px;">Выберите язык / Choose language / Оберіть мову</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%;">
+        <button onclick="pickLang('ru')" id="langBtn-ru" style="width:100%;padding:14px 20px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;color:#c0c0d0;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s,border-color .2s;">
+          <span style="font-size:24px;">🇷🇺</span>
+          <div style="text-align:left;">
+            <p style="font-size:14px;font-weight:600;color:#e8e8f0;">Русский</p>
+            <p style="font-size:11px;color:#555;margin-top:2px;">Russian</p>
+          </div>
+        </button>
+        <button onclick="pickLang('uk')" id="langBtn-uk" style="width:100%;padding:14px 20px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;color:#c0c0d0;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s,border-color .2s;">
+          <span style="font-size:24px;">🇺🇦</span>
+          <div style="text-align:left;">
+            <p style="font-size:14px;font-weight:600;color:#e8e8f0;">Українська</p>
+            <p style="font-size:11px;color:#555;margin-top:2px;">Ukrainian</p>
+          </div>
+        </button>
+        <button onclick="pickLang('en')" id="langBtn-en" style="width:100%;padding:14px 20px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;color:#c0c0d0;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s,border-color .2s;">
+          <span style="font-size:24px;">🇬🇧</span>
+          <div style="text-align:left;">
+            <p style="font-size:14px;font-weight:600;color:#e8e8f0;">English</p>
+            <p style="font-size:11px;color:#555;margin-top:2px;">English</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="view out-right" id="vSplash" style="background:#111114;align-items:center;justify-content:center;padding:40px 24px;">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
       <div class="logo-ring">
         <img src="https://i.imgur.com/svkaG7f.png" alt="Clearly Logo" class="logo-funnel">
       </div>
       <p class="splash-title">Clearly</p>
-      <p class="splash-tagline" data-i18n="tagline">All info in one message</p>
-      <button class="splash-btn" onclick="goTo('vSplash','vWelcome')" data-i18n="splashBtn">Get Started</button>
-      <p class="splash-sub" data-i18n="splashSub">Setup takes 1 minute</p>
+      <p class="splash-tagline" data-i18n="tagline">Вся инфа в одном сообщении</p>
+      <button class="splash-btn" onclick="goTo('vSplash','vWelcome')" data-i18n="splashBtn">Начать</button>
+      <p class="splash-sub" data-i18n="splashSub">Настройка займёт 1 минуту</p>
     </div>
   </div>
 
@@ -232,19 +267,72 @@
     </div>
   </div>
 
-  <div class="view out-right" id="vDone">
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
-      <div class="done-ring">✅</div>
-      <p class="done-title" data-i18n="doneTitle">All set!</p>
-      <p class="done-sub" data-i18n="doneSub">Settings saved. Let's get started — welcome to <strong style="color:#b0a8ff;">Clearly</strong>!</p>
-      <div class="logo-reveal">
-        <div class="lr-ring">
-          <img src="https://i.imgur.com/svkaG7f.png" alt="Clearly Logo" class="logo-funnel">
+  <!-- vPacks: pack selection screen after quiz -->
+  <div class="view out-right" id="vPacks" style="background:#0A0A0A;overflow-y:auto;padding:20px 16px 120px;">
+    <div style="max-width:420px;margin:0 auto;">
+
+      <!-- AI recommendation card -->
+      <div id="packRecommendCard" style="position:relative;overflow:hidden;border-radius:24px;border:1px solid rgba(255,255,255,0.1);background:linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.05));padding:20px;backdrop-filter:blur(20px);margin-bottom:16px;">
+        <div style="position:absolute;top:0;right:0;width:150px;height:150px;background:rgba(255,255,255,0.05);filter:blur(40px);border-radius:50%;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,0.8);margin-bottom:12px;">🤖 AI Analysis Complete</div>
+          <h2 id="packRecommendTitle" style="font-size:20px;font-weight:600;line-height:1.3;color:#f0f0f2;"></h2>
+          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:10px;line-height:1.6;">Исходя из ваших ответов, этот пакет лучше всего совпадает с вашей стратегией.</p>
+          <div id="packRecommendTags" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;"></div>
         </div>
-        <p class="lr-name">Clearly</p>
-        <p class="lr-tag" data-i18n="tagline">All info in one message</p>
       </div>
-      <button class="start-btn" onclick="goTo('vDone','vMain')" data-i18n="startBtn">Start working 🎯</button>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px;">
+        <button id="buyPackBtn" onclick="openCheckout()" style="flex:1;background:#fff;color:#000;border:none;padding:12px;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;opacity:0.3;pointer-events:none;transition:all .2s;">Buy Pack 💳</button>
+        <button onclick="goTo('vPacks','vMain')" style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px;border-radius:16px;font-size:14px;cursor:pointer;">Skip</button>
+      </div>
+
+      <div id="packList" style="display:flex;flex-direction:column;gap:14px;"></div>
+
+      <!-- Payment methods -->
+      <div style="margin-top:24px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:20px;">
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">Payment Methods</p>
+        <h3 style="font-size:17px;font-weight:500;margin-top:4px;color:#f0f0f2;">Choose how to pay 💳</h3>
+        <div id="paymentList" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- vCheckout: payment screen -->
+  <div class="view out-right" id="vCheckout" style="background:#0A0A0A;overflow-y:auto;padding:20px 16px 40px;">
+    <div style="max-width:420px;margin:0 auto;display:flex;flex-direction:column;min-height:90vh;">
+      <button onclick="goTo('vCheckout','vPacks')" style="margin-bottom:16px;width:fit-content;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);padding:8px 16px;border-radius:16px;font-size:13px;color:#fff;cursor:pointer;">← Back</button>
+
+      <div style="position:relative;overflow:hidden;border-radius:24px;border:1px solid rgba(255,255,255,0.1);background:linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.05));padding:20px;margin-bottom:16px;">
+        <div style="position:absolute;top:0;right:0;width:150px;height:150px;background:rgba(255,255,255,0.05);filter:blur(40px);border-radius:50%;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,0.8);margin-bottom:12px;">💳 Checkout</div>
+          <h1 style="font-size:32px;font-weight:600;line-height:1.2;color:#f0f0f2;">Complete<br>payment.</h1>
+          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:10px;">Оплатите выбранные пакеты.</p>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:20px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <p style="color:rgba(255,255,255,0.4);font-size:11px;">Amount</p>
+            <h2 id="checkoutTotal" style="font-size:28px;font-weight:600;color:#f0f0f2;margin-top:4px;"></h2>
+          </div>
+          <div id="checkoutPackCount" style="background:#fff;color:#000;padding:6px 14px;border-radius:16px;font-size:13px;font-weight:500;"></div>
+        </div>
+        <div id="checkoutPackList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:20px;flex:1;">
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">Payment method</p>
+        <h3 id="checkoutMethod" style="font-size:17px;font-weight:500;margin-top:4px;color:#f0f0f2;"></h3>
+        <div id="checkoutWallet" style="margin-top:16px;"></div>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <button onclick="goTo('vCheckout','vPacks')" style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px;border-radius:16px;font-size:13px;cursor:pointer;">Change</button>
+        <button onclick="goTo('vCheckout','vMain')" style="flex:1;background:#fff;color:#000;border:none;padding:12px;border-radius:16px;font-size:13px;font-weight:600;cursor:pointer;">I paid ✅</button>
+      </div>
     </div>
   </div>
 
@@ -409,7 +497,7 @@
       </div>
     </div>
     <div class="lang-pills">
-      <div class="lang-pill active" id="pill-en" onclick="setLang('en')">
+      <div class="lang-pill" id="pill-en" onclick="setLang('en')">
         <span class="lang-pill-flag">🇬🇧</span>
         <span class="lang-pill-name">English</span>
         <span class="lang-pill-tag">EN</span>
@@ -418,6 +506,11 @@
         <span class="lang-pill-flag">🇷🇺</span>
         <span class="lang-pill-name">Русский</span>
         <span class="lang-pill-tag">RU</span>
+      </div>
+      <div class="lang-pill" id="pill-uk" onclick="setLang('uk')">
+        <span class="lang-pill-flag">🇺🇦</span>
+        <span class="lang-pill-name">Українська</span>
+        <span class="lang-pill-tag">UK</span>
       </div>
     </div>
 
@@ -431,7 +524,17 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
 
-let currentLang = 'en';
+// Detect language from Telegram WebApp
+function detectLang() {
+  try {
+    const tgLang = (tg.initDataUnsafe?.user?.language_code || navigator.language || 'en').toLowerCase().slice(0,2);
+    if (tgLang === 'ru') return 'ru';
+    if (tgLang === 'uk') return 'uk';
+    return 'en';
+  } catch(e) { return 'en'; }
+}
+
+let currentLang = detectLang();
 
 const i18n = {
   en: {
@@ -479,13 +582,13 @@ const i18n = {
     quizStep: 'Question {n} of {total}',
     quizSub: 'Choose one option',
     quizNext: 'Next →',
-    quizDone: 'Done ✅',
+    quizDone: 'Show my pack ⚡',
     quizQ: [
-      { q: 'Your area of activity?', sub: 'Choose one option', opts: ['Crypto','Trading','AI','Stocks','Memecoins'] },
-      { q: 'Your trading style?', sub: 'For traders only', opts: ['Scalping','Day Trading','Swing Trading'] },
-      { q: 'Your capital?', sub: 'Helps us pick a plan', opts: ['Under $500','Under $1,000','$5,000+'] },
-      { q: 'Your crypto experience?', sub: "Let's be honest", opts: ['Beginner','Still learning','Crypto pro'] },
-      { q: 'Your goal with this tool?', sub: "Why you're here", opts: ['Trade on news signals','Get a market overview','Build analysis from data'] }
+      { q: 'Your area of activity?', sub: 'Choose what fits your strategy best', opts: ['Crypto','Trading','Memecoins','AI / Tech','Stocks / Macro'], icons:['🪙','📈','🐸','🤖','🌎'], points:[{crypto:3,news:1},{news:3,crypto:1},{meme:4,news:1},{macro:2,crypto:1},{macro:4}] },
+      { q: 'Your trading style?', sub: 'Helps us pick the right signal speed', opts: ['Scalping','Day Trading','Swing','Just watching'], icons:['⚡','☀️','🌊','👀'], points:[{news:4,meme:2},{news:3,crypto:2},{macro:3,crypto:2},{crypto:2,macro:2}] },
+      { q: 'Your capital?', sub: 'Needed to match risk and volatility level', opts: ['Under $500','Under $1,000','$5,000+'], icons:['🌱','💼','🚀'], points:[{meme:1,crypto:2},{crypto:2,news:2},{macro:2,news:3}] },
+      { q: 'Your crypto experience?', sub: "Be honest — it makes recommendations sharper", opts: ['Beginner','Intermediate','Crypto pro'], icons:['🐣','🧐','🔥'], points:[{crypto:3},{news:2,crypto:2},{meme:2,news:3}] },
+      { q: 'What are news for you?', sub: 'Pick a pack for your main goal', opts: ['Trade on news','See the big picture','Find hype & early trends','Collect analytics'], icons:['⚡','🌐','🐸','📋'], points:[{news:5},{macro:3,crypto:2},{meme:5},{macro:3,crypto:2}] }
     ]
   },
   ru: {
@@ -533,13 +636,67 @@ const i18n = {
     quizStep: 'Вопрос {n} из {total}',
     quizSub: 'Выберите один вариант',
     quizNext: 'Далее →',
-    quizDone: 'Готово ✅',
+    quizDone: 'Показать пакет ⚡',
     quizQ: [
-      { q: 'Ваша сфера деятельности?', sub: 'Выберите один вариант', opts: ['Крипта','Трейдинг','AI','Stocks','Мемкоины'] },
-      { q: 'Ваш стиль торговли?', sub: 'Только для трейдеров', opts: ['Скальпинг','Дей-трейдинг','Свинг-трейдинг'] },
-      { q: 'Ваш капитал?', sub: 'Поможет подобрать тариф', opts: ['До $500','До $1 000','От $5 000+'] },
-      { q: 'Ваш опыт в криптосфере?', sub: 'Будем честны', opts: ['Новичок','Много не знаю','Прошаренный криптан'] },
-      { q: 'Цель использования инструмента?', sub: 'Для чего вы здесь', opts: ['Открывать сделки на инфо из новостей','Иметь общую картину рынка','Составлять анализ из полученной инфо'] }
+      { q: 'Ваша сфера деятельности?', sub: 'Выберите то, что ближе всего к вашей стратегии', opts: ['Крипта','Трейдинг','Мемкоины','AI / Tech','Stocks / Macro'], icons:['🪙','📈','🐸','🤖','🌎'], points:[{crypto:3,news:1},{news:3,crypto:1},{meme:4,news:1},{macro:2,crypto:1},{macro:4}] },
+      { q: 'Ваш стиль торговли?', sub: 'Это поможет понять нужную скорость новостей', opts: ['Скальпинг','Дей-трейдинг','Свинг','Я больше наблюдаю'], icons:['⚡','☀️','🌊','👀'], points:[{news:4,meme:2},{news:3,crypto:2},{macro:3,crypto:2},{crypto:2,macro:2}] },
+      { q: 'Ваш капитал?', sub: 'Нужно для подбора уровня риска и волатильности', opts: ['До $500','До $1 000','От $5 000+'], icons:['🌱','💼','🚀'], points:[{meme:1,crypto:2},{crypto:2,news:2},{macro:2,news:3}] },
+      { q: 'Ваш опыт в крипте?', sub: 'Будем честны — так рекомендации будут точнее', opts: ['Новичок','Средний уровень','Прошаренный криптан'], icons:['🐣','🧐','🔥'], points:[{crypto:3},{news:2,crypto:2},{meme:2,news:3}] },
+      { q: 'Для чего вам новости?', sub: 'Выберем пакет под вашу главную цель', opts: ['Торговать на новостях','Видеть общую картину','Искать хайп и ранние тренды','Собирать аналитику'], icons:['⚡','🌐','🐸','📋'], points:[{news:5},{macro:3,crypto:2},{meme:5},{macro:3,crypto:2}] }
+    ]
+  },
+  uk: {
+    tagline: 'Вся інфа в одному повідомленні',
+    splashBtn: 'Розпочати',
+    splashSub: 'Налаштування займе 1 хвилину',
+    welcomeTitle: 'Привіт! Ласкаво просимо до <span>Clearly</span>',
+    welcomeDesc: 'Ми поставимо кілька запитань, щоб підібрати найкращий пакет для вас — і налаштуємо все для максимального комфорту.',
+    welcomeBtn: 'Поїхали 🚀',
+    doneTitle: 'Все готово!',
+    doneSub: 'Налаштування збережено. Починаємо — ласкаво просимо до <strong style="color:#b0a8ff;">Clearly</strong>!',
+    startBtn: 'До роботи 🎯',
+    navProfile: 'Профіль',
+    navNotif: 'Сповіщення',
+    navTheme: 'Тема',
+    navSettings: 'Налаштування',
+    navChannels: 'Канали',
+    navFeed: 'Стрічка',
+    navFav: 'Збережене',
+    myChannels: 'МОЇ КАНАЛИ',
+    subscribers: '{val} підписників',
+    delete: '🗑 Видалити',
+    high: '🔴 Важливо',
+    medium: '🟡 Середнє',
+    low: '🟢 Не важливо',
+    newChannel: 'Новий канал',
+    themeTitle: '🎨 Тема оформлення',
+    themeSub: 'Оберіть стиль інтерфейсу',
+    applyTheme: 'Застосувати тему',
+    themeApplied: 'Тему «{name}» застосовано',
+    notifTitle: '🔔 Сповіщення',
+    notifSub: 'Керування оповіщеннями',
+    notifOn: '{n} увімк',
+    allNotif: 'Усі сповіщення',
+    allNotifSub: 'Увімкнути або вимкнути всі',
+    userChannels: 'КАНАЛИ КОРИСТУВАЧА',
+    saveSettings: 'Зберегти налаштування',
+    settingsSaved: '✅ Налаштування збережено!',
+    settingsTitle: '⚙️ Налаштування',
+    settingsSub: 'Персоналізація',
+    settingsLangSection: 'МОВА',
+    settingsLangTitle: 'Мова інтерфейсу',
+    settingsLangSub: 'Оберіть мову додатку',
+    langChanged: '🌐 Мову змінено на Українську',
+    quizStep: 'Питання {n} з {total}',
+    quizSub: 'Оберіть один варіант',
+    quizNext: 'Далі →',
+    quizDone: 'Показати пакет ⚡',
+    quizQ: [
+      { q: 'Ваша сфера деятельності?', sub: 'Оберіть те, що найближче до вашої стратегії', opts: ['Крипта','Трейдинг','Мемкоїни','AI / Tech','Stocks / Macro'], icons:['🪙','📈','🐸','🤖','🌎'], points:[{crypto:3,news:1},{news:3,crypto:1},{meme:4,news:1},{macro:2,crypto:1},{macro:4}] },
+      { q: 'Ваш стиль торгівлі?', sub: 'Це допоможе підібрати потрібну швидкість новин', opts: ['Скальпінг','Дей-трейдинг','Свінг','Я більше спостерігаю'], icons:['⚡','☀️','🌊','👀'], points:[{news:4,meme:2},{news:3,crypto:2},{macro:3,crypto:2},{crypto:2,macro:2}] },
+      { q: 'Ваш капітал?', sub: 'Потрібно для підбору рівня ризику та волатильності', opts: ['До $500','До $1 000','Від $5 000+'], icons:['🌱','💼','🚀'], points:[{meme:1,crypto:2},{crypto:2,news:2},{macro:2,news:3}] },
+      { q: 'Ваш досвід у крипті?', sub: 'Будьмо чесні — так рекомендації будуть точнішими', opts: ['Новачок','Середній рівень','Досвідчений криптан'], icons:['🐣','🧐','🔥'], points:[{crypto:3},{news:2,crypto:2},{meme:2,news:3}] },
+      { q: 'Для чого вам новини?', sub: 'Оберемо пакет під вашу головну мету', opts: ['Торгувати на новинах','Бачити загальну картину','Шукати хайп і ранні тренди','Збирати аналітику'], icons:['⚡','🌐','🐸','📋'], points:[{news:5},{macro:3,crypto:2},{meme:5},{macro:3,crypto:2}] }
     ]
   }
 };
@@ -567,33 +724,34 @@ function applyI18n() {
   if (nc) nc.textContent = t('notifOn', { n: on });
 }
 
+function pickLang(lang) {
+  currentLang = lang;
+  applyI18n();
+  goTo('vLang', 'vSplash');
+}
+
 function setLang(lang) {
   currentLang = lang;
-  document.getElementById('pill-en').classList.toggle('active', lang === 'en');
-  document.getElementById('pill-ru').classList.toggle('active', lang === 'ru');
+  ['en','ru','uk'].forEach(l => {
+    const pill = document.getElementById('pill-' + l);
+    if (pill) pill.classList.toggle('active', lang === l);
+  });
   applyI18n();
   if (steps.length > 0) renderStep();
   showToast('settingsToast', t('langChanged'));
 }
 
-const quizIcons = [
-  ['💎','📈','🤖','📊','🐸'],
-  ['⚡','☀️','🌊'],
-  ['🌱','💼','🚀'],
-  ['🐣','🧐','🔥'],
-  ['⚡','🌐','📋']
-];
+const tradingLabels = { en: 'Trading', ru: 'Трейдинг', uk: 'Трейдинг' };
 
-const tradingLabel = { en: 'Trading', ru: 'Трейдинг' };
+let steps = [], stepIdx = 0, answers = {}, selected = null, selectedOptIdx = null;
 
-let steps = [], stepIdx = 0, answers = {}, selected = null;
+let quizPoints = {}; // accumulated scores per pack category
 
 function buildSteps(sphereAnswer) {
   const qs = i18n[currentLang].quizQ;
-  const allQ = qs.map((q, i) => ({ ...q, icons: quizIcons[i] }));
-  steps = [allQ[0]];
-  if (sphereAnswer === tradingLabel[currentLang]) steps.push(allQ[1]);
-  steps.push(allQ[2], allQ[3], allQ[4]);
+  steps = [qs[0]];
+  if (sphereAnswer === tradingLabels[currentLang]) steps.push(qs[1]);
+  steps.push(qs[2], qs[3], qs[4]);
 }
 
 function goTo(fromId, toId) {
@@ -603,7 +761,7 @@ function goTo(fromId, toId) {
 }
 
 function startQuiz() {
-  buildSteps(null); stepIdx = 0; renderStep(); goTo('vWelcome','vQuiz');
+  buildSteps(null); stepIdx = 0; quizPoints = {}; renderStep(); goTo('vWelcome','vQuiz');
 }
 
 function renderStep() {
@@ -612,6 +770,7 @@ function renderStep() {
   document.getElementById('qTitle').textContent = q.q;
   document.getElementById('qSub').textContent = q.sub;
   selected = null;
+  selectedOptIdx = null;
   const body = document.getElementById('qBody');
   body.innerHTML = '';
   q.opts.forEach((label, i) => {
@@ -622,7 +781,7 @@ function renderStep() {
     btn.style.animation = 'slideIn .35s ease both';
     btn.onclick = () => {
       body.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('sel'));
-      btn.classList.add('sel'); selected = label;
+      btn.classList.add('sel'); selected = label; selectedOptIdx = i;
       document.getElementById('nextBtn').classList.add('ready');
     };
     body.appendChild(btn);
@@ -647,10 +806,192 @@ function renderDots(total) {
 
 function nextStep() {
   if (!selected) return;
+  // accumulate points
+  const pts = steps[stepIdx].points && steps[stepIdx].points[selectedOptIdx];
+  if (pts) Object.entries(pts).forEach(([k,v]) => { quizPoints[k] = (quizPoints[k]||0)+v; });
   answers[stepIdx] = selected;
   if (stepIdx === 0) buildSteps(selected);
   if (stepIdx < steps.length - 1) { stepIdx++; renderStep(); }
-  else goTo('vQuiz','vDone');
+  else { renderPacks(); goTo('vQuiz','vPacks'); }
+}
+
+const packsData = [
+  { id:'crypto', emoji:'🪙', title:'Crypto Core',     subtitle:'BTC • ETH • Macro',         impact:'High Volatility',   price:'$0.80 USDT', channels:['CoinDesk','Wu Blockchain','Binance'],   glow:'rgba(59,130,246,0.15)',  reason:'Подходит для базового крипто-фида и понимания главных движений рынка.' },
+  { id:'meme',   emoji:'🐸', title:'Memecoin Radar',  subtitle:'SOL • Meme • Hype',         impact:'Extreme Momentum',  price:'$0.80 USDT', channels:['Pump Alerts','Whale Watch','DEX News'], glow:'rgba(34,197,94,0.15)',   reason:'Лучше всего для поиска хайпа, быстрых нарративов и мемкоин-движений.' },
+  { id:'news',   emoji:'📈', title:'News Trading',    subtitle:'Fast Market Reactions',     impact:'Ultra Fast',        price:'$0.80 USDT', channels:['Tree News','DB','Tier10K'],             glow:'rgba(249,115,22,0.15)',  reason:'Оптимально, если вы хотите реагировать на новости быстрее рынка.' },
+  { id:'macro',  emoji:'🌎', title:'Macro & FED',     subtitle:'Rates • CPI • Economy',     impact:'Market Moving',     price:'$0.80 USDT', channels:['Bloomberg','Reuters','FED Alerts'],     glow:'rgba(168,85,247,0.15)', reason:'Хорошо подходит для общей картины, ставок, CPI, FED и глобального контекста.' },
+];
+
+const paymentsData = [
+  { id:'cryptobot', emoji:'🤖', name:'CryptoBot (Telegram)', tag:'Fast',            disabled:false },
+  { id:'polygon',   emoji:'🟣', name:'USDT (Polygon Network)', tag:'Low fee',       disabled:false },
+  { id:'ton',       emoji:'🟢', name:'USDT (TON Network)', tag:'Telegram native',   disabled:false },
+  { id:'card',      emoji:'💳', name:'Visa / Mastercard', tag:'Coming soon',        disabled:true },
+];
+
+const wallets = {
+  polygon: { network:'Polygon Network', address:'0x7A3F...92D1', warning:'Send only USDT via Polygon network.' },
+  ton:     { network:'TON Network',     address:'UQDY...K9mT',   warning:'Send only USDT via TON network.' },
+};
+
+let selectedPacks = [], selectedPaymentIdx = null;
+
+function getRankedPacks() {
+  return [...packsData].sort((a,b) => (quizPoints[b.id]||0) - (quizPoints[a.id]||0));
+}
+
+function renderPacks() {
+  const ranked = getRankedPacks();
+  const best = ranked[0];
+
+  // pre-select best pack
+  selectedPacks = [best.id];
+  selectedPaymentIdx = null;
+
+  // recommendation card
+  document.getElementById('packRecommendTitle').textContent = `Вам лучше всего подходит ${best.title}.`;
+  const tags = document.getElementById('packRecommendTags');
+  tags.innerHTML = '';
+  ranked.slice(0,2).forEach(p => {
+    const d = document.createElement('div');
+    d.style.cssText = 'background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.8);';
+    d.textContent = p.emoji + ' ' + p.title;
+    tags.appendChild(d);
+  });
+
+  // pack cards
+  const list = document.getElementById('packList');
+  list.innerHTML = '';
+  ranked.forEach(pack => {
+    const isRec = pack.id === best.id;
+    const card = document.createElement('div');
+    card.id = 'packCard_' + pack.id;
+    card.style.cssText = `position:relative;overflow:hidden;border-radius:24px;border:1px solid rgba(255,255,255,${selectedPacks.includes(pack.id)?'0.4':'0.1'});background:linear-gradient(135deg,${pack.glow},rgba(255,255,255,0.03));backdrop-filter:blur(20px);padding:20px;transition:border-color .2s;`;
+    card.innerHTML = `
+      <div style="position:absolute;top:0;right:0;width:120px;height:120px;background:rgba(255,255,255,0.03);filter:blur(30px);border-radius:50%;"></div>
+      <div style="position:relative;z-index:1;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div style="font-size:28px;margin-bottom:8px;">${pack.emoji}</div>
+            <h3 style="font-size:20px;font-weight:600;color:#f0f0f2;">${pack.title}</h3>
+            <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;">${pack.subtitle}</p>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            ${isRec ? '<div style="background:rgba(250,204,21,0.1);border:1px solid rgba(253,224,71,0.3);color:#fef08a;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:500;">Best match ⚡</div>' : ''}
+            <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);font-size:10px;padding:4px 10px;border-radius:999px;color:rgba(255,255,255,0.7);">${pack.impact}</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:12px;">${pack.reason}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+          ${pack.channels.map(ch => `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);padding:5px 10px;border-radius:14px;font-size:11px;color:rgba(255,255,255,0.8);">${ch}</div>`).join('')}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:6px 12px;font-size:13px;color:#f0f0f2;">${pack.price}</div>
+          <button onclick="togglePackSelect('${pack.id}')" id="packBtn_${pack.id}" style="background:${selectedPacks.includes(pack.id)?'rgba(255,255,255,0.1)':'#fff'};color:${selectedPacks.includes(pack.id)?'#fff':'#000'};border:${selectedPacks.includes(pack.id)?'1px solid rgba(255,255,255,0.2)':'none'};padding:10px 18px;border-radius:16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">${selectedPacks.includes(pack.id)?'Remove':'Add Pack'}</button>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  // payment methods
+  const payList = document.getElementById('paymentList');
+  payList.innerHTML = '';
+  paymentsData.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.id = 'payRow_' + i;
+    const isActive = selectedPaymentIdx === i;
+    row.style.cssText = `display:flex;align-items:center;justify-content:space-between;border-radius:16px;padding:12px 14px;border:${isActive?'2px solid #fff':'1px solid rgba(255,255,255,0.1)'};background:${isActive?'#fff':p.disabled?'rgba(255,255,255,0.03)':'rgba(255,255,255,0.05)'};cursor:${p.disabled?'not-allowed':'pointer'};opacity:${p.disabled?'0.5':'1'};transition:all .2s;`;
+    row.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span>${p.emoji}</span><span style="font-size:13px;color:${isActive?'#000':'#f0f0f2'};">${p.name}</span></div><span style="font-size:11px;color:${isActive?'rgba(0,0,0,0.5)':'rgba(255,255,255,0.4)'};">${p.tag}</span>`;
+    if (!p.disabled) row.onclick = () => { selectedPaymentIdx = selectedPaymentIdx === i ? null : i; renderPackPaymentRows(); updateBuyBtn(); };
+    payList.appendChild(row);
+  });
+
+  updateBuyBtn();
+}
+
+function renderPackPaymentRows() {
+  paymentsData.forEach((p, i) => {
+    const row = document.getElementById('payRow_' + i);
+    if (!row) return;
+    const isActive = selectedPaymentIdx === i;
+    row.style.border = isActive ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)';
+    row.style.background = isActive ? '#fff' : p.disabled ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.05)';
+    row.querySelectorAll('span').forEach(s => { s.style.color = isActive ? (s.style.fontSize==='11px'?'rgba(0,0,0,0.5)':'#000') : (s.style.fontSize==='11px'?'rgba(255,255,255,0.4)':'#f0f0f2'); });
+  });
+}
+
+function togglePackSelect(id) {
+  if (selectedPacks.includes(id)) {
+    selectedPacks = selectedPacks.filter(x => x !== id);
+  } else {
+    selectedPacks.push(id);
+  }
+  // re-render all pack cards border + button
+  packsData.forEach(p => {
+    const card = document.getElementById('packCard_' + p.id);
+    const btn = document.getElementById('packBtn_' + p.id);
+    if (!card || !btn) return;
+    const sel = selectedPacks.includes(p.id);
+    card.style.borderColor = sel ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)';
+    btn.style.background = sel ? 'rgba(255,255,255,0.1)' : '#fff';
+    btn.style.color = sel ? '#fff' : '#000';
+    btn.style.border = sel ? '1px solid rgba(255,255,255,0.2)' : 'none';
+    btn.textContent = sel ? 'Remove' : 'Add Pack';
+  });
+  updateBuyBtn();
+}
+
+function updateBuyBtn() {
+  const btn = document.getElementById('buyPackBtn');
+  if (!btn) return;
+  const ok = selectedPacks.length > 0 && selectedPaymentIdx !== null;
+  btn.style.opacity = ok ? '1' : '0.3';
+  btn.style.pointerEvents = ok ? 'auto' : 'none';
+}
+
+function openCheckout() {
+  const total = (selectedPacks.length * 0.8).toFixed(2);
+  document.getElementById('checkoutTotal').textContent = '$' + total + ' USDT';
+  document.getElementById('checkoutPackCount').textContent = selectedPacks.length + ' pack' + (selectedPacks.length===1?'':'s');
+
+  const plist = document.getElementById('checkoutPackList');
+  plist.innerHTML = '';
+  selectedPacks.forEach(id => {
+    const p = packsData.find(x=>x.id===id);
+    if (!p) return;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:10px 14px;';
+    row.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span>${p.emoji}</span><span style="font-size:13px;color:#f0f0f2;">${p.title}</span></div><span style="font-size:11px;color:rgba(255,255,255,0.4);">$0.80</span>`;
+    plist.appendChild(row);
+  });
+
+  const pm = paymentsData[selectedPaymentIdx];
+  document.getElementById('checkoutMethod').textContent = pm.emoji + ' ' + pm.name;
+
+  const walletDiv = document.getElementById('checkoutWallet');
+  if (pm.id === 'polygon' || pm.id === 'ton') {
+    const w = wallets[pm.id];
+    walletDiv.innerHTML = `
+      <div style="width:160px;height:160px;background:#fff;border-radius:20px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;color:#000;padding:12px;margin:0 auto 16px;font-weight:500;">QR MOCK<br>${w.network}<br>${total} USDT</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:10px 14px;">
+          <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:4px;">Network</p>
+          <p style="font-size:13px;font-weight:500;color:#f0f0f2;">${w.network}</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:10px 14px;">
+          <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:4px;">Wallet address</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <p style="font-size:13px;font-weight:500;color:#f0f0f2;overflow:hidden;text-overflow:ellipsis;">${w.address}</p>
+            <button onclick="navigator.clipboard&&navigator.clipboard.writeText('${w.address}')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);padding:6px 12px;border-radius:12px;font-size:11px;color:#fff;cursor:pointer;">Copy</button>
+          </div>
+        </div>
+        <div style="background:rgba(250,204,21,0.1);border:1px solid rgba(253,224,71,0.2);color:#fef3c7;border-radius:16px;padding:10px 14px;font-size:11px;line-height:1.6;">⚠️ ${w.warning} Wrong network may result in lost funds.</div>
+      </div>`;
+  } else {
+    walletDiv.innerHTML = `<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;">Для CryptoBot позже можно будет открыть Telegram invoice или redirect-ссылку на оплату.</div>`;
+  }
+
+  goTo('vPacks','vCheckout');
 }
 
 const themes = [
@@ -755,6 +1096,10 @@ function showToast(id, msg) {
 }
 
 applyI18n();
-</script>
+// Mark correct lang pill as active on startup
+['en','ru','uk'].forEach(l => {
+  const pill = document.getElementById('pill-' + l);
+  if (pill) pill.classList.toggle('active', l === currentLang);
+});
 </body>
 </html>
