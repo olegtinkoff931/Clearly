@@ -148,6 +148,25 @@
     .toast { position:absolute; bottom:20px; left:50%; transform:translateX(-50%) translateY(10px); background:#1e1e2a; border:.5px solid #5b5bdc55; border-radius:10px; padding:8px 16px; font-size:12px; color:#c0c0e0; white-space:nowrap; opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; z-index:99; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(8px); z-index:200; align-items:flex-end; }
+    .modal-overlay.open { display:flex; }
+    .modal-sheet { background:#1a1a20; border-radius:24px 24px 0 0; padding:20px 16px 40px; width:100%; max-height:85vh; overflow-y:auto; animation:sheetUp .3s cubic-bezier(.4,0,.2,1); }
+    @keyframes sheetUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+    .modal-handle { width:36px; height:4px; background:#333; border-radius:2px; margin:0 auto 16px; }
+    .modal-title { font-size:16px; font-weight:700; color:#e8e8f0; margin:0 0 4px; }
+    .modal-sub { font-size:12px; color:#555; margin:0 0 16px; line-height:1.5; }
+
+    .ch-input { width:100%; background:#111114; border:.5px solid #2e2e38; border-radius:12px; padding:11px 14px; font-size:13px; color:#e8e8f0; outline:none; margin-bottom:10px; transition:border-color .2s; }
+    .ch-input:focus { border-color:#6b6bff88; }
+    .ch-input::placeholder { color:#444; }
+
+    .prio-row { display:flex; gap:8px; margin-bottom:14px; }
+    .prio-btn { flex:1; padding:9px 0; border-radius:10px; border:.5px solid #2e2e38; background:#111114; font-size:11px; font-weight:500; cursor:pointer; text-align:center; transition:all .2s; }
+    .prio-btn.sel-high { background:#2a1010; border-color:#e0525255; color:#e05252; }
+    .prio-btn.sel-mid  { background:#221a08; border-color:#d49a2e55; color:#d49a2e; }
+    .prio-btn.sel-low  { background:#0c1f16; border-color:#3aaa6e55; color:#3aaa6e; }
+    .prio-btn:not(.sel-high):not(.sel-mid):not(.sel-low) { color:#555; }
+
     .at { font-size:17px; font-weight:500; color:#f0f0f2; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
     .header-logo-funnel { width:20px; height:auto; object-fit:contain; }
     .qa { display:flex; gap:8px; }
@@ -232,11 +251,10 @@
     </div>
     <div class="quiz-body" id="qBody"></div>
     <div class="quiz-footer">
-      <button class="next-btn" id="nextBtn" onclick="nextStep()">Next →</button>
+      <button class="next-btn" id="nextBtn" onclick="nextStep()">Далее →</button>
     </div>
   </div>
 
-  <!-- Packs screen -->
   <div class="view out-right" id="vPacks" style="overflow-y:auto;background:#111114;padding-bottom:90px;">
     <div style="padding:18px 16px 12px;">
       <div style="display:inline-flex;align-items:center;gap:6px;background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:20px;padding:5px 12px;font-size:11px;color:#a78bfa;margin-bottom:14px;">
@@ -249,30 +267,29 @@
         <div id="packsRecommendTags" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
       </div>
       <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">⚡ SMART NEWS PACKS</p>
-      <p style="font-size:22px;font-weight:700;color:#e8e8f0;line-height:1.3;margin:0 0 6px;">Choose your<br>market feed.</p>
-      <p style="font-size:12px;color:#555;line-height:1.6;margin:0;">Выберите один или несколько пакетов.</p>
+      <p style="font-size:22px;font-weight:700;color:#e8e8f0;line-height:1.3;margin:0 0 6px;">Choose your<br>news feed.</p>
+      <p style="font-size:12px;color:#555;line-height:1.6;margin:0;">Select one or more packs.</p>
     </div>
 
     <div id="packsList" style="padding:0 12px;display:flex;flex-direction:column;gap:10px;"></div>
 
     <div style="padding:14px 12px 0;">
-      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">💳 СПОСОБ ОПЛАТЫ</p>
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">💳 PAYMENT METHOD</p>
       <div id="paymentList" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
 
-    <!-- Fixed bottom bar -->
-    <div style="position:fixed;bottom:0;left:0;right:0;background:rgba(17,17,20,0.92);backdrop-filter:blur(16px);border-top:.5px solid #222228;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:50;">
-      <div>
-        <p style="font-size:10px;color:#555;margin:0;">Выбрано пакетов</p>
-        <p id="packsBarLabel" style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0;">0 пакетов • $0.00</p>
+    <div style="position:fixed;bottom:0;left:0;right:0;background:rgba(17,17,20,0.95);backdrop-filter:blur(16px);border-top:.5px solid #222228;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:50;">
+      <button onclick="skipPacks()" style="background:#1c1c22;border:.5px solid #2e2e38;border-radius:12px;padding:10px 16px;font-size:12px;color:#666;cursor:pointer;white-space:nowrap;">Skip →</button>
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:10px;color:#555;margin:0;">Selected</p>
+        <p id="packsBarLabel" style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">0 packs • $0.00</p>
       </div>
-      <button id="buyBtn" onclick="openCheckout()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:12px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;opacity:0.35;pointer-events:none;transition:opacity .2s;">
-        Купить 💳
+      <button id="buyBtn" onclick="openCheckout()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:12px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;opacity:0.35;pointer-events:none;transition:opacity .2s;white-space:nowrap;">
+        Buy 💳
       </button>
     </div>
   </div>
 
-  <!-- Checkout screen -->
   <div class="view out-right" id="vCheckout" style="overflow-y:auto;background:#111114;padding-bottom:20px;">
     <div style="padding:14px 16px;">
       <div class="back-btn" onclick="closeCheckout()" style="margin-bottom:14px;">
@@ -281,7 +298,7 @@
       <div style="background:linear-gradient(135deg,#1a1a2e,#1e1e30);border:.5px solid #5b5bdc44;border-radius:16px;padding:16px;margin-bottom:14px;">
         <div style="display:inline-flex;align-items:center;gap:6px;background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:20px;padding:4px 10px;font-size:11px;color:#a78bfa;margin-bottom:10px;">💳 Checkout</div>
         <p style="font-size:28px;font-weight:700;color:#e8e8f0;line-height:1.2;margin:0 0 6px;">Complete<br>payment.</p>
-        <p style="font-size:12px;color:#555;line-height:1.5;margin:0;">Оплатите выбранные пакеты. Mock-экран.</p>
+        <p style="font-size:12px;color:#555;line-height:1.5;margin:0;">Pay for the selected packs. Mock screen.</p>
       </div>
 
       <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;margin-bottom:10px;">
@@ -303,7 +320,7 @@
 
       <div style="display:flex;gap:8px;margin-top:4px;">
         <button onclick="closeCheckout()" style="flex:1;background:#1c1c22;border:.5px solid #2e2e38;border-radius:12px;padding:11px;color:#ccc;font-size:13px;cursor:pointer;">Change</button>
-        <button onclick="paidConfirm()" style="flex:1;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;">I paid ✅</button>
+        <button onclick="paidConfirm()" style="flex:1;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;">Paid ✅</button>
       </div>
     </div>
   </div>
@@ -320,62 +337,29 @@
         <p class="lr-name">Clearly</p>
         <p class="lr-tag" data-i18n="tagline">All info in one message</p>
       </div>
-      <button class="start-btn" onclick="goTo('vDone','vMain')" data-i18n="startBtn">Start working 🎯</button>
+      <button class="start-btn" onclick="goToMain()" data-i18n="startBtn">Start working 🎯</button>
     </div>
   </div>
 
-  <div class="view out-right" id="vMain">
+  <div class="view out-right" id="vMain" style="overflow-y:auto;padding-bottom:70px;">
     <div class="top-bar">
       <p class="at">
         <img src="https://i.imgur.com/svkaG7f.png" alt="Clearly Header Logo" class="header-logo-funnel">
         <span style="background:linear-gradient(135deg,#a78bfa,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">Clearly</span>
       </p>
       <div class="qa">
-        <div class="qb"><i class="ti ti-user-circle" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navProfile">Profile</span></div>
         <div class="qb" onclick="openNotifScreen()"><i class="ti ti-bell" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navNotif">Alerts</span></div>
         <div class="qb" onclick="openThemeScreen()"><i class="ti ti-palette" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navTheme">Theme</span></div>
         <div class="qb" onclick="openSettingsScreen()"><i class="ti ti-settings" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navSettings">Settings</span></div>
       </div>
     </div>
     <p class="sl" data-i18n="myChannels">MY CHANNELS</p>
-    <div class="cl">
-      <div class="cc">
-        <div class="pd dh"></div>
-        <div class="av ar">BC<span class="eb">🔥</span></div>
-        <div class="ci">
-          <p class="cn">@BreakingCrypto <span class="ld"></span></p>
-          <p class="cs2" data-i18n="subscribers" data-val="2.1M">2.1M subscribers</p>
-          <div class="ar2"><button class="ab" data-i18n="delete">🗑 Delete</button></div>
-        </div>
-        <span class="pb bh" data-i18n="high">🔴 High</span>
-      </div>
-      <div class="cc">
-        <div class="pd dm"></div>
-        <div class="av aa">TN<span class="eb">⚡</span></div>
-        <div class="ci">
-          <p class="cn">@TechNews</p>
-          <p class="cs2" data-i18n="subscribers" data-val="890K">890K subscribers</p>
-          <div class="ar2"><button class="ab" style="border-color:#d49a2e55;background:#221a08;color:#d49a2e;" data-i18n="delete">🗑 Delete</button></div>
-        </div>
-        <span class="pb bm" data-i18n="medium">🟡 Medium</span>
-      </div>
-      <div class="cc">
-        <div class="pd dl"></div>
-        <div class="av ag">DM<span class="eb">😂</span></div>
-        <div class="ci">
-          <p class="cn">@DailyMemes</p>
-          <p class="cs2" data-i18n="subscribers" data-val="340K">340K subscribers</p>
-          <div class="ar2"><button class="ab" style="border-color:#3aaa6e55;background:#0c1f16;color:#3aaa6e;" data-i18n="delete">🗑 Delete</button></div>
-        </div>
-        <span class="pb bl2" data-i18n="low">🟢 Low</span>
-      </div>
-    </div>
-    <div class="fab"><i class="ti ti-plus"></i> <span data-i18n="newChannel">New Channel</span></div>
-    <div class="bn">
-      <div class="ni ac"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
-      <div class="ni"><i class="ti ti-rss niv"></i><span data-i18n="navFeed">Feed</span></div>
-      <div class="ni"><i class="ti ti-star niv"></i><span data-i18n="navFav">Saved</span></div>
-      <div class="ni"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
+    <div class="cl" id="channelList"></div>
+    <div class="fab" onclick="openAddChannel()"><i class="ti ti-plus"></i> <span data-i18n="newChannel">New Channel</span></div>
+    <div class="bn" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
+      <div class="ni ac" id="navChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
+      <div class="ni" id="navFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span data-i18n="navFeed">Feed</span></div>
+      <div class="ni" id="navProfile" onclick="switchTab('profile')"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
     </div>
   </div>
 
@@ -401,7 +385,7 @@
         <p class="screen-title" data-i18n="notifTitle">🔔 Notifications</p>
         <p class="screen-subtitle" data-i18n="notifSub">Manage alerts</p>
       </div>
-      <span class="notif-count" id="notifCount">2 on</span>
+      <span class="notif-count" id="notifCount">2 вкл</span>
     </div>
     <div class="global-card">
       <div class="global-icon">🔔</div>
@@ -415,50 +399,7 @@
       </div>
     </div>
     <div class="divider-label" data-i18n="userChannels">USER CHANNELS</div>
-    <div class="notif-channels">
-      <div class="notif-row card-high" id="row0">
-        <div class="nr-avatar av-red">BC<span class="nr-emoji">🔥</span></div>
-        <div class="nr-info">
-          <p class="nr-name">@BreakingCrypto</p>
-          <div class="nr-meta">
-            <span class="nr-badge badge-high" data-i18n="high">🔴 High</span>
-            <span style="color:#555;">2.1M</span>
-          </div>
-        </div>
-        <div class="toggle-wrap">
-          <input type="checkbox" class="toggle-input" id="t0" checked onchange="toggleRow(0,this)">
-          <label class="toggle-label" for="t0"></label>
-        </div>
-      </div>
-      <div class="notif-row card-mid muted" id="row1">
-        <div class="nr-avatar av-amber">TN<span class="nr-emoji">⚡</span></div>
-        <div class="nr-info">
-          <p class="nr-name">@TechNews</p>
-          <div class="nr-meta">
-            <span class="nr-badge badge-mid" data-i18n="medium">🟡 Medium</span>
-            <span style="color:#555;">890K</span>
-          </div>
-        </div>
-        <div class="toggle-wrap">
-          <input type="checkbox" class="toggle-input" id="t1" onchange="toggleRow(1,this)">
-          <label class="toggle-label" for="t1"></label>
-        </div>
-      </div>
-      <div class="notif-row card-low" id="row2">
-        <div class="nr-avatar av-green">DM<span class="nr-emoji">😂</span></div>
-        <div class="nr-info">
-          <p class="nr-name">@DailyMemes</p>
-          <div class="nr-meta">
-            <span class="nr-badge badge-low" data-i18n="low">🟢 Low</span>
-            <span style="color:#555;">340K</span>
-          </div>
-        </div>
-        <div class="toggle-wrap">
-          <input type="checkbox" class="toggle-input" id="t2" checked onchange="toggleRow(2,this)">
-          <label class="toggle-label" for="t2"></label>
-        </div>
-      </div>
-    </div>
+    <div class="notif-channels"></div>
     <div class="save-btn" onclick="saveNotif()">
       <i class="ti ti-check"></i> <span data-i18n="saveSettings">Save Settings</span>
     </div>
@@ -500,6 +441,103 @@
     <div class="toast" id="settingsToast"></div>
   </div>
 
+  <div id="vProfile" style="background:#111114;display:flex;flex-direction:column;position:absolute;inset:0;overflow-y:auto;transform:translateX(100%);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;padding-bottom:80px;z-index:10;">
+    <div style="padding:16px 16px 10px;border-bottom:.5px solid #222228;flex-shrink:0;">
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">👤 MY PROFILE</p>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👤</div>
+        <div>
+          <p style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">User</p>
+          <p style="font-size:12px;color:#555;margin:0;">@username · Clearly</p>
+        </div>
+      </div>
+      <div id="profileActivePacks"></div>
+    </div>
+
+    <div style="padding:14px 16px 8px;">
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">📦 MY PLANS</p>
+      <div id="profilePacksList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;">➕ ADD A PLAN</p>
+      <p style="font-size:12px;color:#555;margin:0 0 10px;line-height:1.5;">Connect additional channel packs.</p>
+
+      <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn">
+        <i class="ti ti-credit-card"></i> Change plan 💳
+      </button>
+    </div>
+
+    <div style="margin:0 16px 16px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+      <p style="font-size:11px;color:#555;margin:0 0 10px;letter-spacing:.5px;">📊 STATS</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="text-align:center;">
+          <p id="profileChCount" style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;">0</p>
+          <p style="font-size:10px;color:#555;margin:0;">Channels</p>
+        </div>
+        <div style="text-align:center;border-left:.5px solid #272730;border-right:.5px solid #272730;">
+          <p style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;" id="profilePackCount">0</p>
+          <p style="font-size:10px;color:#555;margin:0;">Plans</p>
+        </div>
+        <div style="text-align:center;">
+          <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p>
+          <p style="font-size:10px;color:#555;margin:0;">Per month</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bn" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
+      <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span>Channels</span></div>
+      <div class="ni" id="profNavFeed"     onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span>Feed</span></div>
+      <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span>Profile</span></div>
+    </div>
+
+    <div id="profilePayModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:200;align-items:flex-end;">
+      <div style="background:#1a1a20;border-radius:24px 24px 0 0;padding:20px 16px 40px;width:100%;">
+        <div style="width:36px;height:4px;background:#333;border-radius:2px;margin:0 auto 16px;"></div>
+        <p style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0 0 4px;">Payment Method</p>
+        <p style="font-size:12px;color:#555;margin:0 0 14px;">Choose a convenient option</p>
+        <div id="profilePayList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+        <button onclick="confirmProfilePay()" id="profilePayConfirmBtn" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;opacity:.4;pointer-events:none;">Pay</button>
+        <button onclick="closeProfileChangePay()" style="width:100%;background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:10px;">Cancel</button>
+      </div>
+    </div>
+    <div class="toast" id="profileToast"></div>
+  </div>
+
+  <div class="modal-overlay" id="addChannelModal" onclick="closeAddChannelOutside(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <p class="modal-title" data-i18n="addChannelTitle">➕ Add Channel</p>
+      <p class="modal-sub" data-i18n="addChannelSub">Enter the Telegram channel username and choose priority</p>
+
+      <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:5px;" data-i18n="labelUsername">CHANNEL USERNAME</label>
+      <input class="ch-input" id="chUsername" type="text" placeholder="@channel_name" oninput="validateAddChannel()">
+
+      <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:8px;" data-i18n="labelPriority">PRIORITY</label>
+      <div class="prio-row" id="prioRow">
+        <button class="prio-btn" id="prioHigh" onclick="selectPrio('high')" data-i18n="high">🔴 High</button>
+        <button class="prio-btn" id="prioMid"  onclick="selectPrio('mid')" data-i18n="medium">🟡 Medium</button>
+        <button class="prio-btn" id="prioLow"  onclick="selectPrio('low')" data-i18n="low">🟢 Low</button>
+      </div>
+
+      <div id="chPreview" style="display:none;background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+        <p style="font-size:11px;color:#555;margin:0 0 6px;">PREVIEW</p>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="chPreviewAvatar" style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;"></div>
+          <div>
+            <p id="chPreviewName" style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0;"></p>
+            <p id="chPreviewSub" style="font-size:11px;color:#555;margin:0;">Telegram канал</p>
+          </div>
+          <span id="chPreviewBadge" style="margin-left:auto;font-size:9px;padding:3px 8px;border-radius:6px;font-weight:500;"></span>
+        </div>
+      </div>
+
+      <button id="addChBtn" onclick="confirmAddChannel()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;opacity:.35;pointer-events:none;transition:opacity .2s;" data-i18n="addChannelBtn">
+        Add Channel
+      </button>
+      <button onclick="closeAddChannel()" style="width:100%;background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:10px 0 0;" data-i18n="cancel">Cancel</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -534,6 +572,17 @@ const i18n = {
     medium: '🟡 Medium',
     low: '🟢 Low',
     newChannel: 'New Channel',
+    addChannelTitle: '➕ Add Channel',
+    addChannelSub: 'Enter the Telegram channel username and choose priority',
+    labelUsername: 'CHANNEL USERNAME',
+    labelPriority: 'PRIORITY',
+    addChannelBtn: 'Add Channel',
+    cancel: 'Cancel',
+    channelAdded: '✅ Channel added!',
+    channelDeleted: '🗑 Channel removed',
+    noChannels: "📭",
+    noChannelsTitle: 'No channels yet',
+    noChannelsSub: 'Tap "New Channel" to add one',
     themeTitle: '🎨 Appearance',
     themeSub: 'Choose your interface style',
     applyTheme: 'Apply Theme',
@@ -588,6 +637,17 @@ const i18n = {
     medium: '🟡 Среднее',
     low: '🟢 Не важно',
     newChannel: 'Новый канал',
+    addChannelTitle: '➕ Добавить канал',
+    addChannelSub: 'Введите username Telegram-канала и выберите важность',
+    labelUsername: 'USERNAME КАНАЛА',
+    labelPriority: 'ВАЖНОСТЬ',
+    addChannelBtn: 'Добавить канал',
+    cancel: 'Отмена',
+    channelAdded: '✅ Канал добавлен!',
+    channelDeleted: '🗑 Канал удалён',
+    noChannels: "📭",
+    noChannelsTitle: 'Каналов пока нет',
+    noChannelsSub: 'Нажми «Новый канал» чтобы добавить',
     themeTitle: '🎨 Тема оформления',
     themeSub: 'Выберите стиль интерфейса',
     applyTheme: 'Применить тему',
@@ -648,73 +708,135 @@ function setLang(lang) {
   document.getElementById('pill-en').classList.toggle('active', lang === 'en');
   document.getElementById('pill-ru').classList.toggle('active', lang === 'ru');
   applyI18n();
+  renderChannelList();
+  syncNotifScreen();
   if (steps.length > 0 && document.getElementById('vQuiz') && !document.getElementById('vQuiz').classList.contains('out-left')) renderStep();
   showToast('settingsToast', t('langChanged'));
 }
 
-// ── NEW QUIZ DATA ──────────────────────────────────────────────
-const newQuiz = [
-  {
-    key: 'sphere',
-    q: 'Ваша сфера деятельности?',
-    sub: 'Выберите то, что ближе всего к вашей стратегии',
-    opts: [
-      { label: 'Крипта',       emoji: '🪙', points: { crypto: 3, news: 1 } },
-      { label: 'Трейдинг',     emoji: '📈', points: { news: 3, crypto: 1 } },
-      { label: 'Мемкоины',     emoji: '🐸', points: { meme: 4, news: 1 } },
-      { label: 'AI / Tech',    emoji: '🤖', points: { macro: 2, crypto: 1 } },
-      { label: 'Stocks / Macro',emoji: '🌎', points: { macro: 4 } },
-    ]
-  },
-  {
-    key: 'style',
-    q: 'Ваш стиль торговли?',
-    sub: 'Это поможет понять нужную скорость новостей',
-    opts: [
-      { label: 'Скальпинг',        emoji: '⚡', points: { news: 4, meme: 2 } },
-      { label: 'Дей-трейдинг',     emoji: '☀️', points: { news: 3, crypto: 2 } },
-      { label: 'Свинг',            emoji: '🌊', points: { macro: 3, crypto: 2 } },
-      { label: 'Я больше наблюдаю',emoji: '👀', points: { crypto: 2, macro: 2 } },
-    ]
-  },
-  {
-    key: 'capital',
-    q: 'Ваш капитал?',
-    sub: 'Нужно для подбора уровня риска и волатильности',
-    opts: [
-      { label: 'До $500',    emoji: '🌱', points: { meme: 1, crypto: 2 } },
-      { label: 'До $1 000',  emoji: '💼', points: { crypto: 2, news: 2 } },
-      { label: 'От $5 000+', emoji: '🚀', points: { macro: 2, news: 3 } },
-    ]
-  },
-  {
-    key: 'experience',
-    q: 'Ваш опыт в крипте?',
-    sub: 'Будем честны — так рекомендации будут точнее',
-    opts: [
-      { label: 'Новичок',              emoji: '🐣', points: { crypto: 3 } },
-      { label: 'Средний уровень',      emoji: '🧐', points: { news: 2, crypto: 2 } },
-      { label: 'Прошаренный криптан',  emoji: '🔥', points: { meme: 2, news: 3 } },
-    ]
-  },
-  {
-    key: 'goal',
-    q: 'Для чего вам новости?',
-    sub: 'Выберем пакет под вашу главную цель',
-    opts: [
-      { label: 'Торговать на новостях',      emoji: '⚡', points: { news: 5 } },
-      { label: 'Видеть общую картину',       emoji: '🌐', points: { macro: 3, crypto: 2 } },
-      { label: 'Искать хайп и ранние тренды',emoji: '🐸', points: { meme: 5 } },
-      { label: 'Собирать аналитику',         emoji: '📋', points: { macro: 3, crypto: 2 } },
-    ]
-  }
-];
+const newQuizData = {
+  en: [
+    {
+      key: 'sphere',
+      q: 'Your area of activity?',
+      sub: 'Choose what best fits your strategy',
+      opts: [
+        { label: 'Crypto',        emoji: '🪙', points: { crypto: 3, news: 1 } },
+        { label: 'Trading',       emoji: '📈', points: { news: 3, crypto: 1 } },
+        { label: 'Memecoins',     emoji: '🐸', points: { meme: 4, news: 1 } },
+        { label: 'AI / Tech',     emoji: '🤖', points: { macro: 2, crypto: 1 } },
+        { label: 'Stocks / Macro',emoji: '🌎', points: { macro: 4 } },
+      ]
+    },
+    {
+      key: 'style',
+      q: 'Your trading style?',
+      sub: 'Helps us pick the right news speed',
+      opts: [
+        { label: 'Scalping',      emoji: '⚡', points: { news: 4, meme: 2 } },
+        { label: 'Day Trading',   emoji: '☀️', points: { news: 3, crypto: 2 } },
+        { label: 'Swing',         emoji: '🌊', points: { macro: 3, crypto: 2 } },
+        { label: 'Observing',     emoji: '👀', points: { crypto: 2, macro: 2 } },
+      ]
+    },
+    {
+      key: 'capital',
+      q: 'Your capital?',
+      sub: 'Helps us pick risk & volatility level',
+      opts: [
+        { label: 'Under $500',  emoji: '🌱', points: { meme: 1, crypto: 2 } },
+        { label: 'Under $1,000',emoji: '💼', points: { crypto: 2, news: 2 } },
+        { label: '$5,000+',     emoji: '🚀', points: { macro: 2, news: 3 } },
+      ]
+    },
+    {
+      key: 'experience',
+      q: 'Your crypto experience?',
+      sub: "Let's be honest — better recommendations",
+      opts: [
+        { label: 'Beginner',      emoji: '🐣', points: { crypto: 3 } },
+        { label: 'Intermediate',  emoji: '🧐', points: { news: 2, crypto: 2 } },
+        { label: 'Crypto pro',    emoji: '🔥', points: { meme: 2, news: 3 } },
+      ]
+    },
+    {
+      key: 'goal',
+      q: 'What do you need news for?',
+      sub: "We'll pick a plan for your main goal",
+      opts: [
+        { label: 'Trade on news signals',  emoji: '⚡', points: { news: 5 } },
+        { label: 'See the big picture',    emoji: '🌐', points: { macro: 3, crypto: 2 } },
+        { label: 'Find hype & early trends',emoji: '🐸', points: { meme: 5 } },
+        { label: 'Build analysis',         emoji: '📋', points: { macro: 3, crypto: 2 } },
+      ]
+    }
+  ],
+  ru: [
+    {
+      key: 'sphere',
+      q: 'Ваша сфера деятельности?',
+      sub: 'Выберите то, что ближе всего к вашей стратегии',
+      opts: [
+        { label: 'Крипта',        emoji: '🪙', points: { crypto: 3, news: 1 } },
+        { label: 'Трейдинг',      emoji: '📈', points: { news: 3, crypto: 1 } },
+        { label: 'Мемкоины',      emoji: '🐸', points: { meme: 4, news: 1 } },
+        { label: 'AI / Tech',     emoji: '🤖', points: { macro: 2, crypto: 1 } },
+        { label: 'Stocks / Macro',emoji: '🌎', points: { macro: 4 } },
+      ]
+    },
+    {
+      key: 'style',
+      q: 'Ваш стиль торговли?',
+      sub: 'Это поможет понять нужную скорость новостей',
+      opts: [
+        { label: 'Скальпинг',        emoji: '⚡', points: { news: 4, meme: 2 } },
+        { label: 'Дей-трейдинг',     emoji: '☀️', points: { news: 3, crypto: 2 } },
+        { label: 'Свинг',            emoji: '🌊', points: { macro: 3, crypto: 2 } },
+        { label: 'Я больше наблюдаю',emoji: '👀', points: { crypto: 2, macro: 2 } },
+      ]
+    },
+    {
+      key: 'capital',
+      q: 'Ваш капитал?',
+      sub: 'Нужно для подбора уровня риска и волатильности',
+      opts: [
+        { label: 'До $500',    emoji: '🌱', points: { meme: 1, crypto: 2 } },
+        { label: 'До $1 000',  emoji: '💼', points: { crypto: 2, news: 2 } },
+        { label: 'От $5 000+', emoji: '🚀', points: { macro: 2, news: 3 } },
+      ]
+    },
+    {
+      key: 'experience',
+      q: 'Ваш опыт в крипте?',
+      sub: 'Будем честны — так рекомендации будут точнее',
+      opts: [
+        { label: 'Новичок',              emoji: '🐣', points: { crypto: 3 } },
+        { label: 'Средний уровень',      emoji: '🧐', points: { news: 2, crypto: 2 } },
+        { label: 'Прошаренный криптан',  emoji: '🔥', points: { meme: 2, news: 3 } },
+      ]
+    },
+    {
+      key: 'goal',
+      q: 'Для чего вам новости?',
+      sub: 'Выберем пакет под вашу главную цель',
+      opts: [
+        { label: 'Торговать на новостях',      emoji: '⚡', points: { news: 5 } },
+        { label: 'Видеть общую картину',       emoji: '🌐', points: { macro: 3, crypto: 2 } },
+        { label: 'Искать хайп и ранние тренды',emoji: '🐸', points: { meme: 5 } },
+        { label: 'Собирать аналитику',         emoji: '📋', points: { macro: 3, crypto: 2 } },
+      ]
+    }
+  ]
+};
+
+function getNewQuiz() { return newQuizData[currentLang] || newQuizData.en; }
+
 
 const packsData = [
-  { id:'crypto', emoji:'🪙', title:'Crypto Core',      subtitle:'BTC • ETH • Macro',          impact:'High Volatility',    price:0.80, channels:['CoinDesk','Wu Blockchain','Binance'],  reason:'Подходит для базового крипто-фида и понимания главных движений рынка.', borderColor:'#3b82f622' },
-  { id:'meme',   emoji:'🐸', title:'Memecoin Radar',   subtitle:'SOL • Meme • Hype',           impact:'Extreme Momentum',   price:0.80, channels:['Pump Alerts','Whale Watch','DEX News'], reason:'Лучше всего для поиска хайпа, быстрых нарративов и мемкоин-движений.', borderColor:'#22c55e22' },
-  { id:'news',   emoji:'📈', title:'News Trading',     subtitle:'Fast Market Reactions',       impact:'Ultra Fast',         price:0.80, channels:['Tree News','DB','Tier10K'],              reason:'Оптимально, если вы хотите реагировать на новости быстрее рынка.',     borderColor:'#f9731622' },
-  { id:'macro',  emoji:'🌎', title:'Macro & FED',      subtitle:'Rates • CPI • Economy',       impact:'Market Moving',      price:0.80, channels:['Bloomberg','Reuters','FED Alerts'],     reason:'Хорошо подходит для общей картины, ставок, CPI, FED и глобального контекста.', borderColor:'#a855f722' },
+  { id:'crypto', emoji:'🪙', title:'Crypto Core',      subtitle:'BTC • ETH • Macro',          impact:'High Volatility',    price:0.80, channels:['CoinDesk','Wu Blockchain','Binance'],  reason:'Best for a core crypto feed and understanding major market moves.', borderColor:'#3b82f622' },
+  { id:'meme',   emoji:'🐸', title:'Memecoin Radar',   subtitle:'SOL • Meme • Hype',           impact:'Extreme Momentum',   price:0.80, channels:['Pump Alerts','Whale Watch','DEX News'], reason:'Best for tracking hype, fast narratives, and memecoin momentum.', borderColor:'#22c55e22' },
+  { id:'news',   emoji:'📈', title:'News Trading',     subtitle:'Fast Market Reactions',       impact:'Ultra Fast',         price:0.80, channels:['Tree News','DB','Tier10K'],              reason:'Optimal if you want to react to breaking news faster than the market.', borderColor:'#f9731622' },
+  { id:'macro',  emoji:'🌎', title:'Macro & FED',      subtitle:'Rates • CPI • Economy',       impact:'Market Moving',      price:0.80, channels:['Bloomberg','Reuters','FED Alerts'],     reason:'Great for the big picture — rates, CPI, FED decisions, and global context.', borderColor:'#a855f722' },
 ];
 
 const paymentsData = [
@@ -733,8 +855,13 @@ let steps = [], stepIdx = 0, quizAnswers = {}, selected = null;
 let selectedPacks = [], selectedPaymentIdx = null;
 
 function buildSteps() {
-  steps = newQuiz.filter(q => {
-    if (q.key === 'style') return quizAnswers.sphere?.label === 'Трейдинг';
+  const quiz = getNewQuiz();
+  steps = quiz.filter(q => {
+    if (q.key === 'style') {
+      const sphereAnswer = quizAnswers.sphere;
+      if (!sphereAnswer) return false;
+      return sphereAnswer.points && sphereAnswer.points.news >= 3 && sphereAnswer.points.crypto <= 1;
+    }
     return true;
   });
 }
@@ -767,7 +894,6 @@ function renderStep() {
   document.getElementById('qSub').textContent = q.sub;
   selected = quizAnswers[q.key] || null;
 
-  // back button
   const bb = document.getElementById('qBackBtn');
   if (stepIdx > 0) { bb.style.opacity='1'; bb.style.pointerEvents='auto'; }
   else { bb.style.opacity='0.3'; bb.style.pointerEvents='none'; }
@@ -821,20 +947,17 @@ function nextStep() {
   else { showPacksScreen(); goTo('vQuiz','vPacks'); }
 }
 
-// ── PACKS SCREEN ───────────────────────────────────────────────
 function showPacksScreen() {
   const scores = computeScores();
   const ranked = [...packsData].sort((a,b) => (scores[b.id]||0) - (scores[a.id]||0));
   const best = ranked[0];
   const combo = ranked.slice(0,2);
 
-  // pre-select best
   selectedPacks = [best.id];
   selectedPaymentIdx = null;
 
-  // banner
-  document.getElementById('packsRecommendTitle').textContent = `Вам лучше всего подходит ${best.title}.`;
-  document.getElementById('packsRecommendSub').textContent = 'Исходя из ваших ответов, этот пакет лучше всего совпадает с вашей стратегией. Также можно добавить второй пакет для более полного фида.';
+  document.getElementById('packsRecommendTitle').textContent = `Best match for you: ${best.title}.`;
+  document.getElementById('packsRecommendSub').textContent = 'Based on your answers, this pack fits your strategy best. You can also add a second pack for a fuller feed.';
   const tagsEl = document.getElementById('packsRecommendTags');
   tagsEl.innerHTML = '';
   combo.forEach(p => {
@@ -844,14 +967,12 @@ function showPacksScreen() {
     tagsEl.appendChild(tag);
   });
 
-  // packs list
   const list = document.getElementById('packsList');
   list.innerHTML = '';
   ranked.forEach(pack => {
     list.appendChild(buildPackCard(pack, scores, best.id));
   });
 
-  // payments
   const payEl = document.getElementById('paymentList');
   payEl.innerHTML = '';
   paymentsData.forEach((p, idx) => {
@@ -895,7 +1016,7 @@ function buildPackCard(pack, scores, bestId) {
         </div>
         <button onclick="togglePack('${pack.id}')" id="packBtn_${pack.id}"
           style="background:${isSelected ? '#1c1c22' : 'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${isSelected ? '#aaa' : '#fff'};border:${isSelected ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;">
-          ${isSelected ? 'Убрать' : 'Добавить'}
+          ${isSelected ? 'Remove' : 'Add'}
         </button>
       </div>
     </div>
@@ -909,7 +1030,6 @@ function togglePack(id) {
   } else {
     selectedPacks.push(id);
   }
-  // re-render card
   const scores = computeScores();
   const ranked = [...packsData].sort((a,b) => (scores[b.id]||0) - (scores[a.id]||0));
   const bestId = ranked[0].id;
@@ -950,7 +1070,7 @@ function buildPaymentRow(p, idx) {
 
 function updateBottomBar() {
   const total = (selectedPacks.length * 0.80).toFixed(2);
-  document.getElementById('packsBarLabel').textContent = `${selectedPacks.length} пак${selectedPacks.length === 1 ? 'ет' : 'ета'} • $${total}`;
+  document.getElementById('packsBarLabel').textContent = `${selectedPacks.length} pack${selectedPacks.length === 1 ? '' : 's'} • $${total}`;
   const btn = document.getElementById('buyBtn');
   const canBuy = selectedPacks.length > 0 && selectedPaymentIdx !== null;
   btn.style.opacity = canBuy ? '1' : '0.35';
@@ -993,7 +1113,7 @@ function openCheckout() {
       <div style="background:#2a1a00;border:.5px solid #d49a2e44;border-radius:10px;padding:10px 12px;font-size:11px;color:#d49a2e;line-height:1.5;">⚠️ ${wallet.warning} Wrong network may result in lost funds.</div>
     `;
   } else {
-    detEl.innerHTML = `<div style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:12px;font-size:12px;color:#555;line-height:1.5;">Для CryptoBot можно будет открыть Telegram invoice или redirect-ссылку на оплату.</div>`;
+    detEl.innerHTML = `<div style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:12px;font-size:12px;color:#555;line-height:1.5;">For CryptoBot, a Telegram invoice or redirect payment link will be generated.</div>`;
   }
   goTo('vPacks','vCheckout');
 }
@@ -1004,9 +1124,364 @@ function closeCheckout() {
   document.getElementById('vPacks').classList.remove('out-left');
 }
 
-function copyAddress(addr) { showToast('themeToast', '📋 Адрес скопирован'); }
+function copyAddress(addr) { showToast('themeToast', '📋 Address copied'); }
 
-function paidConfirm() { goTo('vCheckout','vDone'); }
+function paidConfirm() {
+  purchasedPacks = [...selectedPacks];
+  goTo('vCheckout','vDone');
+}
+
+function skipPacks() {
+  purchasedPacks = [];
+  goTo('vPacks','vDone');
+}
+
+function goToMain() {
+  goTo('vDone','vMain');
+  renderChannelList();
+  renderProfileScreen();
+}
+
+let channels = [];
+
+const prioConfig = {
+  high: { dot:'dh', av:'ar', badge:'bh', labelKey:'high',   del:'#e0525255,#2a1010,#e05252', border:'#e0525222' },
+  mid:  { dot:'dm', av:'aa', badge:'bm', labelKey:'medium', del:'#d49a2e55,#221a08,#d49a2e', border:'#d49a2e22' },
+  low:  { dot:'dl', av:'ag', badge:'bl2',labelKey:'low',    del:'#3aaa6e55,#0c1f16,#3aaa6e', border:'#3aaa6e22' },
+};
+
+function renderChannelList() {
+  const list = document.getElementById('channelList');
+  if (!list) return;
+  list.innerHTML = '';
+  if (channels.length === 0) {
+    list.innerHTML = `<div style="margin:12px 0;background:#1a1a20;border:.5px solid #272730;border-radius:14px;padding:24px 16px;text-align:center;">
+      <p style="font-size:24px;margin-bottom:8px;">📭</p>
+      <p style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0 0 4px;">${t('noChannelsTitle')}</p>
+      <p style="font-size:12px;color:#555;margin:0;">${t('noChannelsSub')}</p>
+    </div>`;
+    return;
+  }
+  channels.forEach((ch, idx) => {
+    const pc = prioConfig[ch.prio];
+    const label = t(pc.labelKey);
+    const initials = ch.username.replace('@','').substring(0,2).toUpperCase();
+    const [delBorder, delBg, delColor] = pc.del.split(',');
+    const div = document.createElement('div');
+    div.className = 'cc';
+    div.style.borderColor = pc.border;
+    div.style.animationDelay = (idx * 0.08) + 's';
+
+    div.innerHTML = `
+      <div class="pd ${pc.dot}"></div>
+      <div class="av ${pc.av}">${initials}<span class="eb">${ch.emoji}</span></div>
+      <div class="ci">
+        <p class="cn">${ch.username}</p>
+        <p class="cs2">Telegram channel</p>
+        <div class="ar2">
+          <button class="ab ch-del-btn" style="border-color:${delBorder};background:${delBg};color:${delColor};">${t('delete')}</button>
+        </div>
+      </div>
+      <span class="pb ${pc.badge}">${label}</span>
+    `;
+
+    div.querySelector('.ch-del-btn').addEventListener('click', () => removeChannel(idx));
+
+    list.appendChild(div);
+  });
+}
+
+function removeChannel(idx) {
+  channels.splice(idx, 1);
+  renderChannelList();
+  syncNotifScreen();
+  const vp = document.getElementById('vProfile');
+  if (vp && vp.style.transform === 'translateX(0px)') renderProfileScreen();
+  showMainToast(t('channelDeleted'));
+}
+
+function syncNotifScreen() {
+  const container = document.querySelector('.notif-channels');
+  if (!container) return;
+  container.innerHTML = '';
+  const cardClass = { high:'card-high', mid:'card-mid', low:'card-low' };
+  const avatarClass = { high:'av-red', mid:'av-amber', low:'av-green' };
+  const badgeClass = { high:'badge-high', mid:'badge-mid', low:'badge-low' };
+  channels.forEach((ch, i) => {
+    const pc = prioConfig[ch.prio];
+    const initials = ch.username.replace('@','').substring(0,2).toUpperCase();
+    const row = document.createElement('div');
+    row.className = `notif-row ${cardClass[ch.prio]}`;
+    row.id = 'row' + i;
+    row.innerHTML = `
+      <div class="nr-avatar ${avatarClass[ch.prio]}">${initials}<span class="nr-emoji">${ch.emoji}</span></div>
+      <div class="nr-info">
+        <p class="nr-name">${ch.username}</p>
+        <div class="nr-meta">
+          <span class="nr-badge ${badgeClass[ch.prio]}">${t(prioConfig[ch.prio].labelKey)}</span>
+        </div>
+      </div>
+      <div class="toggle-wrap">
+        <input type="checkbox" class="toggle-input" id="nt${i}" checked onchange="toggleRow(${i},this)">
+        <label class="toggle-label" for="nt${i}"></label>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+  updateCount();
+}
+
+let addChPrio = null;
+
+function openAddChannel() {
+  addChPrio = null;
+  document.getElementById('chUsername').value = '';
+  document.getElementById('chPreview').style.display = 'none';
+  document.getElementById('addChBtn').style.opacity = '.35';
+  document.getElementById('addChBtn').style.pointerEvents = 'none';
+  ['prioHigh','prioMid','prioLow'].forEach(id => {
+    document.getElementById(id).className = 'prio-btn';
+  });
+  document.getElementById('addChannelModal').classList.add('open');
+}
+
+function closeAddChannel() {
+  document.getElementById('addChannelModal').classList.remove('open');
+}
+
+function closeAddChannelOutside(e) {
+  if (e.target === document.getElementById('addChannelModal')) closeAddChannel();
+}
+
+function selectPrio(prio) {
+  addChPrio = prio;
+  document.getElementById('prioHigh').className = 'prio-btn' + (prio === 'high' ? ' sel-high' : '');
+  document.getElementById('prioMid').className  = 'prio-btn' + (prio === 'mid'  ? ' sel-mid'  : '');
+  document.getElementById('prioLow').className  = 'prio-btn' + (prio === 'low'  ? ' sel-low'  : '');
+  updatePreview();
+  validateAddChannel();
+}
+
+function validateAddChannel() {
+  const val = document.getElementById('chUsername').value.trim();
+  const valid = val.length >= 2 && addChPrio;
+  const btn = document.getElementById('addChBtn');
+  btn.style.opacity = valid ? '1' : '.35';
+  btn.style.pointerEvents = valid ? 'auto' : 'none';
+  if (val.length >= 2 && addChPrio) updatePreview();
+}
+
+function updatePreview() {
+  const raw = document.getElementById('chUsername').value.trim();
+  if (!raw || !addChPrio) return;
+  const username = raw.startsWith('@') ? raw : '@' + raw;
+  const initials = username.replace('@','').substring(0,2).toUpperCase();
+  const pc = prioConfig[addChPrio];
+  const avatarColors = { high:'background:#2a1010;color:#e05252', mid:'background:#221a08;color:#d49a2e', low:'background:#0c1f16;color:#3aaa6e' };
+  const badgeStyle = { high:'background:#2a1010;color:#e05252;border:.5px solid #e0525244', mid:'background:#221a08;color:#d49a2e;border:.5px solid #d49a2e44', low:'background:#0c1f16;color:#3aaa6e;border:.5px solid #3aaa6e44' };
+  document.getElementById('chPreviewAvatar').style.cssText = `width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;${avatarColors[addChPrio]}`;
+  document.getElementById('chPreviewAvatar').textContent = initials;
+  document.getElementById('chPreviewName').textContent = username;
+  document.getElementById('chPreviewBadge').textContent = t(pc.labelKey);
+  document.getElementById('chPreviewBadge').style.cssText = `margin-left:auto;font-size:9px;padding:3px 8px;border-radius:6px;font-weight:500;${badgeStyle[addChPrio]}`;
+  document.getElementById('chPreview').style.display = 'block';
+}
+
+const prioEmojis = { high:'🔥', mid:'⚡', low:'🌱' };
+
+function confirmAddChannel() {
+  const raw = document.getElementById('chUsername').value.trim();
+  if (!raw || !addChPrio) return;
+  const username = raw.startsWith('@') ? raw : '@' + raw;
+  channels.push({ username, prio: addChPrio, emoji: prioEmojis[addChPrio] });
+  closeAddChannel();
+  renderChannelList();
+  syncNotifScreen();
+  if (document.getElementById('vProfile').style.transform === 'translateX(0px)') {
+    renderProfileScreen();
+  }
+  showMainToast(t('channelAdded'));
+}
+
+function showMainToast(msg) {
+  let t = document.getElementById('mainToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'mainToast';
+    t.className = 'toast';
+    t.style.zIndex = '300';
+    document.querySelector('.app-container').appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+let currentTab = 'channels';
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['channels','feed','profile'].forEach(t => {
+    const el = document.getElementById('nav' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (el) el.classList.toggle('ac', t === tab);
+  });
+  if (tab === 'profile') {
+    openProfileScreen();
+  } else {
+    closeProfileScreen();
+  }
+}
+
+let purchasedPacks = [];
+let profileSelectedPacks = [];
+let profilePayIdx = null;
+
+function openProfileScreen() {
+  renderProfileScreen();
+  document.getElementById('vProfile').style.transform = 'translateX(0)';
+  document.getElementById('vProfile').style.opacity = '1';
+  document.getElementById('vProfile').style.pointerEvents = 'auto';
+}
+
+function closeProfileScreen() {
+  document.getElementById('vProfile').style.transform = 'translateX(100%)';
+  document.getElementById('vProfile').style.opacity = '0';
+  document.getElementById('vProfile').style.pointerEvents = 'none';
+}
+
+function renderProfileScreen() {
+  profileSelectedPacks = [...purchasedPacks];
+
+  const chCount = document.getElementById('profileChCount');
+  if (chCount) chCount.textContent = channels.length;
+
+  const activeEl = document.getElementById('profileActivePacks');
+  if (activeEl) {
+    activeEl.innerHTML = '';
+    if (purchasedPacks.length === 0) {
+      activeEl.innerHTML = `<div style="background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;">
+        <p style="font-size:12px;color:#555;margin:0;">No active plans. Choose a pack below.</p>
+      </div>`;
+    } else {
+      const chips = purchasedPacks.map(id => {
+        const p = packsData.find(x => x.id === id);
+        return `<span style="background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:8px;padding:4px 10px;font-size:12px;color:#a78bfa;">${p.emoji} ${p.title}</span>`;
+      }).join('');
+      const total = (purchasedPacks.length * 0.8).toFixed(2);
+      activeEl.innerHTML = `
+        <div style="background:linear-gradient(135deg,#1a1a2e,#1e1e30);border:.5px solid #5b5bdc44;border-radius:12px;padding:12px 14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;">Active Plan</p>
+            <span style="background:#1a3a1a;border:.5px solid #3aaa6e44;color:#3aaa6e;border-radius:8px;padding:2px 8px;font-size:10px;">● Active</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${chips}</div>
+          <p style="font-size:11px;color:#555;margin:0;">$${total} USDT / month</p>
+        </div>`;
+    }
+  }
+
+  const listEl = document.getElementById('profilePacksList');
+  if (listEl) {
+    listEl.innerHTML = '';
+    packsData.forEach(pack => {
+      const has = profileSelectedPacks.includes(pack.id);
+      const row = document.createElement('div');
+      row.id = 'profPack_' + pack.id;
+      row.style.cssText = `background:#1a1a20;border:.5px solid ${has ? '#5b5bdc55' : '#272730'};border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;`;
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:20px;">${pack.emoji}</span>
+          <div>
+            <p style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0 0 2px;">${pack.title}</p>
+            <p style="font-size:11px;color:#555;margin:0;">${pack.subtitle} · $${pack.price.toFixed(2)}/mo</p>
+          </div>
+        </div>
+        <button onclick="toggleProfilePack('${pack.id}')" id="profPackBtn_${pack.id}"
+          style="background:${has ? '#1c3a1c' : 'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${has ? '#3aaa6e' : '#fff'};border:${has ? '.5px solid #3aaa6e55' : 'none'};border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">
+          ${has ? '✓ Active' : '+ Add'}
+        </button>
+      `;
+      listEl.appendChild(row);
+    });
+  }
+
+  const pcEl = document.getElementById('profilePackCount');
+  const spEl = document.getElementById('profileSpend');
+  if (pcEl) pcEl.textContent = purchasedPacks.length;
+  if (spEl) spEl.textContent = '$' + (purchasedPacks.length * 0.8).toFixed(2);
+
+  updateProfileBuyBtn();
+}
+
+function toggleProfilePack(id) {
+  if (profileSelectedPacks.includes(id)) {
+    profileSelectedPacks = profileSelectedPacks.filter(x => x !== id);
+  } else {
+    profileSelectedPacks.push(id);
+  }
+  const has = profileSelectedPacks.includes(id);
+  const row = document.getElementById('profPack_' + id);
+  row.style.borderColor = has ? '#5b5bdc55' : '#272730';
+  const btn = document.getElementById('profPackBtn_' + id);
+  btn.style.background = has ? '#1c3a1c' : 'linear-gradient(135deg,#6b6bff,#a78bfa)';
+  btn.style.color = has ? '#3aaa6e' : '#fff';
+  btn.style.border = has ? '.5px solid #3aaa6e55' : 'none';
+  btn.textContent = has ? '✓ Active' : 'Add';
+  updateProfileBuyBtn();
+}
+
+function updateProfileBuyBtn() {
+  const hasChanges = JSON.stringify([...profileSelectedPacks].sort()) !== JSON.stringify([...purchasedPacks].sort());
+  const btn = document.getElementById('profileBuyBtn');
+  if (!hasChanges) {
+    btn.style.opacity = '0.35'; btn.style.pointerEvents = 'none';
+    btn.innerHTML = '<i class="ti ti-check"></i> Plan is up to date';
+  } else {
+    const newCost = (profileSelectedPacks.length * 0.8).toFixed(2);
+    btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+    btn.innerHTML = `<i class="ti ti-credit-card"></i> Change plan — $${newCost} 💳`;
+  }
+}
+
+function openProfileChangePay() {
+  const hasChanges = JSON.stringify([...profileSelectedPacks].sort()) !== JSON.stringify([...purchasedPacks].sort());
+  if (!hasChanges) return;
+  profilePayIdx = null;
+  const payList = document.getElementById('profilePayList');
+  payList.innerHTML = '';
+  paymentsData.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.id = 'profPayRow_' + idx;
+    row.style.cssText = `display:flex;align-items:center;justify-content:space-between;background:#111114;border:.5px solid #272730;border-radius:12px;padding:10px 14px;cursor:${p.disabled ? 'not-allowed' : 'pointer'};opacity:${p.disabled ? '.4' : '1'};`;
+    row.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span>${p.emoji}</span><span style="font-size:13px;color:#c0c0d0;">${p.name}</span></div><span style="font-size:10px;color:#555;">${p.tag}</span>`;
+    if (!p.disabled) {
+      row.onclick = () => {
+        profilePayIdx = idx;
+        document.querySelectorAll('[id^=profPayRow_]').forEach((el, i) => {
+          el.style.background = i === idx ? '#1e1e30' : '#111114';
+          el.style.borderColor = i === idx ? '#6b6bff88' : '#272730';
+        });
+        const cb = document.getElementById('profilePayConfirmBtn');
+        cb.style.opacity = '1'; cb.style.pointerEvents = 'auto';
+      };
+    }
+    payList.appendChild(row);
+  });
+  const modal = document.getElementById('profilePayModal');
+  modal.style.display = 'flex';
+}
+
+function closeProfileChangePay() {
+  document.getElementById('profilePayModal').style.display = 'none';
+}
+
+function confirmProfilePay() {
+  if (profilePayIdx === null) return;
+  purchasedPacks = [...profileSelectedPacks];
+  closeProfileChangePay();
+  renderProfileScreen();
+  showToast('profileToast', '✅ Plan updated successfully!');
+}
 
 const themes = [
   { id:'midnight', name:'Midnight', accent:'#7f77dd', gradient:'linear-gradient(135deg,#7f77dd,#534ab7)', preview:'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)' },
@@ -1072,26 +1547,34 @@ function applyTheme() {
 function openThemeScreen()  { renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); }
 function closeThemeScreen() { document.getElementById('vTheme').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; }
 
-function openNotifScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); }
+function openNotifScreen()  {
+  syncNotifScreen();
+  document.getElementById('vMain').style.opacity='.5';
+  document.getElementById('vNotif').classList.add('visible');
+  updateCount();
+}
 function closeNotifScreen() { document.getElementById('vNotif').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; }
 
 function toggleRow(idx, checkbox) {
-  document.getElementById('row'+idx).classList.toggle('muted', !checkbox.checked);
+  const row = document.getElementById('row' + idx);
+  if (row) row.classList.toggle('muted', !checkbox.checked);
   updateCount();
 }
 
 function toggleAll(globalCb) {
-  [0,1,2].forEach(i => {
-    const cb = document.getElementById('t'+i);
+  document.querySelectorAll('.notif-channels .toggle-input').forEach((cb, i) => {
     cb.checked = globalCb.checked;
-    document.getElementById('row'+i).classList.toggle('muted', !globalCb.checked);
+    const row = document.getElementById('row' + i);
+    if (row) row.classList.toggle('muted', !globalCb.checked);
   });
   updateCount();
 }
 
 function updateCount() {
-  const on = [0,1,2].filter(i => document.getElementById('t'+i).checked).length;
+  const checkboxes = document.querySelectorAll('.notif-channels .toggle-input');
+  const on = [...checkboxes].filter(cb => cb.checked).length;
   const el = document.getElementById('notifCount');
+  if (!el) return;
   el.textContent = t('notifOn', { n: on });
   el.style.animation = 'none';
   setTimeout(() => el.style.animation = 'popIn .3s cubic-bezier(0.34,1.56,0.64,1) both', 10);
@@ -1102,14 +1585,18 @@ function saveNotif() { showToast('notifToast', t('settingsSaved')); }
 function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); }
 function closeSettingsScreen() { document.getElementById('vSettings').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; }
 
+
 function showToast(id, msg) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2200);
 }
 
 applyI18n();
+
+
 </script>
 </body>
 </html>
