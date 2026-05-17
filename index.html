@@ -461,9 +461,12 @@
     <!-- Scrollable content area — takes all space above the nav bar -->
     <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
       <div style="padding:16px 16px 10px;border-bottom:.5px solid #222228;">
-        <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">👤 MY PROFILE</p>
+        <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="profMyProfile">👤 MY PROFILE</p>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-          <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👤</div>
+          <div id="profileAvatar" style="width:56px;height:56px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+            <img id="profileAvatarImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" onload="this.style.display='block';this.parentElement.querySelector('.prof-av-fallback').style.display='none';" onerror="this.style.display='none';this.parentElement.querySelector('.prof-av-fallback').style.display='flex';">
+            <span class="prof-av-fallback" style="display:flex;align-items:center;justify-content:center;font-size:22px;">👤</span>
+          </div>
           <div>
             <p id="profileName" style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">User</p>
             <p style="font-size:12px;color:#555;margin:0;">Clearly</p>
@@ -472,18 +475,18 @@
         <div id="profileActivePacks"></div>
       </div>
       <div style="padding:14px 16px 8px;">
-        <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">📦 MY PLANS</p>
+        <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="profMyPlans">📦 MY PLANS</p>
         <div id="profilePacksList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
-        <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn">
-          <i class="ti ti-credit-card"></i> Change plan 💳
+        <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn" class="profile-buy-btn">
+          <i class="ti ti-credit-card"></i> <span data-i18n="profChangePlan">Change plan</span> 💳
         </button>
       </div>
       <div style="margin:0 16px 24px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
-        <p style="font-size:11px;color:#555;margin:0 0 10px;letter-spacing:.5px;">📊 STATS</p>
+        <p style="font-size:11px;color:#555;margin:0 0 10px;letter-spacing:.5px;" data-i18n="profStats">📊 STATS</p>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <div style="text-align:center;"><p id="profileChCount" style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;">0</p><p style="font-size:10px;color:#555;margin:0;">Channels</p></div>
-          <div style="text-align:center;border-left:.5px solid #272730;border-right:.5px solid #272730;"><p style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;" id="profilePackCount">0</p><p style="font-size:10px;color:#555;margin:0;">Plans</p></div>
-          <div style="text-align:center;"><p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p><p style="font-size:10px;color:#555;margin:0;">Per month</p></div>
+          <div style="text-align:center;"><p id="profileChCount" style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;">0</p><p style="font-size:10px;color:#555;margin:0;" data-i18n="profChannelsLabel">Channels</p></div>
+          <div style="text-align:center;border-left:.5px solid #272730;border-right:.5px solid #272730;"><p style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;" id="profilePackCount">0</p><p style="font-size:10px;color:#555;margin:0;" data-i18n="profPlansLabel">Plans</p></div>
+          <div style="text-align:center;"><p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p><p style="font-size:10px;color:#555;margin:0;" data-i18n="profPerMonth">Per month</p></div>
         </div>
       </div>
       <div class="toast" id="profileToast"></div>
@@ -644,6 +647,10 @@ const i18n = {
     labelUsername:'CHANNEL USERNAME', labelPriority:'PRIORITY', addChannelBtn:'Add Channel',
     cancel:'Cancel', channelAdded:'✅ Channel added!', channelDeleted:'🗑 Channel removed',
     noChannelsTitle:'No channels yet', noChannelsSub:'Tap "New Channel" to add one',
+    profMyProfile:'👤 MY PROFILE', profMyPlans:'📦 MY PLANS', profStats:'📊 STATS',
+    profChannelsLabel:'Channels', profPlansLabel:'Plans', profPerMonth:'Per month',
+    profActivePlan:'Active Plan', profActiveLabel:'● Active', profNoPlans:'No active plans. Choose a pack below.',
+    profActivBtn:'✓ Active', profAddBtn:'+ Add', profUpToDate:'Plan is up to date', profChangePlan:'Change plan',
     themeTitle:'🎨 Appearance', themeSub:'Choose your interface style', applyTheme:'Apply Theme',
     themeApplied:'Theme "{name}" applied', notifTitle:'🔔 Notifications', notifSub:'Manage alerts',
     notifOn:'{n} on', allNotif:'All notifications', allNotifSub:'Enable or disable all',
@@ -666,6 +673,10 @@ const i18n = {
     labelUsername:'USERNAME КАНАЛА', labelPriority:'ВАЖНОСТЬ', addChannelBtn:'Добавить канал',
     cancel:'Отмена', channelAdded:'✅ Канал добавлен!', channelDeleted:'🗑 Канал удалён',
     noChannelsTitle:'Каналов пока нет', noChannelsSub:'Нажми «Новый канал» чтобы добавить',
+    profMyProfile:'👤 МОЙ ПРОФИЛЬ', profMyPlans:'📦 МОИ ПЛАНЫ', profStats:'📊 СТАТИСТИКА',
+    profChannelsLabel:'Каналы', profPlansLabel:'Планы', profPerMonth:'В месяц',
+    profActivePlan:'Активный план', profActiveLabel:'● Активен', profNoPlans:'Нет активных планов. Выберите пакет ниже.',
+    profActivBtn:'✓ Активен', profAddBtn:'+ Добавить', profUpToDate:'План актуален', profChangePlan:'Изменить план',
     themeTitle:'🎨 Тема', themeSub:'Выберите стиль', applyTheme:'Применить тему',
     themeApplied:'Тема «{name}» применена', notifTitle:'🔔 Уведомления', notifSub:'Управление',
     notifOn:'{n} вкл', allNotif:'Все уведомления', allNotifSub:'Включить или выключить всё',
@@ -705,11 +716,33 @@ const themes=[
 ];
 let currentTheme='midnight', tempTheme='midnight';
 
+// Helper — always returns current theme object
+function getTheme() {
+  return themes.find(x=>x.id===currentTheme) || themes[0];
+}
+
 function _applyThemeById(themeId) {
   const th=themes.find(x=>x.id===themeId);
   if(!th) return;
   document.documentElement.style.setProperty('--accent',th.accent);
   document.documentElement.style.setProperty('--accent-gradient',th.gradient);
+  // Re-apply to profile nav if it's open
+  if(document.getElementById('profNavProfile')) _applyAccentToProfileNav();
+  // Re-apply themed elements inside profile screen
+  const profileAvEl=document.getElementById('profileAvatar');
+  if(profileAvEl) profileAvEl.style.background=th.gradient;
+  const profileBuyEl=document.getElementById('profileBuyBtn');
+  if(profileBuyEl) profileBuyEl.style.background=th.gradient;
+  // Re-apply pack buttons
+  document.querySelectorAll('[id^=profPackBtn_]').forEach(btn=>{
+    if(btn.style.background!=='rgb(28, 58, 28)') btn.style.background=th.gradient;
+  });
+  // Re-apply active plan chips border
+  document.querySelectorAll('#profileActivePacks span').forEach(span=>{
+    span.style.background=th.accent+'22';
+    span.style.borderColor=th.accent+'44';
+    span.style.color=th.accent;
+  });
   // Apply accent color to profile screen nav items directly
   document.querySelectorAll('.splash-btn,.w-btn,.next-btn,.start-btn,.fab,.save-btn,.manual-confirm-btn').forEach(el=>el.style.background=th.gradient);
   const applyBtn=document.getElementById('applyBtn');
@@ -1401,9 +1434,16 @@ function renderChannelList() {
     div.style.animationDelay = (idx * 0.08) + 's';
     div.style.flexWrap = 'wrap';
 
+    const chUsername = ch.username.replace('@','');
     div.innerHTML = `
       <div class="pd ${pc.dot}"></div>
-      <div class="av ${pc.av}">${initials}<span class="eb">${ch.emoji}</span></div>
+      <div class="av ${pc.av}" style="position:relative;overflow:hidden;">
+        <img src="${API_BASE}/api/avatar/channel/${chUsername}" alt=""
+          style="width:100%;height:100%;object-fit:cover;border-radius:10px;position:absolute;inset:0;display:block;"
+          onerror="this.style.display='none';">
+        <span style="position:relative;z-index:1;">${initials}</span>
+        <span class="eb" style="z-index:2;">${ch.emoji}</span>
+      </div>
       <div class="ci" style="flex:1;min-width:0;">
         <p class="cn">${ch.username}</p>
         <p class="cs2">Telegram channel</p>
@@ -1482,11 +1522,18 @@ function syncNotifScreen() {
   channels.forEach((ch,i)=>{
     const pc=prioConfig[ch.prio];
     const initials=ch.username.replace('@','').substring(0,2).toUpperCase();
+    const notifChName=ch.username.replace('@','');
     const row=document.createElement('div');
     row.className=`notif-row ${cardClass[ch.prio]}`;
     row.id='row'+i;
     row.innerHTML=`
-      <div class="nr-avatar ${avatarClass[ch.prio]}">${initials}<span class="nr-emoji">${ch.emoji}</span></div>
+      <div class="nr-avatar ${avatarClass[ch.prio]}" style="position:relative;overflow:hidden;">
+        <img src="${API_BASE}/api/avatar/channel/${notifChName}" alt=""
+          style="width:100%;height:100%;object-fit:cover;border-radius:10px;position:absolute;inset:0;display:block;"
+          onerror="this.style.display='none';">
+        <span style="position:relative;z-index:1;">${initials}</span>
+        <span class="nr-emoji" style="z-index:2;">${ch.emoji}</span>
+      </div>
       <div class="nr-info">
         <p class="nr-name">${ch.username}</p>
         <div class="nr-meta"><span class="nr-badge ${badgeClass[ch.prio]}">${t(prioConfig[ch.prio].labelKey)}</span></div>
@@ -1592,18 +1639,62 @@ function switchTab(tab) {
   ['channels','feed','profile'].forEach(tt=>{
     const el=document.getElementById('nav'+tt.charAt(0).toUpperCase()+tt.slice(1));
     if(el) el.classList.toggle('ac',tt===tab);
+    // Also update profile screen nav
+    const profEl=document.getElementById('profNav'+tt.charAt(0).toUpperCase()+tt.slice(1));
+    if(profEl) profEl.classList.toggle('ac',tt===tab);
   });
   if(tab==='profile'){openProfileScreen();}
   else{closeProfileScreen();}
 }
 
-function openProfileScreen()  { renderProfileScreen(); const vp=document.getElementById('vProfile');vp.style.transform='translateX(0)';vp.style.opacity='1';vp.style.pointerEvents='auto'; const mn=document.getElementById('mainBottomNav'); if(mn) mn.style.display='none'; }
+function openProfileScreen() {
+  renderProfileScreen();
+  const vp=document.getElementById('vProfile');
+  vp.style.transform='translateX(0)';
+  vp.style.opacity='1';
+  vp.style.pointerEvents='auto';
+  const mn=document.getElementById('mainBottomNav');
+  if(mn) mn.style.display='none';
+  // Re-apply accent color to profile nav icons
+  _applyAccentToProfileNav();
+}
+
+function _applyAccentToProfileNav() {
+  const th=themes.find(x=>x.id===currentTheme);
+  if(!th) return;
+  // Force accent on active profile nav item via inline style
+  const profNavProfile=document.getElementById('profNavProfile');
+  if(profNavProfile) {
+    profNavProfile.style.color=th.accent;
+    const icon=profNavProfile.querySelector('.niv');
+    if(icon) icon.style.color=th.accent;
+    const label=profNavProfile.querySelector('span:not(.niv)');
+    if(label) label.style.color=th.accent;
+  }
+  // Reset inactive items
+  ['profNavChannels','profNavFeed'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.style.color=''; const icon=el.querySelector('.niv'); if(icon) icon.style.color=''; }
+  });
+}
 function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.style.transform='translateX(100%)';vp.style.opacity='0';vp.style.pointerEvents='none'; const mn=document.getElementById('mainBottomNav'); if(mn) mn.style.display=''; }
 
 function renderProfileScreen() {
   profileSelectedPacks=[...purchasedPacks];
   const tgUser=tg?.initDataUnsafe?.user;
   if(tgUser) document.getElementById('profileName').textContent=tgUser.first_name||'User';
+  // Apply theme to avatar background
+  const thAvatar=getTheme();
+  const avatarEl=document.getElementById('profileAvatar');
+  if(avatarEl) avatarEl.style.background=thAvatar.gradient;
+  // Load real Telegram user photo
+  if(currentUserId) {
+    const img=document.getElementById('profileAvatarImg');
+    if(img) {
+      img.src=''; // reset first
+      img.src=API_BASE+'/api/avatar/user/'+currentUserId+'?t='+Date.now();
+    }
+  }
   const chCount=document.getElementById('profileChCount');
   if(chCount) chCount.textContent=channels.length;
 
@@ -1611,14 +1702,15 @@ function renderProfileScreen() {
   if(activeEl) {
     activeEl.innerHTML='';
     if(purchasedPacks.length===0){
-      activeEl.innerHTML=`<div style="background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;"><p style="font-size:12px;color:#555;margin:0;">No active plans. Choose a pack below.</p></div>`;
+      activeEl.innerHTML=`<div style="background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;"><p style="font-size:12px;color:#555;margin:0;">${t('profNoPlans')}</p></div>`;
     } else {
-      const chips=purchasedPacks.map(id=>{const p=packsData.find(x=>x.id===id);return p?`<span style="background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:8px;padding:4px 10px;font-size:12px;color:#a78bfa;">${p.emoji} ${p.title}</span>`:''}).join('');
+      const th=getTheme();
+      const chips=purchasedPacks.map(id=>{const p=packsData.find(x=>x.id===id);return p?`<span style="background:${th.accent}22;border:.5px solid ${th.accent}44;border-radius:8px;padding:4px 10px;font-size:12px;color:${th.accent};">${p.emoji} ${p.title}</span>`:''}).join('');
       const total=(purchasedPacks.length*0.8).toFixed(2);
-      activeEl.innerHTML=`<div style="background:linear-gradient(135deg,#1a1a2e,#1e1e30);border:.5px solid #5b5bdc44;border-radius:12px;padding:12px 14px;">
+      activeEl.innerHTML=`<div style="background:linear-gradient(135deg,#1a1a2e,#1e1e30);border:.5px solid ${th.accent}44;border-radius:12px;padding:12px 14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;">Active Plan</p>
-          <span style="background:#1a3a1a;border:.5px solid #3aaa6e44;color:#3aaa6e;border-radius:8px;padding:2px 8px;font-size:10px;">● Active</span>
+          <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;">${t('profActivePlan')}</p>
+          <span style="background:#1a3a1a;border:.5px solid #3aaa6e44;color:#3aaa6e;border-radius:8px;padding:2px 8px;font-size:10px;">${t('profActiveLabel')}</span>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${chips}</div>
         <p style="font-size:11px;color:#555;margin:0;">$${total} USDT / month</p>
@@ -1633,9 +1725,10 @@ function renderProfileScreen() {
       const has=profileSelectedPacks.includes(pack.id);
       const row=document.createElement('div');
       row.id='profPack_'+pack.id;
-      row.style.cssText=`background:#1a1a20;border:.5px solid ${has?'#5b5bdc55':'#272730'};border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;`;
+      const th2=getTheme();
+      row.style.cssText=`background:#1a1a20;border:.5px solid ${has?th2.accent+'55':'#272730'};border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;`;
       row.innerHTML=`<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">${pack.emoji}</span><div><p style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0 0 2px;">${pack.title}</p><p style="font-size:11px;color:#555;margin:0;">${pack.subtitle} · $${pack.price.toFixed(2)}/mo</p></div></div>
-      <button onclick="toggleProfilePack('${pack.id}')" id="profPackBtn_${pack.id}" style="background:${has?'#1c3a1c':'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${has?'#3aaa6e':'#fff'};border:${has?'.5px solid #3aaa6e55':'none'};border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${has?'✓ Active':'+ Add'}</button>`;
+      <button onclick="toggleProfilePack('${pack.id}')" id="profPackBtn_${pack.id}" style="background:${has?'#1c3a1c':th2.gradient};color:${has?'#3aaa6e':'#fff'};border:${has?'.5px solid #3aaa6e55':'none'};border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${has?t('profActivBtn'):t('profAddBtn')}</button>`;
       listEl.appendChild(row);
     });
   }
@@ -1652,21 +1745,24 @@ function toggleProfilePack(id) {
   if(profileSelectedPacks.includes(id)) profileSelectedPacks=profileSelectedPacks.filter(x=>x!==id);
   else profileSelectedPacks.push(id);
   const has=profileSelectedPacks.includes(id);
+  const th=getTheme();
   const row=document.getElementById('profPack_'+id);
-  row.style.borderColor=has?'#5b5bdc55':'#272730';
+  row.style.borderColor=has?th.accent+'55':'#272730';
   const btn=document.getElementById('profPackBtn_'+id);
-  btn.style.background=has?'#1c3a1c':'linear-gradient(135deg,#6b6bff,#a78bfa)';
+  btn.style.background=has?'#1c3a1c':th.gradient;
   btn.style.color=has?'#3aaa6e':'#fff';
   btn.style.border=has?'.5px solid #3aaa6e55':'none';
-  btn.textContent=has?'✓ Active':'Add';
+  btn.textContent=has?t('profActivBtn'):t('profAddBtn');
   updateProfileBuyBtn();
 }
 
 function updateProfileBuyBtn() {
   const hasChanges=JSON.stringify([...profileSelectedPacks].sort())!==JSON.stringify([...purchasedPacks].sort());
   const btn=document.getElementById('profileBuyBtn');
-  if(!hasChanges){btn.style.opacity='0.35';btn.style.pointerEvents='none';btn.innerHTML='<i class="ti ti-check"></i> Plan is up to date';}
-  else{const newCost=(profileSelectedPacks.length*0.8).toFixed(2);btn.style.opacity='1';btn.style.pointerEvents='auto';btn.innerHTML=`<i class="ti ti-credit-card"></i> Change plan — $${newCost} 💳`;}
+  const th=getTheme();
+  btn.style.background=th.gradient;
+  if(!hasChanges){btn.style.opacity='0.35';btn.style.pointerEvents='none';btn.innerHTML=`<i class="ti ti-check"></i> ${t('profUpToDate')}`;}
+  else{const newCost=(profileSelectedPacks.length*0.8).toFixed(2);btn.style.opacity='1';btn.style.pointerEvents='auto';btn.innerHTML=`<i class="ti ti-credit-card"></i> ${t('profChangePlan')} — $${newCost} 💳`;}
 }
 
 function openProfileChangePay() {
@@ -1724,6 +1820,9 @@ async function setLang(lang) {
   applyI18n();
   renderChannelList();
   syncNotifScreen();
+  // Re-render profile if open
+  if(document.getElementById('vProfile').style.transform==='translateX(0px)' ||
+     document.getElementById('vProfile').style.transform==='translateX(0)') renderProfileScreen();
   showToast('settingsToast',t('langChanged'));
   // Save to backend
   if(currentUserId) {
@@ -1820,7 +1919,12 @@ function renderCatalog() {
       card.innerHTML += `<div style="position:absolute;top:0;right:0;background:linear-gradient(135deg,#6b6bff,#a78bfa);font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:600;">★ FEATURED</div>`;
     }
     card.innerHTML += `
-      <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? 'linear-gradient(135deg,#6b6bff,#a78bfa)' : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${ch.emoji}</div>
+      <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? 'linear-gradient(135deg,#6b6bff,#a78bfa)' : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden;">
+        <img src="${API_BASE}/api/avatar/channel/${ch.username.replace('@','')}" alt=""
+          style="width:100%;height:100%;object-fit:cover;border-radius:12px;position:absolute;inset:0;display:block;"
+          onerror="this.style.display='none';">
+        <span style="position:relative;z-index:1;">${ch.emoji}</span>
+      </div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
           <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ch.name}</p>
