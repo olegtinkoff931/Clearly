@@ -602,18 +602,6 @@
     </div>
   </div>
 
-  <!-- ═══ CONFIRM DELETE CHANNEL MODAL ═══ -->
-  <div id="confirmDeleteModal" onclick="closeConfirmDelete()">
-    <div class="confirm-sheet" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <p style="font-size:13px;color:#555;margin:0 0 10px;letter-spacing:.5px;">🗑 УДАЛИТЬ КАНАЛ</p>
-      <p class="confirm-channel-name" id="confirmChannelName"></p>
-      <p class="confirm-channel-sub">Канал будет удалён из вашего списка и уведомления больше не будут приходить.</p>
-      <button class="confirm-del-btn" onclick="doDeleteChannel()">🗑 Удалить канал</button>
-      <button class="confirm-cancel-btn" onclick="closeConfirmDelete()">Отмена</button>
-    </div>
-  </div>
-
   <!-- ═══ PAYMENT PENDING SCREEN ═══ -->
   <div id="payPendingScreen">
     <div id="payPendingContent">
@@ -1402,76 +1390,107 @@ function renderChannelList() {
     </div>`;
     return;
   }
-  channels.forEach((ch,idx)=>{
-    const pc=prioConfig[ch.prio];
-    const label=t(pc.labelKey);
-    const initials=ch.username.replace('@','').substring(0,2).toUpperCase();
-    const [delBorder,delBg,delColor]=pc.del.split(',');
-    const div=document.createElement('div');
-    div.className='cc';
-    div.style.borderColor=pc.border;
-    div.style.animationDelay=(idx*0.08)+'s';
-    div.innerHTML=`
+  channels.forEach((ch, idx) => {
+    const pc = prioConfig[ch.prio] || prioConfig['mid'];
+    const label = t(pc.labelKey);
+    const initials = ch.username.replace('@','').substring(0,2).toUpperCase();
+    const div = document.createElement('div');
+    div.className = 'cc';
+    div.style.borderColor = pc.border;
+    div.style.animationDelay = (idx * 0.08) + 's';
+    div.innerHTML = `
       <div class="pd ${pc.dot}"></div>
       <div class="av ${pc.av}">${initials}<span class="eb">${ch.emoji}</span></div>
       <div class="ci">
         <p class="cn">${ch.username}</p>
         <p class="cs2">Telegram channel</p>
         <div class="ar2">
-          <button class="ab ch-del-btn" style="border-color:${delBorder};background:${delBg};color:${delColor};">${t('delete')}</button>
+          <button
+            data-idx="${idx}"
+            data-id="${ch.id || ''}"
+            style="font-size:11px;padding:5px 12px;border-radius:8px;border:.5px solid #e0525255;background:#2a1010;color:#e05252;cursor:pointer;-webkit-tap-highlight-color:rgba(224,82,82,.2);">
+            🗑 Удалить
+          </button>
         </div>
       </div>
       <span class="pb ${pc.badge}">${label}</span>`;
-    div.querySelector('.ch-del-btn').addEventListener('click',()=>removeChannel(idx,ch.id));
+
+    const btn = div.querySelector('button[data-idx]');
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const i   = parseInt(this.getAttribute('data-idx'));
+      const cid = this.getAttribute('data-id');
+      askDeleteChannel(i, cid || null);
+    });
+
     list.appendChild(div);
   });
 }
 
-// ── Confirm Delete Channel ────────────────────────────
-let _pendingDeleteIdx = null;
-let _pendingDeleteId  = null;
+// ── Delete channel: показываем inline-баннер подтверждения ──────
+function askDeleteChannel(idx, channelId) {
+  // Удаляем предыдущий баннер если был
+  const old = document.getElementById('delConfirmBanner');
+  if (old) old.remove();
 
-function removeChannel(idx, channelId) {
-  // Показываем модал подтверждения вместо немедленного удаления
-  _pendingDeleteIdx = idx;
-  _pendingDeleteId  = channelId;
   const ch = channels[idx];
-  document.getElementById('confirmChannelName').textContent = ch.username;
-  document.getElementById('confirmDeleteModal').classList.add('open');
+  if (!ch) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'delConfirmBanner';
+  banner.style.cssText = `
+    position:fixed; bottom:90px; left:16px; right:16px;
+    background:#1e1010; border:1px solid #e0525277;
+    border-radius:16px; padding:16px; z-index:99999;
+    box-shadow:0 8px 32px rgba(0,0,0,.6);
+    animation:sheetUp .25s ease;
+  `;
+  banner.innerHTML = `
+    <p style="font-size:13px;color:#e05252;font-weight:600;margin:0 0 4px;">Удалить канал?</p>
+    <p style="font-size:13px;color:#e8e8f0;font-weight:500;margin:0 0 12px;">${ch.username}</p>
+    <div style="display:flex;gap:8px;">
+      <button id="delYesBtn" style="flex:1;background:#e05252;color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">Да, удалить</button>
+      <button id="delNoBtn"  style="flex:1;background:#222;color:#aaa;border:.5px solid #333;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;">Отмена</button>
+    </div>
+  `;
+
+  document.body.appendChild(banner);
+
+  document.getElementById('delYesBtn').onclick = async function() {
+    banner.remove();
+    await doDeleteChannel(idx, channelId);
+  };
+  document.getElementById('delNoBtn').onclick = function() {
+    banner.remove();
+  };
+
+  // Закрыть при тапе вне баннера
+  setTimeout(() => {
+    document.addEventListener('click', function handler(e) {
+      if (!banner.contains(e.target)) {
+        banner.remove();
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 100);
 }
 
-function closeConfirmDelete() {
-  document.getElementById('confirmDeleteModal').classList.remove('open');
-  _pendingDeleteIdx = null;
-  _pendingDeleteId  = null;
-}
-
-async function doDeleteChannel() {
-  if(_pendingDeleteIdx === null) return;
-  const idx = _pendingDeleteIdx;
-  const channelId = _pendingDeleteId;
-
-  // Закрываем модал сразу
-  document.getElementById('confirmDeleteModal').classList.remove('open');
-
-  // Удаляем из БД (пробуем даже если id null — на случай если id есть в объекте)
+async function doDeleteChannel(idx, channelId) {
   const ch = channels[idx];
-  const idToDelete = channelId || ch?.id || null;
-  if(idToDelete && currentUserId) {
+  if (!ch) return;
+
+  const idToDelete = channelId || ch.id || null;
+  if (idToDelete && currentUserId) {
     await apiFetch('/api/channel/delete', 'POST', {
       user_id:    currentUserId,
       channel_id: idToDelete,
     });
   }
 
-  // Удаляем из локального массива
   channels.splice(idx, 1);
-  _pendingDeleteIdx = null;
-  _pendingDeleteId  = null;
-
   renderChannelList();
   syncNotifScreen();
-  if(document.getElementById('vProfile').style.transform==='translateX(0px)') renderProfileScreen();
+  if (document.getElementById('vProfile').style.transform === 'translateX(0px)') renderProfileScreen();
   showMainToast(t('channelDeleted'));
 }
 
@@ -1877,5 +1896,18 @@ function switchAddTab(tab) {
 applyI18n();
 init();
 </script>
+
+<!-- ═══ CONFIRM DELETE CHANNEL MODAL (вне .app-container чтобы не обрезался overflow) ═══ -->
+<div id="confirmDeleteModal" onclick="closeConfirmDelete()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;align-items:flex-end;">
+  <div onclick="event.stopPropagation()" style="background:#1a1a20;border-radius:24px 24px 0 0;padding:20px 16px 44px;width:100%;animation:sheetUp .3s cubic-bezier(.4,0,.2,1);">
+    <div style="width:36px;height:4px;background:#333;border-radius:2px;margin:0 auto 16px;"></div>
+    <p style="font-size:11px;color:#555;margin:0 0 8px;letter-spacing:.5px;text-transform:uppercase;">🗑 Удалить канал</p>
+    <p id="confirmChannelName" style="font-size:17px;font-weight:700;color:#e8e8f0;margin:0 0 6px;"></p>
+    <p style="font-size:13px;color:#555;margin:0 0 22px;line-height:1.5;">Канал будет удалён из вашего списка и уведомления больше не будут приходить.</p>
+    <button onclick="doDeleteChannel()" style="width:100%;background:#2a1010;border:.5px solid #e0525255;color:#e05252;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;">🗑 Удалить</button>
+    <button onclick="closeConfirmDelete()" style="width:100%;background:none;border:none;color:#666;font-size:14px;cursor:pointer;padding:8px 0;">Отмена</button>
+  </div>
+</div>
+
 </body>
 </html>
