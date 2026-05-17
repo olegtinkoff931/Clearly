@@ -693,56 +693,65 @@ async function apiFetch(path, method='GET', body=null) {
 //  INIT — load user from backend on open
 // ══════════════════════════════════════════════════════
 async function init() {
-  // Get Telegram user id
+  // Get Telegram user id and info
   const tgUser = tg?.initDataUnsafe?.user;
-  currentUserId = tgUser?.id || 0;
+  currentUserId = tgUser?.id || null;
 
   if(!currentUserId) {
-    // Demo mode (no Telegram) — skip to splash
+    // Demo mode (no Telegram context) — go to splash
     hideLoading();
     showView('vSplash');
     return;
   }
 
-  // Load user data from backend
+  // Always register/upsert user first (creates row in DB if new)
+  await apiFetch('/api/register', 'POST', {
+    user_id:    currentUserId,
+    username:   tgUser?.username   || '',
+    first_name: tgUser?.first_name || '',
+  });
+
+  // Now load full user state
   const userData = await apiFetch(`/api/user/${currentUserId}`);
 
   if(!userData || userData.error) {
-    // New user — start fresh
     hideLoading();
     showView('vSplash');
     return;
   }
 
   // Restore language
-  if(userData.lang) {
-    currentLang = userData.lang;
-    document.getElementById('pill-en').classList.toggle('active', currentLang==='en');
-    document.getElementById('pill-ru').classList.toggle('active', currentLang==='ru');
-    applyI18n();
-  }
+  currentLang = userData.lang || 'en';
+  document.getElementById('pill-en').classList.toggle('active', currentLang==='en');
+  document.getElementById('pill-ru').classList.toggle('active', currentLang==='ru');
+  applyI18n();
 
   // Restore channels from backend
   channels = (userData.channels||[]).map(c=>({
-    id: c.id,
+    id:      c.id,
     username: c.username,
-    prio: c.priority,
-    emoji: c.emoji||'🔔',
-    notifOn: c.notif_on!==0
+    prio:    c.priority,
+    emoji:   c.emoji || '🔔',
+    notifOn: c.notif_on !== 0,
   }));
 
   // Restore purchased packs
-  purchasedPacks = userData.active_packs||[];
+  purchasedPacks = userData.active_packs || [];
 
-  // Quiz done? → skip straight to main
+  // Restore theme
+  if(userData.theme) {
+    const saved = themes.find(x=>x.id===userData.theme);
+    if(saved) { currentTheme=saved.id; tempTheme=saved.id; _applyThemeById(saved.id); }
+  }
+
+  hideLoading();
+
   if(userData.quiz_done) {
-    hideLoading();
+    // Returning user — jump straight to main
     renderChannelList();
     renderProfileScreen();
     showView('vMain');
   } else {
-    // New user flow
-    hideLoading();
     showView('vSplash');
   }
 }
@@ -1564,16 +1573,25 @@ function renderThemes() {
   });
 }
 
-function applyTheme() {
-  currentTheme=tempTheme;
-  const th=themes.find(x=>x.id===currentTheme);
+function _applyThemeById(themeId) {
+  const th=themes.find(x=>x.id===themeId);
+  if(!th) return;
   document.documentElement.style.setProperty('--accent',th.accent);
   document.documentElement.style.setProperty('--accent-gradient',th.gradient);
   document.querySelectorAll('.splash-btn,.w-btn,.next-btn,.start-btn,.fab,.save-btn,.manual-confirm-btn').forEach(el=>el.style.background=th.gradient);
-  document.getElementById('applyBtn').style.background=th.gradient;
+  const applyBtn=document.getElementById('applyBtn');
+  if(applyBtn) applyBtn.style.background=th.gradient;
   const style=document.getElementById('themeStyleTag')||(() => {const s=document.createElement('style');s.id='themeStyleTag';document.head.appendChild(s);return s;})();
   style.textContent=`.ni.ac{color:${th.accent}!important}.opt-btn.sel{border-color:${th.accent}88!important;color:${th.accent}!important;background:${th.accent}11!important}.t-card.active{border-color:${th.accent}!important}.next-btn{background:${th.gradient}!important}.splash-btn,.w-btn,.start-btn{background:${th.gradient}!important}.splash-title,.w-title span,.lr-name{background:${th.gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent}.logo-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.lr-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.notif-count{background:${th.accent}!important}.toggle-input:checked+.toggle-label{background:${th.accent}!important}.qb i{color:${th.accent}!important}.done-ring{border-color:${th.accent}55!important}.lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}.lang-pill.active .lang-pill-name{color:${th.accent}!important}.lang-pill.active .lang-pill-tag{color:${th.accent}!important}`;
+}
+
+function applyTheme() {
+  currentTheme=tempTheme;
+  _applyThemeById(currentTheme);
+  const th=themes.find(x=>x.id===currentTheme);
   showToast('themeToast',t('themeApplied',{name:th.name}));
+  // Сохраняем тему в БД
+  if(currentUserId) apiFetch('/api/theme','POST',{user_id:currentUserId,theme:currentTheme});
   closeThemeScreen();
 }
 
