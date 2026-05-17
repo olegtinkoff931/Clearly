@@ -610,14 +610,7 @@
 // ══════════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════════
-// API_BASE — всегда тот же сервер что отдал HTML, без хардкода
-const API_BASE = (()=>{
-  // Если открыто через file:// или localhost для тестов — укажи ngrok/сервер вручную
-  const loc = window.location;
-  if(loc.protocol === 'file:') return 'https://spender-crane-revise.ngrok-free.dev';
-  // Иначе — тот же origin (bot.py сам отдаёт HTML и API)
-  return loc.origin;
-})();
+const API_BASE = 'https://spender-crane-revise.ngrok-free.dev'; // same origin — bot.py serves both HTML and API
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.expand(); tg.ready(); }
@@ -690,20 +683,59 @@ function applyI18n() {
   updateCount();
 }
 
+// ── Themes (declared early — used by init() to restore saved theme) ──
+const themes=[
+  {id:'midnight',name:'Midnight',accent:'#7f77dd',gradient:'linear-gradient(135deg,#7f77dd,#534ab7)',preview:'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)'},
+  {id:'aurora',  name:'Aurora',  accent:'#1d9e75',gradient:'linear-gradient(135deg,#1d9e75,#0f6e56)',preview:'linear-gradient(135deg,#0d2b1f 0%,#1a4a30 50%,#0f6e56 100%)'},
+  {id:'sunset',  name:'Sunset',  accent:'#d85a30',gradient:'linear-gradient(135deg,#d85a30,#993c1d)',preview:'linear-gradient(135deg,#2b1207 0%,#4a1b0c 50%,#d85a30 100%)'},
+  {id:'rose',    name:'Rose',    accent:'#d4537e',gradient:'linear-gradient(135deg,#d4537e,#993556)',preview:'linear-gradient(135deg,#2b0f1a 0%,#4b1528 50%,#d4537e 100%)'},
+  {id:'ocean',   name:'Ocean',   accent:'#378add',gradient:'linear-gradient(135deg,#378add,#185fa5)',preview:'linear-gradient(135deg,#04152d 0%,#0c447c 50%,#378add 100%)'},
+  {id:'golden',  name:'Golden',  accent:'#ef9f27',gradient:'linear-gradient(135deg,#ef9f27,#ba7517)',preview:'linear-gradient(135deg,#1a0e02 0%,#412402 50%,#ef9f27 100%)'},
+];
+let currentTheme='midnight', tempTheme='midnight';
+
+function _applyThemeById(themeId) {
+  const th=themes.find(x=>x.id===themeId);
+  if(!th) return;
+  document.documentElement.style.setProperty('--accent',th.accent);
+  document.documentElement.style.setProperty('--accent-gradient',th.gradient);
+  document.querySelectorAll('.splash-btn,.w-btn,.next-btn,.start-btn,.fab,.save-btn,.manual-confirm-btn').forEach(el=>el.style.background=th.gradient);
+  const applyBtn=document.getElementById('applyBtn');
+  if(applyBtn) applyBtn.style.background=th.gradient;
+  const style=document.getElementById('themeStyleTag')||(() => {const s=document.createElement('style');s.id='themeStyleTag';document.head.appendChild(s);return s;})();
+  style.textContent=`.ni.ac{color:${th.accent}!important}.opt-btn.sel{border-color:${th.accent}88!important;color:${th.accent}!important;background:${th.accent}11!important}.t-card.active{border-color:${th.accent}!important}.next-btn{background:${th.gradient}!important}.splash-btn,.w-btn,.start-btn{background:${th.gradient}!important}.splash-title,.w-title span,.lr-name{background:${th.gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent}.logo-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.lr-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.notif-count{background:${th.accent}!important}.toggle-input:checked+.toggle-label{background:${th.accent}!important}.qb i{color:${th.accent}!important}.done-ring{border-color:${th.accent}55!important}.lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}.lang-pill.active .lang-pill-name{color:${th.accent}!important}.lang-pill.active .lang-pill-tag{color:${th.accent}!important}`;
+}
+
+function renderThemes() {
+  const grid=document.getElementById('themeGrid');
+  grid.innerHTML='';
+  themes.forEach(th=>{
+    const card=document.createElement('div');
+    card.className='t-card'+(th.id===tempTheme?' active':'');
+    card.innerHTML=`<div class="t-preview" style="background:${th.preview}"></div><div class="t-name">${th.name}</div>`;
+    card.onclick=()=>{tempTheme=th.id;renderThemes();};
+    grid.appendChild(card);
+  });
+}
+
+function applyTheme() {
+  currentTheme=tempTheme;
+  _applyThemeById(currentTheme);
+  const th=themes.find(x=>x.id===currentTheme);
+  showToast('themeToast',t('themeApplied',{name:th.name}));
+  if(currentUserId) apiFetch('/api/theme','POST',{user_id:currentUserId,theme:currentTheme});
+  closeThemeScreen();
+}
+
 // ── API helpers ───────────────────────────────────────
 async function apiFetch(path, method='GET', body=null) {
-  const url = API_BASE + path;
   const opts = { method, headers:{'Content-Type':'application/json'} };
   if(body) opts.body = JSON.stringify(body);
   try {
-    const r = await fetch(url, opts);
-    if(!r.ok) {
-      console.error('API HTTP error', method, path, r.status, await r.text());
-      return null;
-    }
+    const r = await fetch(API_BASE + path, opts);
     return await r.json();
   } catch(e) {
-    console.error('API fetch failed', method, url, e.message);
+    console.warn('API error', path, e);
     return null;
   }
 }
@@ -712,25 +744,25 @@ async function apiFetch(path, method='GET', body=null) {
 //  INIT — load user from backend on open
 // ══════════════════════════════════════════════════════
 async function init() {
+  try {
   // Get Telegram user id and info
   const tgUser = tg?.initDataUnsafe?.user;
   currentUserId = tgUser?.id || null;
 
   if(!currentUserId) {
-    // Demo mode (no Telegram context) — go to splash
     hideLoading();
     showView('vSplash');
     return;
   }
 
-  // Always register/upsert user first (creates row in DB if new)
+  // Register/upsert user
   await apiFetch('/api/register', 'POST', {
     user_id:    currentUserId,
     username:   tgUser?.username   || '',
     first_name: tgUser?.first_name || '',
   });
 
-  // Now load full user state
+  // Load full user state
   const userData = await apiFetch(`/api/user/${currentUserId}`);
 
   if(!userData || userData.error) {
@@ -745,17 +777,17 @@ async function init() {
   document.getElementById('pill-ru').classList.toggle('active', currentLang==='ru');
   applyI18n();
 
-  // Restore channels from backend
+  // Restore channels
   channels = (userData.channels||[]).map(c=>({
-    id:      c.id,
+    id:       c.id,
     username: c.username,
-    prio:    c.priority,
-    emoji:   c.emoji || '🔔',
-    notifOn: c.notif_on !== 0,
+    prio:     c.priority,
+    emoji:    c.emoji || '🔔',
+    notifOn:  c.notif_on !== 0,
   }));
 
   // Restore purchased packs
-  purchasedPacks = userData.active_packs || [];
+  purchasedPacks = Array.isArray(userData.active_packs) ? userData.active_packs : [];
 
   // Restore theme
   if(userData.theme) {
@@ -766,11 +798,16 @@ async function init() {
   hideLoading();
 
   if(userData.quiz_done) {
-    // Returning user — jump straight to main
     renderChannelList();
     renderProfileScreen();
     showView('vMain');
   } else {
+    showView('vSplash');
+  }
+
+  } catch(err) {
+    console.error('init() failed:', err);
+    hideLoading();
     showView('vSplash');
   }
 }
@@ -1570,50 +1607,6 @@ function openProfileChangePay() {
 }
 
 // ── Themes ────────────────────────────────────────────
-const themes=[
-  {id:'midnight',name:'Midnight',accent:'#7f77dd',gradient:'linear-gradient(135deg,#7f77dd,#534ab7)',preview:'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)'},
-  {id:'aurora',  name:'Aurora',  accent:'#1d9e75',gradient:'linear-gradient(135deg,#1d9e75,#0f6e56)',preview:'linear-gradient(135deg,#0d2b1f 0%,#1a4a30 50%,#0f6e56 100%)'},
-  {id:'sunset',  name:'Sunset',  accent:'#d85a30',gradient:'linear-gradient(135deg,#d85a30,#993c1d)',preview:'linear-gradient(135deg,#2b1207 0%,#4a1b0c 50%,#d85a30 100%)'},
-  {id:'rose',    name:'Rose',    accent:'#d4537e',gradient:'linear-gradient(135deg,#d4537e,#993556)',preview:'linear-gradient(135deg,#2b0f1a 0%,#4b1528 50%,#d4537e 100%)'},
-  {id:'ocean',   name:'Ocean',   accent:'#378add',gradient:'linear-gradient(135deg,#378add,#185fa5)',preview:'linear-gradient(135deg,#04152d 0%,#0c447c 50%,#378add 100%)'},
-  {id:'golden',  name:'Golden',  accent:'#ef9f27',gradient:'linear-gradient(135deg,#ef9f27,#ba7517)',preview:'linear-gradient(135deg,#1a0e02 0%,#412402 50%,#ef9f27 100%)'},
-];
-let currentTheme='midnight',tempTheme='midnight';
-
-function renderThemes() {
-  const grid=document.getElementById('themeGrid');
-  grid.innerHTML='';
-  themes.forEach(th=>{
-    const card=document.createElement('div');
-    card.className='t-card'+(th.id===tempTheme?' active':'');
-    card.innerHTML=`<div class="t-preview" style="background:${th.preview}"></div><div class="t-name">${th.name}</div>`;
-    card.onclick=()=>{tempTheme=th.id;renderThemes();};
-    grid.appendChild(card);
-  });
-}
-
-function _applyThemeById(themeId) {
-  const th=themes.find(x=>x.id===themeId);
-  if(!th) return;
-  document.documentElement.style.setProperty('--accent',th.accent);
-  document.documentElement.style.setProperty('--accent-gradient',th.gradient);
-  document.querySelectorAll('.splash-btn,.w-btn,.next-btn,.start-btn,.fab,.save-btn,.manual-confirm-btn').forEach(el=>el.style.background=th.gradient);
-  const applyBtn=document.getElementById('applyBtn');
-  if(applyBtn) applyBtn.style.background=th.gradient;
-  const style=document.getElementById('themeStyleTag')||(() => {const s=document.createElement('style');s.id='themeStyleTag';document.head.appendChild(s);return s;})();
-  style.textContent=`.ni.ac{color:${th.accent}!important}.opt-btn.sel{border-color:${th.accent}88!important;color:${th.accent}!important;background:${th.accent}11!important}.t-card.active{border-color:${th.accent}!important}.next-btn{background:${th.gradient}!important}.splash-btn,.w-btn,.start-btn{background:${th.gradient}!important}.splash-title,.w-title span,.lr-name{background:${th.gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent}.logo-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.lr-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.notif-count{background:${th.accent}!important}.toggle-input:checked+.toggle-label{background:${th.accent}!important}.qb i{color:${th.accent}!important}.done-ring{border-color:${th.accent}55!important}.lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}.lang-pill.active .lang-pill-name{color:${th.accent}!important}.lang-pill.active .lang-pill-tag{color:${th.accent}!important}`;
-}
-
-function applyTheme() {
-  currentTheme=tempTheme;
-  _applyThemeById(currentTheme);
-  const th=themes.find(x=>x.id===currentTheme);
-  showToast('themeToast',t('themeApplied',{name:th.name}));
-  // Сохраняем тему в БД
-  if(currentUserId) apiFetch('/api/theme','POST',{user_id:currentUserId,theme:currentTheme});
-  closeThemeScreen();
-}
-
 function openThemeScreen()  { renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); }
 function closeThemeScreen() { document.getElementById('vTheme').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; }
 function openNotifScreen()  { syncNotifScreen(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); }
