@@ -10,6 +10,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background:#0E0E10; color:#f0f0f2; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; overflow:hidden; height:100vh; width:100vw; }
     .app-container { background:#111114; height:100vh; width:100%; position:relative; overflow:hidden; }
+    .themed-bg { background: var(--app-bg, #111114) !important; }
 
     /* ── Loading overlay ── */
     #vLoading { position:absolute; inset:0; background:#111114; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:1000; transition:opacity .4s; }
@@ -455,7 +456,7 @@
 
   <!-- Profile screen -->
   <!-- Outer wrapper: absolute overlay, flex column, NO overflow -->
-  <div id="vProfile" style="background:#111114;display:flex;flex-direction:column;position:absolute;inset:0;transform:translateX(100%);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;z-index:10;">
+  <div id="vProfile" style="background:#111114;display:flex;flex-direction:column;position:absolute;inset:0;transform:translateX(100%);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;z-index:10;" class="themed-bg">
 
     <!-- Scrollable content area — takes all space above the nav bar -->
     <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
@@ -489,10 +490,10 @@
     </div>
 
     <!-- Nav bar sits OUTSIDE scroll area — always pinned to bottom -->
-    <div class="bn" style="flex-shrink:0;background:#111114;border-top:.5px solid #1e1e26;">
-      <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span>Channels</span></div>
-      <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span>Feed</span></div>
-      <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span>Profile</span></div>
+    <div class="bn" style="flex-shrink:0;background:#111114;border-top:.5px solid #1e1e26;" id="profBottomNav">
+      <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
+      <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span data-i18n="navFeed">Feed</span></div>
+      <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
     </div>
   </div>
 
@@ -709,11 +710,12 @@ function _applyThemeById(themeId) {
   if(!th) return;
   document.documentElement.style.setProperty('--accent',th.accent);
   document.documentElement.style.setProperty('--accent-gradient',th.gradient);
+  // Apply accent color to profile screen nav items directly
   document.querySelectorAll('.splash-btn,.w-btn,.next-btn,.start-btn,.fab,.save-btn,.manual-confirm-btn').forEach(el=>el.style.background=th.gradient);
   const applyBtn=document.getElementById('applyBtn');
   if(applyBtn) applyBtn.style.background=th.gradient;
   const style=document.getElementById('themeStyleTag')||(() => {const s=document.createElement('style');s.id='themeStyleTag';document.head.appendChild(s);return s;})();
-  style.textContent=`.ni.ac{color:${th.accent}!important}.opt-btn.sel{border-color:${th.accent}88!important;color:${th.accent}!important;background:${th.accent}11!important}.t-card.active{border-color:${th.accent}!important}.next-btn{background:${th.gradient}!important}.splash-btn,.w-btn,.start-btn{background:${th.gradient}!important}.splash-title,.w-title span,.lr-name{background:${th.gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent}.logo-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.lr-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.notif-count{background:${th.accent}!important}.toggle-input:checked+.toggle-label{background:${th.accent}!important}.qb i{color:${th.accent}!important}.done-ring{border-color:${th.accent}55!important}.lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}.lang-pill.active .lang-pill-name{color:${th.accent}!important}.lang-pill.active .lang-pill-tag{color:${th.accent}!important}`;
+  style.textContent=`.ni.ac{color:${th.accent}!important}.opt-btn.sel{border-color:${th.accent}88!important;color:${th.accent}!important;background:${th.accent}11!important}.t-card.active{border-color:${th.accent}!important}.next-btn{background:${th.gradient}!important}.splash-btn,.w-btn,.start-btn{background:${th.gradient}!important}.splash-title,.w-title span,.lr-name{background:${th.gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent}.logo-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.lr-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.notif-count{background:${th.accent}!important}.toggle-input:checked+.toggle-label{background:${th.accent}!important}.qb i{color:${th.accent}!important}.done-ring{border-color:${th.accent}55!important}.lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}.lang-pill.active .lang-pill-name{color:${th.accent}!important}.lang-pill.active .lang-pill-tag{color:${th.accent}!important}#vProfile,#profBottomNav{background:#111114!important}`;
 }
 
 function renderThemes() {
@@ -1428,11 +1430,12 @@ function renderChannelList() {
     // Тап на карточку — показать/скрыть кнопку
     div.addEventListener('click', function(e) {
       if (e.target === trigger || confirm.contains(e.target)) return;
+      const isVisible = trigger.style.display !== 'none';
       // Закрыть все другие карточки
       document.querySelectorAll('.ch-del-trigger').forEach(b => b.style.display = 'none');
       document.querySelectorAll('.ch-confirm-box').forEach(b => b.style.display = 'none');
-      // Показать эту кнопку
-      trigger.style.display = 'block';
+      // Если была закрыта — открыть, если открыта — оставить закрытой
+      if (!isVisible) trigger.style.display = 'block';
     });
 
     trigger.addEventListener('click', function(e) {
