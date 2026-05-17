@@ -610,7 +610,9 @@
 // ══════════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════════
-const API_BASE = 'https://spender-crane-revise.ngrok-free.dev'; // same origin — bot.py serves both HTML and API
+// HTML на GitHub Pages, API на ngrok — разные домены.
+// API_BASE всегда указывает на ngrok-сервер.
+const API_BASE = 'https://spender-crane-revise.ngrok-free.dev';
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.expand(); tg.ready(); }
@@ -729,13 +731,25 @@ function applyTheme() {
 
 // ── API helpers ───────────────────────────────────────
 async function apiFetch(path, method='GET', body=null) {
-  const opts = { method, headers:{'Content-Type':'application/json'} };
+  const url = API_BASE + path;
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': '1',
+    }
+  };
   if(body) opts.body = JSON.stringify(body);
   try {
-    const r = await fetch(API_BASE + path, opts);
+    const r = await fetch(url, opts);
+    if(!r.ok) {
+      const txt = await r.text();
+      console.error('[API]', method, path, r.status, txt.slice(0,300));
+      return null;
+    }
     return await r.json();
   } catch(e) {
-    console.warn('API error', path, e);
+    console.error('[API] fetch failed', method, url, e.message);
     return null;
   }
 }
