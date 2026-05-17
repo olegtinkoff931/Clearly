@@ -446,39 +446,46 @@
   </div>
 
   <!-- Profile screen -->
-  <div id="vProfile" style="background:#111114;display:flex;flex-direction:column;position:absolute;inset:0;overflow-y:auto;transform:translateX(100%);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;padding-bottom:80px;z-index:10;">
-    <div style="padding:16px 16px 10px;border-bottom:.5px solid #222228;flex-shrink:0;">
-      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">👤 MY PROFILE</p>
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-        <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👤</div>
-        <div>
-          <p id="profileName" style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">User</p>
-          <p style="font-size:12px;color:#555;margin:0;">Clearly</p>
+  <!-- Outer wrapper: absolute overlay, flex column, NO overflow -->
+  <div id="vProfile" style="background:#111114;display:flex;flex-direction:column;position:absolute;inset:0;transform:translateX(100%);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;z-index:10;">
+
+    <!-- Scrollable content area — takes all space above the nav bar -->
+    <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+      <div style="padding:16px 16px 10px;border-bottom:.5px solid #222228;">
+        <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">👤 MY PROFILE</p>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+          <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👤</div>
+          <div>
+            <p id="profileName" style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">User</p>
+            <p style="font-size:12px;color:#555;margin:0;">Clearly</p>
+          </div>
+        </div>
+        <div id="profileActivePacks"></div>
+      </div>
+      <div style="padding:14px 16px 8px;">
+        <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">📦 MY PLANS</p>
+        <div id="profilePacksList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+        <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn">
+          <i class="ti ti-credit-card"></i> Change plan 💳
+        </button>
+      </div>
+      <div style="margin:0 16px 24px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+        <p style="font-size:11px;color:#555;margin:0 0 10px;letter-spacing:.5px;">📊 STATS</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <div style="text-align:center;"><p id="profileChCount" style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;">0</p><p style="font-size:10px;color:#555;margin:0;">Channels</p></div>
+          <div style="text-align:center;border-left:.5px solid #272730;border-right:.5px solid #272730;"><p style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;" id="profilePackCount">0</p><p style="font-size:10px;color:#555;margin:0;">Plans</p></div>
+          <div style="text-align:center;"><p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p><p style="font-size:10px;color:#555;margin:0;">Per month</p></div>
         </div>
       </div>
-      <div id="profileActivePacks"></div>
+      <div class="toast" id="profileToast"></div>
     </div>
-    <div style="padding:14px 16px 8px;">
-      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">📦 MY PLANS</p>
-      <div id="profilePacksList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
-      <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn">
-        <i class="ti ti-credit-card"></i> Change plan 💳
-      </button>
-    </div>
-    <div style="margin:0 16px 16px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
-      <p style="font-size:11px;color:#555;margin:0 0 10px;letter-spacing:.5px;">📊 STATS</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-        <div style="text-align:center;"><p id="profileChCount" style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;">0</p><p style="font-size:10px;color:#555;margin:0;">Channels</p></div>
-        <div style="text-align:center;border-left:.5px solid #272730;border-right:.5px solid #272730;"><p style="font-size:20px;font-weight:700;color:#e8e8f0;margin:0;" id="profilePackCount">0</p><p style="font-size:10px;color:#555;margin:0;">Plans</p></div>
-        <div style="text-align:center;"><p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p><p style="font-size:10px;color:#555;margin:0;">Per month</p></div>
-      </div>
-    </div>
-    <div class="bn" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
+
+    <!-- Nav bar sits OUTSIDE scroll area — always pinned to bottom -->
+    <div class="bn" style="flex-shrink:0;background:#111114;border-top:.5px solid #1e1e26;">
       <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span>Channels</span></div>
       <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span>Feed</span></div>
       <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span>Profile</span></div>
     </div>
-    <div class="toast" id="profileToast"></div>
   </div>
 
   <!-- Add Channel Modal — Catalog -->
