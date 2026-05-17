@@ -688,13 +688,10 @@ async function apiFetch(path, method='GET', body=null) {
   const opts = { method, headers:{'Content-Type':'application/json'} };
   if(body) opts.body = JSON.stringify(body);
   try {
-    console.log(`📡 API ${method} ${path}`, body);
     const r = await fetch(API_BASE + path, opts);
-    const json = await r.json();
-    console.log(`📡 API response:`, json);
-    return json;
+    return await r.json();
   } catch(e) {
-    console.error('❌ API error', path, e);
+    console.warn('API error', path, e);
     return null;
   }
 }
@@ -707,18 +704,14 @@ async function init() {
   const tgUser = tg?.initDataUnsafe?.user;
   currentUserId = tgUser?.id || null;
 
-  console.log("🚀 INIT START - currentUserId:", currentUserId);
-
   if(!currentUserId) {
     // Demo mode (no Telegram context) — go to splash
-    console.log("⚠️ No Telegram context, showing splash");
     hideLoading();
     showView('vSplash');
     return;
   }
 
   // Always register/upsert user first (creates row in DB if new)
-  console.log("📝 Registering user...");
   await apiFetch('/api/register', 'POST', {
     user_id:    currentUserId,
     username:   tgUser?.username   || '',
@@ -726,13 +719,9 @@ async function init() {
   });
 
   // Now load full user state
-  console.log("📥 Loading user state from backend...");
   const userData = await apiFetch(`/api/user/${currentUserId}`);
 
-  console.log("✅ User data received:", userData);
-
   if(!userData || userData.error) {
-    console.error("❌ Failed to load user data");
     hideLoading();
     showView('vSplash');
     return;
@@ -745,19 +734,16 @@ async function init() {
   applyI18n();
 
   // Restore channels from backend
-  console.log("📻 Restoring channels:", userData.channels);
   channels = (userData.channels||[]).map(c=>({
     id:      c.id,
-    username: c.username.startsWith('@') ? c.username : '@' + c.username,
+    username: c.username,
     prio:    c.priority,
     emoji:   c.emoji || '🔔',
     notifOn: c.notif_on !== 0,
   }));
-  console.log("✅ Channels restored:", channels);
 
   // Restore purchased packs
   purchasedPacks = userData.active_packs || [];
-  console.log("💰 Purchased packs:", purchasedPacks);
 
   // Restore theme
   if(userData.theme) {
@@ -769,12 +755,10 @@ async function init() {
 
   if(userData.quiz_done) {
     // Returning user — jump straight to main
-    console.log("🎯 Quiz done, showing main view");
     renderChannelList();
     renderProfileScreen();
     showView('vMain');
   } else {
-    console.log("❓ Quiz not done, showing splash");
     showView('vSplash');
   }
 }
@@ -1456,8 +1440,6 @@ async function confirmAddChannel() {
   if(!raw||!addChPrio) return;
   const username=raw.startsWith('@')?raw:'@'+raw;
 
-  console.log("➕ Adding channel:", {username, priority: addChPrio});
-
   let channelId=null;
   if(currentUserId) {
     const resp=await apiFetch('/api/channel','POST',{
@@ -1466,12 +1448,10 @@ async function confirmAddChannel() {
       priority:addChPrio,
       emoji:prioEmojis[addChPrio]
     });
-    console.log("📤 API response:", resp);
     if(resp&&resp.id) channelId=resp.id;
   }
 
   channels.push({id:channelId,username,prio:addChPrio,emoji:prioEmojis[addChPrio],notifOn:true});
-  console.log("✅ Channel added to local array:", channels);
   closeAddChannel();
   renderChannelList();
   syncNotifScreen();
