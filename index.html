@@ -361,7 +361,7 @@
     <p class="sl" data-i18n="myChannels">MY CHANNELS</p>
     <div class="cl" id="channelList"></div>
     <div class="fab" onclick="openAddChannel()"><i class="ti ti-plus"></i> <span data-i18n="newChannel">New Channel</span></div>
-    <div class="bn" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
+    <div class="bn" id="mainBottomNav" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
       <div class="ni ac" id="navChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
       <div class="ni" id="navFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span data-i18n="navFeed">Feed</span></div>
       <div class="ni" id="navProfile" onclick="switchTab('profile')"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
@@ -481,33 +481,50 @@
     <div class="toast" id="profileToast"></div>
   </div>
 
-  <!-- Add Channel Modal -->
+  <!-- Add Channel Modal — Catalog -->
   <div class="modal-overlay" id="addChannelModal" onclick="closeAddChannelOutside(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet" onclick="event.stopPropagation()" style="max-height:90vh;display:flex;flex-direction:column;">
       <div class="modal-handle"></div>
-      <p class="modal-title" data-i18n="addChannelTitle">➕ Add Channel</p>
-      <p class="modal-sub" data-i18n="addChannelSub">Enter the Telegram channel username and choose priority</p>
-      <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:5px;" data-i18n="labelUsername">CHANNEL USERNAME</label>
-      <input class="ch-input" id="chUsername" type="text" placeholder="@channel_name" oninput="validateAddChannel()">
-      <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:8px;" data-i18n="labelPriority">PRIORITY</label>
-      <div class="prio-row" id="prioRow">
-        <button class="prio-btn" id="prioHigh" onclick="selectPrio('high')" data-i18n="high">🔴 High</button>
-        <button class="prio-btn" id="prioMid"  onclick="selectPrio('mid')" data-i18n="medium">🟡 Medium</button>
-        <button class="prio-btn" id="prioLow"  onclick="selectPrio('low')" data-i18n="low">🟢 Low</button>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button id="tabCatalog" onclick="switchAddTab('catalog')" style="flex:1;padding:9px;border-radius:11px;border:none;background:#1e1e30;color:#b0a8ff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;">📋 Каталог</button>
+        <button id="tabManual" onclick="switchAddTab('manual')" style="flex:1;padding:9px;border-radius:11px;border:none;background:#1a1a20;color:#555;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;">✏️ Вручную</button>
       </div>
-      <div id="chPreview" style="display:none;background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
-        <p style="font-size:11px;color:#555;margin:0 0 6px;">PREVIEW</p>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div id="chPreviewAvatar" style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;"></div>
-          <div>
-            <p id="chPreviewName" style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0;"></p>
-            <p id="chPreviewSub" style="font-size:11px;color:#555;margin:0;">Telegram channel</p>
-          </div>
-          <span id="chPreviewBadge" style="margin-left:auto;font-size:9px;padding:3px 8px;border-radius:6px;font-weight:500;"></span>
+
+      <!-- CATALOG TAB -->
+      <div id="addTabCatalog" style="flex:1;overflow-y:auto;">
+        <p style="font-size:11px;color:#555;letter-spacing:.5px;margin-bottom:10px;">TELEGRAM КАНАЛЫ</p>
+        <div id="catalogList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <!-- MANUAL TAB -->
+      <div id="addTabManual" style="display:none;">
+        <p class="modal-title" data-i18n="addChannelTitle">➕ Add Channel</p>
+        <p class="modal-sub" data-i18n="addChannelSub">Enter the Telegram channel username and choose priority</p>
+        <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:5px;" data-i18n="labelUsername">CHANNEL USERNAME</label>
+        <input class="ch-input" id="chUsername" type="text" placeholder="@channel_name" oninput="validateAddChannel()">
+        <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:8px;" data-i18n="labelPriority">PRIORITY</label>
+        <div class="prio-row" id="prioRow">
+          <button class="prio-btn" id="prioHigh" onclick="selectPrio('high')" data-i18n="high">🔴 High</button>
+          <button class="prio-btn" id="prioMid"  onclick="selectPrio('mid')" data-i18n="medium">🟡 Medium</button>
+          <button class="prio-btn" id="prioLow"  onclick="selectPrio('low')" data-i18n="low">🟢 Low</button>
         </div>
+        <div id="chPreview" style="display:none;background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+          <p style="font-size:11px;color:#555;margin:0 0 6px;">PREVIEW</p>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div id="chPreviewAvatar" style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;"></div>
+            <div>
+              <p id="chPreviewName" style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0;"></p>
+              <p id="chPreviewSub" style="font-size:11px;color:#555;margin:0;">Telegram channel</p>
+            </div>
+            <span id="chPreviewBadge" style="margin-left:auto;font-size:9px;padding:3px 8px;border-radius:6px;font-weight:500;"></span>
+          </div>
+        </div>
+        <button id="addChBtn" onclick="confirmAddChannel()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;opacity:.35;pointer-events:none;transition:opacity .2s;" data-i18n="addChannelBtn">Add Channel</button>
       </div>
-      <button id="addChBtn" onclick="confirmAddChannel()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;opacity:.35;pointer-events:none;transition:opacity .2s;" data-i18n="addChannelBtn">Add Channel</button>
-      <button onclick="closeAddChannel()" style="width:100%;background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:10px 0 0;" data-i18n="cancel">Cancel</button>
+
+      <button onclick="closeAddChannel()" style="width:100%;background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:12px 0 0;" data-i18n="cancel">Cancel</button>
     </div>
   </div>
 
@@ -1357,6 +1374,8 @@ function openAddChannel() {
   document.getElementById('addChBtn').style.opacity='.35';
   document.getElementById('addChBtn').style.pointerEvents='none';
   ['prioHigh','prioMid','prioLow'].forEach(id=>document.getElementById(id).className='prio-btn');
+  switchAddTab('catalog');
+  renderCatalog();
   document.getElementById('addChannelModal').classList.add('open');
 }
 
@@ -1443,8 +1462,8 @@ function switchTab(tab) {
   else{closeProfileScreen();}
 }
 
-function openProfileScreen()  { renderProfileScreen(); const vp=document.getElementById('vProfile');vp.style.transform='translateX(0)';vp.style.opacity='1';vp.style.pointerEvents='auto'; }
-function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.style.transform='translateX(100%)';vp.style.opacity='0';vp.style.pointerEvents='none'; }
+function openProfileScreen()  { renderProfileScreen(); const vp=document.getElementById('vProfile');vp.style.transform='translateX(0)';vp.style.opacity='1';vp.style.pointerEvents='auto'; const mn=document.getElementById('mainBottomNav'); if(mn) mn.style.display='none'; }
+function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.style.transform='translateX(100%)';vp.style.opacity='0';vp.style.pointerEvents='none'; const mn=document.getElementById('mainBottomNav'); if(mn) mn.style.display=''; }
 
 function renderProfileScreen() {
   profileSelectedPacks=[...purchasedPacks];
@@ -1621,6 +1640,132 @@ function showToast(id,msg) {
   if(!el) return;
   el.textContent=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ══════════════════════════════════════════════════════
+//  CHANNEL CATALOG
+// ══════════════════════════════════════════════════════
+const channelCatalog = [
+  {
+    username: '@cloudrproject',
+    name: 'Cloudr Project',
+    description: 'Крипто-аналитика, сигналы и макро-обзоры',
+    emoji: '☁️',
+    category: 'Crypto',
+    prio: 'high',
+    featured: true
+  },
+  {
+    username: '@durov',
+    name: 'Pavel Durov',
+    description: 'Официальный канал основателя Telegram',
+    emoji: '✈️',
+    category: 'Tech',
+    prio: 'mid',
+    featured: false
+  },
+  {
+    username: '@coindesk',
+    name: 'CoinDesk',
+    description: 'Новости крипторынка и блокчейна',
+    emoji: '📰',
+    category: 'Crypto News',
+    prio: 'high',
+    featured: false
+  },
+  {
+    username: '@cointelegraph',
+    name: 'Cointelegraph',
+    description: 'Аналитика и репортажи о криптовалютах',
+    emoji: '📡',
+    category: 'Crypto News',
+    prio: 'high',
+    featured: false
+  },
+  {
+    username: '@federalreserve',
+    name: 'Fed Reserve News',
+    description: 'Новости ФРС, ставки и монетарная политика',
+    emoji: '🏦',
+    category: 'Macro',
+    prio: 'mid',
+    featured: false
+  },
+  {
+    username: '@solana_news',
+    name: 'Solana News',
+    description: 'Экосистема Solana: DeFi, NFT и новости',
+    emoji: '🌊',
+    category: 'Crypto',
+    prio: 'mid',
+    featured: false
+  },
+];
+
+function renderCatalog() {
+  const list = document.getElementById('catalogList');
+  if (!list) return;
+  list.innerHTML = '';
+  channelCatalog.forEach(ch => {
+    const alreadyAdded = channels.some(c => c.username.toLowerCase() === ch.username.toLowerCase());
+    const prioColors = {
+      high: { bg: '#2a1010', color: '#e05252', border: '#e0525244' },
+      mid:  { bg: '#221a08', color: '#d49a2e', border: '#d49a2e44' },
+      low:  { bg: '#0c1f16', color: '#3aaa6e', border: '#3aaa6e44' },
+    };
+    const pc = prioColors[ch.prio];
+    const card = document.createElement('div');
+    card.style.cssText = `background:#1a1a20;border:.5px solid ${ch.featured ? '#5b5bdc44' : '#272730'};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;`;
+    if (ch.featured) {
+      card.innerHTML += `<div style="position:absolute;top:0;right:0;background:linear-gradient(135deg,#6b6bff,#a78bfa);font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:600;">★ FEATURED</div>`;
+    }
+    card.innerHTML += `
+      <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? 'linear-gradient(135deg,#6b6bff,#a78bfa)' : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${ch.emoji}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+          <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ch.name}</p>
+          <span style="font-size:9px;background:${pc.bg};color:${pc.color};border:.5px solid ${pc.border};border-radius:6px;padding:2px 6px;white-space:nowrap;">${ch.category}</span>
+        </div>
+        <p style="font-size:11px;color:#555;margin:0 0 2px;">${ch.username}</p>
+        <p style="font-size:11px;color:#666;margin:0;line-height:1.4;">${ch.description}</p>
+      </div>
+      <button onclick="addFromCatalog('${ch.username}','${ch.prio}','${ch.emoji}')" ${alreadyAdded ? 'disabled' : ''}
+        style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : 'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
+        ${alreadyAdded ? '✓ Добавлен' : '+ Add'}
+      </button>`;
+    list.appendChild(card);
+  });
+}
+
+async function addFromCatalog(username, prio, emoji) {
+  let channelId = null;
+  if (currentUserId) {
+    const resp = await apiFetch('/api/channel', 'POST', {
+      user_id: currentUserId,
+      username: username.replace('@', ''),
+      priority: prio,
+      emoji: emoji
+    });
+    if (resp && resp.id) channelId = resp.id;
+  }
+  channels.push({ id: channelId, username, prio, emoji, notifOn: true });
+  renderChannelList();
+  syncNotifScreen();
+  renderCatalog(); // refresh buttons
+  if (document.getElementById('vProfile').style.transform === 'translateX(0px)') renderProfileScreen();
+  showMainToast(t('channelAdded'));
+}
+
+let addChannelCurrentTab = 'catalog';
+
+function switchAddTab(tab) {
+  addChannelCurrentTab = tab;
+  document.getElementById('addTabCatalog').style.display = tab === 'catalog' ? '' : 'none';
+  document.getElementById('addTabManual').style.display  = tab === 'manual'  ? '' : 'none';
+  document.getElementById('tabCatalog').style.background = tab === 'catalog' ? '#1e1e30' : '#1a1a20';
+  document.getElementById('tabCatalog').style.color      = tab === 'catalog' ? '#b0a8ff' : '#555';
+  document.getElementById('tabManual').style.background  = tab === 'manual'  ? '#1e1e30' : '#1a1a20';
+  document.getElementById('tabManual').style.color       = tab === 'manual'  ? '#b0a8ff' : '#555';
 }
 
 // ══════════════════════════════════════════════════════
