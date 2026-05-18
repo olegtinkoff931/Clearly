@@ -301,8 +301,9 @@
     .feed-translated-badge { font-size:9px; color:#555; margin-top:3px; }
 
     /* ── AI Chat FAB ── */
-    #aiFab { position:fixed; bottom:80px; right:16px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#6b6bff,#a78bfa); box-shadow:0 4px 20px #6b6bff55; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:9998; transition:transform .2s, opacity .3s; opacity:0; pointer-events:none; }
-    #aiFab:active { transform:scale(.93); }
+    #aiFab { position:fixed; bottom:80px; right:16px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#6b6bff,#a78bfa); box-shadow:0 4px 20px #6b6bff55; display:flex; align-items:center; justify-content:center; cursor:grab; z-index:9998; transition:transform .2s, opacity .3s; opacity:0; pointer-events:none; touch-action:none; }
+    #aiFab.dragging { cursor:grabbing; transform:scale(1.12); box-shadow:0 8px 32px #6b6bff88; transition:box-shadow .15s, transform .15s; }
+    #aiFab:not(.dragging):active { transform:scale(.93); }
     #aiFab .fp { position:absolute; inset:-3px; border-radius:50%; border:1.5px solid #a78bfa55; animation:fabRipple 2.4s ease-in-out infinite; pointer-events:none; }
     @keyframes fabRipple { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.2);opacity:0} }
 
@@ -2474,6 +2475,94 @@ const _quickHints = {
   ru: ['Как добавить канал?','Что такое оценка влияния?','Как включить уведомления?','Объясни DeFi']
 };
 
+// ══ AI FAB DRAG ══
+(function() {
+  const MARGIN = 10;
+  let isDragging = false;
+  let startX, startY, startLeft, startTop;
+  let dragMoved = false;
+
+  function snapToCorner(fab) {
+    const W = window.innerWidth, H = window.innerHeight;
+    const cx = parseFloat(fab.style.left) + fab.offsetWidth / 2;
+    const cy = parseFloat(fab.style.top) + fab.offsetHeight / 2;
+    const snapLeft = cx < W / 2
+      ? MARGIN
+      : W - fab.offsetWidth - MARGIN;
+    const snapTop = cy < H / 2
+      ? MARGIN
+      : H - fab.offsetHeight - MARGIN;
+    fab.style.transition = 'left .3s cubic-bezier(.4,0,.2,1), top .3s cubic-bezier(.4,0,.2,1), transform .2s, box-shadow .15s';
+    fab.style.left = snapLeft + 'px';
+    fab.style.top  = snapTop  + 'px';
+    fab.style.right  = 'auto';
+    fab.style.bottom = 'auto';
+    setTimeout(() => { fab.style.transition = 'transform .2s, opacity .3s, box-shadow .15s'; }, 320);
+  }
+
+  function onPointerDown(e) {
+    const fab = document.getElementById('aiFab');
+    // Initialise absolute position from computed style if still using right/bottom
+    if (!fab.style.left || fab.style.right !== 'auto') {
+      const r = fab.getBoundingClientRect();
+      fab.style.left   = r.left + 'px';
+      fab.style.top    = r.top  + 'px';
+      fab.style.right  = 'auto';
+      fab.style.bottom = 'auto';
+    }
+    isDragging = true;
+    dragMoved  = false;
+    startX = e.touches ? e.touches[0].clientX : e.clientX;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    startLeft = parseFloat(fab.style.left);
+    startTop  = parseFloat(fab.style.top);
+    fab.style.transition = 'transform .15s, box-shadow .15s';
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    const fab = document.getElementById('aiFab');
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    const dx = cx - startX, dy = cy - startY;
+    if (!dragMoved && Math.abs(dx) + Math.abs(dy) > 6) {
+      dragMoved = true;
+      fab.classList.add('dragging');
+    }
+    if (!dragMoved) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    const newLeft = Math.max(MARGIN, Math.min(W - fab.offsetWidth  - MARGIN, startLeft + dx));
+    const newTop  = Math.max(MARGIN, Math.min(H - fab.offsetHeight - MARGIN, startTop  + dy));
+    fab.style.left = newLeft + 'px';
+    fab.style.top  = newTop  + 'px';
+    e.preventDefault();
+  }
+
+  function onPointerUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    const fab = document.getElementById('aiFab');
+    fab.classList.remove('dragging');
+    if (dragMoved) {
+      snapToCorner(fab);
+    } else {
+      toggleAiChat();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const fab = document.getElementById('aiFab');
+    if (!fab) return;
+    fab.addEventListener('mousedown',  onPointerDown, { passive: false });
+    fab.addEventListener('touchstart', onPointerDown, { passive: false });
+    document.addEventListener('mousemove',  onPointerMove, { passive: false });
+    document.addEventListener('touchmove',  onPointerMove, { passive: false });
+    document.addEventListener('mouseup',   onPointerUp);
+    document.addEventListener('touchend',  onPointerUp);
+  });
+})();
+
 function toggleAiChat() {
   const panel = document.getElementById('aiPanel');
   const isOpen = panel.classList.toggle('open');
@@ -2607,7 +2696,7 @@ init();
   </div>
 </div>
 <!-- AI Chat FAB -->
-<div id="aiFab" onclick="toggleAiChat()">
+<div id="aiFab">
   <div class="fp"></div>
   <span style="font-size:22px;">✦</span>
 </div>
