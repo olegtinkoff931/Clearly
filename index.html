@@ -1371,21 +1371,17 @@ function showPayPendingScreen(isAuto) {
 
 async function pollPaymentStatus() {
   if(!currentPaymentId) return;
-  // Check payment status from backend
-  const resp=await apiFetch(`/api/user/${currentUserId}`);
+  // Проверяем реальный статус оплаты через CryptoBot API
+  const resp = await apiFetch('/api/payment/confirm', 'POST', {payment_id: currentPaymentId});
   if(!resp) return;
 
-  // Find if payment was confirmed (packs updated)
-  const packs=resp.active_packs||[];
-  if(packs.length>0 && JSON.stringify([...packs].sort())!==JSON.stringify([...selectedPacks].sort())) {
-    // might be confirmed by webhook — check directly
-  }
-
-  // Simple check: user's active_packs updated to match selected
-  const hasAllSelected=selectedPacks.every(p=>packs.includes(p));
-  if(hasAllSelected && packs.length>=selectedPacks.length) {
+  if(resp.paid === true) {
+    // Оплата подтверждена CryptoBot — получаем актуальные паки
+    const userData = await apiFetch(`/api/user/${currentUserId}`);
+    const packs = (userData && userData.active_packs) ? userData.active_packs : [...selectedPacks];
     paymentConfirmed(packs);
   }
+  // Если paid=false — просто ждём следующего тика интервала
 }
 
 function paymentConfirmed(packs) {
@@ -1422,11 +1418,7 @@ function cancelPendingPayment() {
   document.getElementById('payPendingScreen').classList.remove('open');
 }
 
-// ── Manual confirm (admin) exposed for testing ────────
-async function manualConfirmPayment(payId) {
-  await apiFetch('/api/payment/confirm','POST',{payment_id:payId});
-  pollPaymentStatus();
-}
+// manualConfirmPayment удалён — подтверждение только через реальную проверку CryptoBot
 
 // ══════════════════════════════════════════════════════
 //  DONE → MAIN
