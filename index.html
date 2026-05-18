@@ -294,6 +294,10 @@
     .feed-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 24px; }
     .feed-refresh-btn { margin:14px 12px 0; background:#1c1c22; border:.5px solid #2e2e38; border-radius:13px; padding:10px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; color:#888; cursor:pointer; transition:background .15s; flex-shrink:0; }
     .feed-refresh-btn:hover { background:#222228; }
+    .feed-translate-btn { display:inline-flex; align-items:center; gap:4px; margin-top:7px; font-size:10px; color:#7c7cdc; background:#1a1a2c; border:.5px solid #5b5bdc44; border-radius:7px; padding:3px 9px; cursor:pointer; transition:background .15s,opacity .15s; user-select:none; }
+    .feed-translate-btn:hover { background:#1e1e34; }
+    .feed-translate-btn.loading { opacity:.6; pointer-events:none; }
+    .feed-translated-badge { font-size:9px; color:#555; margin-top:4px; letter-spacing:.3px; }
   </style>
 </head>
 <body>
@@ -1825,6 +1829,7 @@ function switchTab(tab) {
 //  FEED + AI IMPACT ANALYSIS
 // ══════════════════════════════════════════════════════
 const _impactCache = {};
+const _translateCache = {};
 let _feedLoading = false;
 
 // Загрузить реальные сообщения из /api/feed/:user_id
@@ -1904,7 +1909,61 @@ Return ONLY valid JSON, nothing else.`,
   }
 }
 
-function getImpactClass(score) {
+async function translateFeedMessage(msgId, text, targetLang) {
+  const cacheKey = msgId + '_' + targetLang;
+  if(_translateCache[cacheKey]) return _translateCache[cacheKey];
+  try {
+    const langName = targetLang === 'en' ? 'English' : 'Russian';
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a professional translator. Translate the text to ${langName}. Preserve all formatting, emojis, links, and hashtags. Return ONLY the translated text with no explanation or prefix.`,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    const data = await resp.json();
+    const translated = data.content?.[0]?.text?.trim() || text;
+    _translateCache[cacheKey] = translated;
+    return translated;
+  } catch(e) {
+    return text;
+  }
+}
+
+function toggleFeedTranslate(msgId, originalText) {
+  const textEl   = document.getElementById('feedtext_' + msgId);
+  const btn      = document.getElementById('feedtransbtn_' + msgId);
+  const badge    = document.getElementById('feedtransbadge_' + msgId);
+  if(!textEl || !btn) return;
+
+  const isTranslated = btn.dataset.translated === '1';
+  if(isTranslated) {
+    // Вернуть оригинал
+    textEl.innerHTML = originalText || `<i style="color:#555">${t('mediaMessage')}</i>`;
+    btn.dataset.translated = '0';
+    const targetLang = currentLang === 'ru' ? 'en' : 'ru';
+    const targetLabel = targetLang === 'en' ? '🇬🇧 EN' : '🇷🇺 RU';
+    btn.innerHTML = `🌐 ${targetLabel}`;
+    if(badge) badge.style.display = 'none';
+    return;
+  }
+
+  // Переводим
+  const targetLang = currentLang === 'ru' ? 'en' : 'ru';
+  btn.classList.add('loading');
+  btn.innerHTML = '⏳ …';
+  translateFeedMessage(msgId, originalText, targetLang).then(translated => {
+    textEl.innerHTML = translated;
+    btn.dataset.translated = '1';
+    btn.classList.remove('loading');
+    btn.innerHTML = '↩ ' + (currentLang === 'ru' ? 'RU' : 'RU');
+    btn.innerHTML = currentLang === 'ru' ? '↩ RU' : '↩ EN';
+    if(badge) { badge.style.display = 'block'; badge.textContent = targetLang === 'en' ? '🌐 Translated to English' : '🌐 Переведено на русский'; }
+  });
+}
   if(score >= 60) return 'high';
   if(score >= 30) return 'mid';
   return 'low';
@@ -2013,7 +2072,14 @@ async function loadFeed() {
         <span class="feed-ch-name">${msg.channelUsername}</span>
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
-      <p class="feed-text">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
+      <p class="feed-text" id="feedtext_${msg.id}">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
+      ${msg.text ? `
+        <div id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0"
+          onclick="toggleFeedTranslate('${msg.id}', ${JSON.stringify(msg.text)})">
+          🌐 ${currentLang === 'ru' ? '🇬🇧 EN' : '🇷🇺 RU'}
+        </div>
+        <div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>
+      ` : ''}
       <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
         ${hasServerAI
           ? ''  /* заполним ниже */
