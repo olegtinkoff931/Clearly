@@ -256,6 +256,44 @@
     .method-row-left { display:flex; align-items:center; gap:8px; }
     .method-tag { font-size:10px; color:#555; }
     .method-row.active .method-tag { color:#7c7cdc; }
+
+    /* ── AI Impact Badge ── */
+    .impact-bar-wrap { margin-top:8px; }
+    .impact-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .impact-label { font-size:10px; color:#555; letter-spacing:.4px; display:flex; align-items:center; gap:4px; }
+    .impact-pct { font-size:11px; font-weight:700; }
+    .impact-bar { height:3px; border-radius:2px; background:#1e1e28; overflow:hidden; }
+    .impact-fill { height:100%; border-radius:2px; transition:width .8s cubic-bezier(.4,0,.2,1); }
+    .impact-low  { color:#3aaa6e; }
+    .impact-mid  { color:#d49a2e; }
+    .impact-high { color:#e05252; }
+    .impact-fill-low  { background:linear-gradient(90deg,#1a6e44,#3aaa6e); }
+    .impact-fill-mid  { background:linear-gradient(90deg,#7a5a10,#d49a2e); }
+    .impact-fill-high { background:linear-gradient(90deg,#8a2020,#e05252); }
+    .impact-tag { font-size:9px; padding:2px 7px; border-radius:5px; font-weight:600; margin-left:4px; }
+    .impact-tag-low  { background:#0c1f16; color:#3aaa6e; border:.5px solid #3aaa6e44; }
+    .impact-tag-mid  { background:#221a08; color:#d49a2e; border:.5px solid #d49a2e44; }
+    .impact-tag-high { background:#2a1010; color:#e05252; border:.5px solid #e0525244; }
+    .impact-analyzing { font-size:10px; color:#555; display:flex; align-items:center; gap:5px; }
+    .impact-dot-pulse { width:6px; height:6px; border-radius:50%; background:#6b6bff; animation:dotPulse 1.2s ease-in-out infinite; flex-shrink:0; }
+    @keyframes dotPulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
+
+    /* ── Feed screen ── */
+    #vFeed { background:#111114; display:none; flex-direction:column; position:absolute; top:0; left:0; right:0; bottom:62px; z-index:5; }
+    #vFeed.visible { display:flex; }
+    .feed-topbar { padding:12px 16px; border-bottom:.5px solid #222228; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .feed-title { font-size:15px; font-weight:600; color:#e8e8f0; }
+    .feed-ai-badge { font-size:9px; background:#1e1e30; color:#a78bfa; border:.5px solid #6b6bff44; border-radius:8px; padding:3px 8px; display:flex; align-items:center; gap:4px; }
+    .feed-scroll { flex:1; overflow-y:auto; padding:10px 12px 14px; display:flex; flex-direction:column; gap:10px; }
+    .feed-card { background:#1a1a20; border:.5px solid #272730; border-radius:14px; padding:12px 14px; animation:slideIn .35s ease both; }
+    .feed-card-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .feed-ch-avatar { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; flex-shrink:0; overflow:hidden; position:relative; }
+    .feed-ch-name { font-size:12px; font-weight:600; color:#c0c0d0; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .feed-ch-time { font-size:10px; color:#444; flex-shrink:0; }
+    .feed-text { font-size:13px; color:#d0d0e0; line-height:1.55; }
+    .feed-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 24px; }
+    .feed-refresh-btn { margin:14px 12px 0; background:#1c1c22; border:.5px solid #2e2e38; border-radius:13px; padding:10px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; color:#888; cursor:pointer; transition:background .15s; flex-shrink:0; }
+    .feed-refresh-btn:hover { background:#222228; }
   </style>
 </head>
 <body>
@@ -497,6 +535,24 @@
       <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
       <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span data-i18n="navFeed">Feed</span></div>
       <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ═══ FEED SCREEN ═══ -->
+  <div id="vFeed">
+    <div class="feed-topbar">
+      <p class="feed-title">📰 Feed</p>
+      <span class="feed-ai-badge">🤖 AI Impact</span>
+    </div>
+    <div class="feed-scroll" id="feedScroll">
+      <div class="feed-empty" id="feedEmpty" style="display:none;">
+        <p style="font-size:28px;margin-bottom:10px;">📭</p>
+        <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">No channels yet</p>
+        <p style="font-size:12px;color:#555;margin:0;">Add channels on the Channels tab to see your feed here</p>
+      </div>
+    </div>
+    <div class="feed-refresh-btn" id="feedRefreshBtn" onclick="loadFeed()" style="display:none;">
+      <i class="ti ti-refresh" style="font-size:14px;"></i> Refresh Feed
     </div>
   </div>
 
@@ -1640,12 +1696,210 @@ function switchTab(tab) {
   ['channels','feed','profile'].forEach(tt=>{
     const el=document.getElementById('nav'+tt.charAt(0).toUpperCase()+tt.slice(1));
     if(el) el.classList.toggle('ac',tt===tab);
-    // Also update profile screen nav
     const profEl=document.getElementById('profNav'+tt.charAt(0).toUpperCase()+tt.slice(1));
     if(profEl) profEl.classList.toggle('ac',tt===tab);
   });
+  // Feed screen toggle
+  const feedEl=document.getElementById('vFeed');
+  if(tab==='feed'){
+    feedEl.classList.add('visible');
+    // Show bottom nav inside feed (it's in vMain but feed is above, so re-render a copy)
+    const mn=document.getElementById('mainBottomNav');
+    if(mn) { mn.style.zIndex='50'; }
+    if(channels.length>0) loadFeed();
+    else { document.getElementById('feedEmpty').style.display='flex'; document.getElementById('feedRefreshBtn').style.display='none'; }
+  } else {
+    feedEl.classList.remove('visible');
+  }
   if(tab==='profile'){openProfileScreen();}
   else{closeProfileScreen();}
+}
+
+// ══════════════════════════════════════════════════════
+//  FEED + AI IMPACT ANALYSIS
+// ══════════════════════════════════════════════════════
+const _impactCache = {};
+let _feedLoading = false;
+
+// Mock messages simulating Telegram channel posts
+function generateMockMessages() {
+  const now = Date.now();
+  const msgs = [
+    { text: 'Bitcoin reaches new ATH above $100,000 as institutional buyers flood the market. Blackrock ETF records $2.1B single-day inflow — highest since launch.', mins: 3 },
+    { text: 'New memecoin $PEPE2 launched on Pump.fun. 10x in 2 hours. Dev wallet holds 15%. Caution advised.', mins: 9 },
+    { text: 'Reminder: Binance maintenance scheduled tonight 02:00–04:00 UTC. Withdrawals paused during this window.', mins: 22 },
+    { text: 'U.S. SEC approves first spot Ethereum ETF options — trading begins Monday. This is a historic milestone for crypto market infrastructure.', mins: 35 },
+    { text: 'Ethereum gas fees dropped to 2 gwei — lowest in 8 months. Good time for on-chain activity.', mins: 48 },
+    { text: 'FED keeps interest rates unchanged at 5.25–5.50%. Jerome Powell signals possible rate cut in Q2 2025. Risk assets rally on the news.', mins: 67 },
+    { text: 'Vitalik Buterin moves 500 ETH to Kraken exchange. Community speculates on sell pressure.', mins: 85 },
+    { text: 'Solana network experiences partial outage — validators working on patch. DEX volumes down 40%.', mins: 110 },
+    { text: 'Good morning crypto fam! Hope everyone is having a great day. Remember to DYOR 🚀', mins: 140 },
+    { text: 'Binance lists new token $CORE with 10x leverage futures pair. Volume already $500M in first hour.', mins: 180 },
+  ];
+
+  return msgs.map((m, i) => {
+    const ch = channels[i % channels.length];
+    return {
+      id: 'msg_' + i,
+      channelUsername: ch ? ch.username : '@crypto_news',
+      channelPrio: ch ? ch.prio : 'mid',
+      channelEmoji: ch ? ch.emoji : '📰',
+      text: m.text,
+      ts: new Date(now - m.mins * 60 * 1000),
+    };
+  });
+}
+
+function formatMsgTime(ts) {
+  const diff = Math.floor((Date.now() - ts.getTime()) / 60000);
+  if(diff < 1) return 'just now';
+  if(diff < 60) return diff + 'm ago';
+  const h = Math.floor(diff / 60);
+  return h + 'h ago';
+}
+
+async function analyzeImpact(msgId, text) {
+  if(_impactCache[msgId]) return _impactCache[msgId];
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 100,
+        system: `You are a crypto market analyst. Analyze the given message and return ONLY a JSON object with two fields:
+- "score": integer 0-100 representing market impact probability (0=no impact, 100=extreme impact)
+- "reason": 3-5 word explanation in Russian
+
+Scoring guide:
+0-15: routine/personal content
+16-35: minor news, low relevance  
+36-60: notable news, possible price movement
+61-80: major event, likely price impact
+81-100: critical event, near-certain significant market move
+
+Return ONLY valid JSON, nothing else.`,
+        messages: [{ role: 'user', content: `Analyze this crypto message: "${text}"` }]
+      })
+    });
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text || '{}';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    const result = { score: Math.max(0, Math.min(100, parseInt(parsed.score) || 0)), reason: parsed.reason || '' };
+    _impactCache[msgId] = result;
+    return result;
+  } catch(e) {
+    return { score: 0, reason: 'Ошибка анализа' };
+  }
+}
+
+function getImpactClass(score) {
+  if(score >= 60) return 'high';
+  if(score >= 30) return 'mid';
+  return 'low';
+}
+
+function getImpactLabel(score) {
+  if(score >= 60) return '🔴 Высокое влияние';
+  if(score >= 30) return '🟡 Среднее влияние';
+  return '🟢 Низкое влияние';
+}
+
+function renderImpactBar(cardEl, msgId, score, reason) {
+  const cls = getImpactClass(score);
+  const label = getImpactLabel(score);
+  const wrapEl = cardEl.querySelector('.impact-bar-wrap');
+  if(!wrapEl) return;
+  wrapEl.innerHTML = `
+    <div class="impact-header">
+      <span class="impact-label">⚡ Влияние на рынок</span>
+      <span class="impact-pct impact-${cls}">${score}%<span class="impact-tag impact-tag-${cls}">${label}</span></span>
+    </div>
+    <div class="impact-bar">
+      <div class="impact-fill impact-fill-${cls}" style="width:0%" id="fill_${msgId}"></div>
+    </div>
+    ${reason ? `<p style="font-size:10px;color:#555;margin-top:4px;">${reason}</p>` : ''}
+  `;
+  // Animate bar after paint
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const fill = document.getElementById('fill_' + msgId);
+      if(fill) fill.style.width = score + '%';
+    }, 80);
+  });
+}
+
+async function loadFeed() {
+  if(_feedLoading) return;
+  _feedLoading = true;
+  const scroll = document.getElementById('feedScroll');
+  const emptyEl = document.getElementById('feedEmpty');
+  const refreshBtn = document.getElementById('feedRefreshBtn');
+
+  if(channels.length === 0) {
+    emptyEl.style.display = 'flex';
+    refreshBtn.style.display = 'none';
+    _feedLoading = false;
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  refreshBtn.style.display = 'flex';
+  refreshBtn.innerHTML = '<div class="impact-dot-pulse"></div> Загружаем и анализируем…';
+
+  // Clear existing cards
+  scroll.querySelectorAll('.feed-card').forEach(el => el.remove());
+
+  const msgs = generateMockMessages();
+  const avatarColors = { high: 'background:#2a1010;color:#e05252', mid: 'background:#221a08;color:#d49a2e', low: 'background:#0c1f16;color:#3aaa6e' };
+
+  // Render cards with loading state
+  msgs.forEach((msg, idx) => {
+    const initials = msg.channelUsername.replace('@', '').substring(0, 2).toUpperCase();
+    const avStyle = avatarColors[msg.channelPrio] || avatarColors.mid;
+    const card = document.createElement('div');
+    card.className = 'feed-card';
+    card.id = 'feedcard_' + msg.id;
+    card.style.animationDelay = (idx * 0.05) + 's';
+    card.innerHTML = `
+      <div class="feed-card-header">
+        <div class="feed-ch-avatar" style="${avStyle}">
+          <img data-avatar-channel="${msg.channelUsername.replace('@','')}" alt=""
+            style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none;border-radius:9px;">
+          <span style="position:relative;z-index:1;">${initials}</span>
+          <span style="position:absolute;bottom:-3px;right:-3px;font-size:10px;z-index:2;">${msg.channelEmoji}</span>
+        </div>
+        <span class="feed-ch-name">${msg.channelUsername}</span>
+        <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
+      </div>
+      <p class="feed-text">${msg.text}</p>
+      <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
+        <div class="impact-analyzing"><div class="impact-dot-pulse"></div> Анализирует AI…</div>
+      </div>
+    `;
+    scroll.appendChild(card);
+  });
+
+  loadChannelAvatars();
+
+  // Now analyze each message asynchronously
+  refreshBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:14px;"></i> Refresh Feed';
+  _feedLoading = false;
+
+  msgs.forEach(async (msg) => {
+    const card = document.getElementById('feedcard_' + msg.id);
+    if(!card) return;
+    const result = await analyzeImpact(msg.id, msg.text);
+    renderImpactBar(card, msg.id, result.score, result.reason);
+    // Highlight high-impact cards with border
+    if(result.score >= 60) {
+      card.style.borderColor = '#e0525244';
+      card.style.background = '#1f1818';
+    } else if(result.score >= 30) {
+      card.style.borderColor = '#d49a2e33';
+    }
+  });
 }
 
 function openProfileScreen() {
