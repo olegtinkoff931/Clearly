@@ -1721,33 +1721,37 @@ function switchTab(tab) {
 const _impactCache = {};
 let _feedLoading = false;
 
-// Mock messages simulating Telegram channel posts
-function generateMockMessages() {
-  const now = Date.now();
-  const msgs = [
-    { text: 'Bitcoin reaches new ATH above $100,000 as institutional buyers flood the market. Blackrock ETF records $2.1B single-day inflow — highest since launch.', mins: 3 },
-    { text: 'New memecoin $PEPE2 launched on Pump.fun. 10x in 2 hours. Dev wallet holds 15%. Caution advised.', mins: 9 },
-    { text: 'Reminder: Binance maintenance scheduled tonight 02:00–04:00 UTC. Withdrawals paused during this window.', mins: 22 },
-    { text: 'U.S. SEC approves first spot Ethereum ETF options — trading begins Monday. This is a historic milestone for crypto market infrastructure.', mins: 35 },
-    { text: 'Ethereum gas fees dropped to 2 gwei — lowest in 8 months. Good time for on-chain activity.', mins: 48 },
-    { text: 'FED keeps interest rates unchanged at 5.25–5.50%. Jerome Powell signals possible rate cut in Q2 2025. Risk assets rally on the news.', mins: 67 },
-    { text: 'Vitalik Buterin moves 500 ETH to Kraken exchange. Community speculates on sell pressure.', mins: 85 },
-    { text: 'Solana network experiences partial outage — validators working on patch. DEX volumes down 40%.', mins: 110 },
-    { text: 'Good morning crypto fam! Hope everyone is having a great day. Remember to DYOR 🚀', mins: 140 },
-    { text: 'Binance lists new token $CORE with 10x leverage futures pair. Volume already $500M in first hour.', mins: 180 },
-  ];
-
-  return msgs.map((m, i) => {
-    const ch = channels[i % channels.length];
-    return {
-      id: 'msg_' + i,
-      channelUsername: ch ? ch.username : '@crypto_news',
-      channelPrio: ch ? ch.prio : 'mid',
-      channelEmoji: ch ? ch.emoji : '📰',
-      text: m.text,
-      ts: new Date(now - m.mins * 60 * 1000),
-    };
-  });
+// Загрузить реальные сообщения из /api/feed/:user_id
+async function fetchRealMessages() {
+  if (!currentUserId) return [];
+  try {
+    const resp = await apiFetch(`/api/feed/${currentUserId}`);
+    if (!Array.isArray(resp)) return [];
+    return resp.map((m, i) => {
+      // Ищем совпадение с каналом пользователя для emoji/prio
+      const username = m.channel_username || '';
+      const ch = channels.find(c =>
+        c.username.replace('@','').toLowerCase() === username.replace('@','').toLowerCase()
+      );
+      return {
+        id: 'msg_' + (m.id || i),
+        dbId: m.id,
+        channelUsername: username,
+        channelPrio: ch ? ch.prio : 'mid',
+        channelEmoji: ch ? ch.emoji : '📰',
+        text: m.text || '',
+        ts: new Date(m.created_at || Date.now()),
+        // AI уже посчитан сервером — используем готовые данные
+        aiScore:    typeof m.ai_score === 'number' ? m.ai_score : null,
+        aiReason:   m.ai_reason || '',
+        aiAffected: Array.isArray(m.ai_affected) ? m.ai_affected : [],
+        aiDirection: m.ai_direction || 'neutral',
+      };
+    });
+  } catch(e) {
+    console.warn('fetchRealMessages error:', e);
+    return [];
+  }
 }
 
 function formatMsgTime(ts) {
@@ -1846,25 +1850,55 @@ async function loadFeed() {
 
   emptyEl.style.display = 'none';
   refreshBtn.style.display = 'flex';
-  refreshBtn.innerHTML = '<div class="impact-dot-pulse"></div> Загружаем и анализируем…';
-
-  // Clear existing cards
+  refreshBtn.innerHTML = '<div class="impact-dot-pulse"></div> Загружаем ленту…';
   scroll.querySelectorAll('.feed-card').forEach(el => el.remove());
 
-  const msgs = generateMockMessages();
-  const avatarColors = { high: 'background:#2a1010;color:#e05252', mid: 'background:#221a08;color:#d49a2e', low: 'background:#0c1f16;color:#3aaa6e' };
+  // Загружаем реальные сообщения с сервера (уже с AI-оценкой)
+  const msgs = await fetchRealMessages();
 
-  // Render cards with loading state
+  if(msgs.length === 0) {
+    emptyEl.innerHTML = `
+      <p style="font-size:28px;margin-bottom:10px;">⏳</p>
+      <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">Сообщений пока нет</p>
+      <p style="font-size:12px;color:#555;margin:0;line-height:1.5;">Бот мониторит твои каналы.<br>Новые сообщения появятся здесь.</p>
+    `;
+    emptyEl.style.display = 'flex';
+    refreshBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:14px;"></i> Обновить';
+    _feedLoading = false;
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  const avatarColors = {
+    high: 'background:#2a1010;color:#e05252',
+    mid:  'background:#221a08;color:#d49a2e',
+    low:  'background:#0c1f16;color:#3aaa6e'
+  };
+
   msgs.forEach((msg, idx) => {
-    const initials = msg.channelUsername.replace('@', '').substring(0, 2).toUpperCase();
-    const avStyle = avatarColors[msg.channelPrio] || avatarColors.mid;
+    const initials = msg.channelUsername.replace('@','').substring(0,2).toUpperCase();
+    const avStyle  = avatarColors[msg.channelPrio] || avatarColors.mid;
+
+    // Определяем — AI уже посчитан сервером или нужен клиентский анализ
+    const hasServerAI = typeof msg.aiScore === 'number';
+
     const card = document.createElement('div');
     card.className = 'feed-card';
     card.id = 'feedcard_' + msg.id;
-    card.style.animationDelay = (idx * 0.05) + 's';
+    card.style.animationDelay = (idx * 0.04) + 's';
+
+    // Стиль карточки по важности (сразу, т.к. данные уже есть)
+    if(hasServerAI) {
+      if(msg.aiScore >= 60) { card.style.borderColor='#e0525244'; card.style.background='#1f1818'; }
+      else if(msg.aiScore >= 30) { card.style.borderColor='#d49a2e33'; }
+    }
+
+    // Направление
+    const dirIcon = { up:'📈', down:'📉', neutral:'➡️' }[msg.aiDirection] || '➡️';
+
     card.innerHTML = `
       <div class="feed-card-header">
-        <div class="feed-ch-avatar" style="${avStyle}">
+        <div class="feed-ch-avatar" style="${avStyle};position:relative;overflow:hidden;">
           <img data-avatar-channel="${msg.channelUsername.replace('@','')}" alt=""
             style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none;border-radius:9px;">
           <span style="position:relative;z-index:1;">${initials}</span>
@@ -1873,33 +1907,36 @@ async function loadFeed() {
         <span class="feed-ch-name">${msg.channelUsername}</span>
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
-      <p class="feed-text">${msg.text}</p>
+      <p class="feed-text">${msg.text || '<i style="color:#555">Медиа-сообщение</i>'}</p>
       <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
-        <div class="impact-analyzing"><div class="impact-dot-pulse"></div> Анализирует AI…</div>
+        ${hasServerAI
+          ? ''  /* заполним ниже */
+          : '<div class="impact-analyzing"><div class="impact-dot-pulse"></div> Анализирует AI…</div>'
+        }
       </div>
     `;
     scroll.appendChild(card);
+
+    // Рендерим AI-бар
+    if(hasServerAI) {
+      // Данные с сервера — сразу рисуем
+      const affected = msg.aiAffected.length
+        ? '<br>🎯 ' + msg.aiAffected.slice(0,5).map(a => '#'+a).join(' · ')
+        : '';
+      renderImpactBar(card, msg.id, msg.aiScore, msg.aiReason + (affected ? ' ' + affected : ''));
+    } else {
+      // Запасной вариант: анализ через клиентский Claude API
+      analyzeImpact(msg.id, msg.text).then(result => {
+        renderImpactBar(card, msg.id, result.score, result.reason);
+        if(result.score >= 60) { card.style.borderColor='#e0525244'; card.style.background='#1f1818'; }
+        else if(result.score >= 30) { card.style.borderColor='#d49a2e33'; }
+      });
+    }
   });
 
   loadChannelAvatars();
-
-  // Now analyze each message asynchronously
-  refreshBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:14px;"></i> Refresh Feed';
+  refreshBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:14px;"></i> Обновить';
   _feedLoading = false;
-
-  msgs.forEach(async (msg) => {
-    const card = document.getElementById('feedcard_' + msg.id);
-    if(!card) return;
-    const result = await analyzeImpact(msg.id, msg.text);
-    renderImpactBar(card, msg.id, result.score, result.reason);
-    // Highlight high-impact cards with border
-    if(result.score >= 60) {
-      card.style.borderColor = '#e0525244';
-      card.style.background = '#1f1818';
-    } else if(result.score >= 30) {
-      card.style.borderColor = '#d49a2e33';
-    }
-  });
 }
 
 function openProfileScreen() {
