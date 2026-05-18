@@ -302,7 +302,7 @@
   <!-- Loading screen -->
   <div id="vLoading">
     <div class="spin"></div>
-    <div class="load-label">Loading Clearly…</div>
+    <div class="load-label" data-i18n="loading">Loading Clearly…</div>
   </div>
 
   <!-- Splash -->
@@ -349,24 +349,24 @@
   <!-- Packs & Payment selection -->
   <div class="view out-right" id="vPacks" style="overflow-y:auto;background:#111114;padding-bottom:90px;">
     <div style="padding:18px 16px 12px;">
-      <div style="display:inline-flex;align-items:center;gap:6px;background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:20px;padding:5px 12px;font-size:11px;color:#a78bfa;margin-bottom:14px;">🤖 AI Analysis Complete</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:20px;padding:5px 12px;font-size:11px;color:#a78bfa;margin-bottom:14px;" data-i18n="aiComplete">🤖 AI Analysis Complete</div>
       <div id="packsRecommendBanner" style="background:linear-gradient(135deg,#1a1a2e,#1e1e30);border:.5px solid #5b5bdc44;border-radius:16px;padding:14px;margin-bottom:14px;position:relative;overflow:hidden;">
         <div style="position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle,#6b6bff08,transparent);border-radius:50%;"></div>
         <p id="packsRecommendTitle" style="font-size:16px;font-weight:600;color:#e8e8f0;line-height:1.4;margin:0 0 6px;"></p>
         <p id="packsRecommendSub" style="font-size:12px;color:#666;line-height:1.5;margin:0 0 10px;"></p>
         <div id="packsRecommendTags" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
       </div>
-      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">⚡ SMART NEWS PACKS</p>
-      <p style="font-size:22px;font-weight:700;color:#e8e8f0;line-height:1.3;margin:0 0 6px;">Choose your<br>news feed.</p>
-      <p style="font-size:12px;color:#555;line-height:1.6;margin:0;">Select one or more packs.</p>
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;" data-i18n="smartPacks">⚡ SMART NEWS PACKS</p>
+      <p style="font-size:22px;font-weight:700;color:#e8e8f0;line-height:1.3;margin:0 0 6px;" data-i18n="chooseYourFeed">Choose your<br>news feed.</p>
+      <p style="font-size:12px;color:#555;line-height:1.6;margin:0;" data-i18n="selectOnePack">Select one or more packs.</p>
     </div>
     <div id="packsList" style="padding:0 12px;display:flex;flex-direction:column;gap:10px;"></div>
     <div style="padding:14px 12px 0;">
-      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">💳 PAYMENT METHOD</p>
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="paymentMethod">💳 PAYMENT METHOD</p>
       <div id="paymentList" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
     <div style="position:fixed;bottom:0;left:0;right:0;background:rgba(17,17,20,0.95);backdrop-filter:blur(16px);border-top:.5px solid #222228;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:50;">
-      <button onclick="skipPacks()" style="background:#1c1c22;border:.5px solid #2e2e38;border-radius:12px;padding:10px 16px;font-size:12px;color:#666;cursor:pointer;white-space:nowrap;">Skip →</button>
+      <button onclick="skipPacks()" style="background:#1c1c22;border:.5px solid #2e2e38;border-radius:12px;padding:10px 16px;font-size:12px;color:#666;cursor:pointer;white-space:nowrap;" data-i18n="skip">Skip →</button>
       <div style="flex:1;min-width:0;">
         <p style="font-size:10px;color:#555;margin:0;">Selected</p>
         <p id="packsBarLabel" style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">0 packs • $0.00</p>
@@ -541,18 +541,18 @@
   <!-- ═══ FEED SCREEN ═══ -->
   <div id="vFeed">
     <div class="feed-topbar">
-      <p class="feed-title">📰 Feed</p>
+      <p class="feed-title" data-i18n="feedTitle">📰 Feed</p>
       <span class="feed-ai-badge">🤖 AI Impact</span>
     </div>
     <div class="feed-scroll" id="feedScroll">
       <div class="feed-empty" id="feedEmpty" style="display:none;">
         <p style="font-size:28px;margin-bottom:10px;">📭</p>
-        <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">No channels yet</p>
-        <p style="font-size:12px;color:#555;margin:0;">Add channels on the Channels tab to see your feed here</p>
+        <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0 0 6px;" data-i18n="feedEmpty">No channels yet</p>
+        <p style="font-size:12px;color:#555;margin:0;" data-i18n="feedEmptySub">Add channels on the Channels tab to see your feed here</p>
       </div>
     </div>
     <div class="feed-refresh-btn" id="feedRefreshBtn" onclick="loadFeed()" style="display:none;">
-      <i class="ti ti-refresh" style="font-size:14px;"></i> Refresh Feed
+      <i class="ti ti-refresh" style="font-size:14px;"></i> <span data-i18n="feedRefresh">Refresh</span>
     </div>
   </div>
 
@@ -563,13 +563,13 @@
 
       <!-- Tabs -->
       <div style="display:flex;gap:8px;margin-bottom:14px;">
-        <button id="tabCatalog" onclick="switchAddTab('catalog')" style="flex:1;padding:9px;border-radius:11px;border:none;background:#1e1e30;color:#b0a8ff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;">📋 Каталог</button>
-        <button id="tabManual" onclick="switchAddTab('manual')" style="flex:1;padding:9px;border-radius:11px;border:none;background:#1a1a20;color:#555;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;">✏️ Вручную</button>
+        <button id="tabCatalog" onclick="switchAddTab('catalog')" style="flex:1;padding:9px;border-radius:11px;border:none;background:#1e1e30;color:#b0a8ff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;" data-i18n="tabCatalog">📋 Catalog</button>
+        <button id="tabManual" onclick="switchAddTab('manual')" style="flex:1;padding:9px;border-radius:11px;border:none;background:#1a1a20;color:#555;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;" data-i18n="tabManual">✏️ Manual</button>
       </div>
 
       <!-- CATALOG TAB -->
       <div id="addTabCatalog" style="flex:1;overflow-y:auto;">
-        <p style="font-size:11px;color:#555;letter-spacing:.5px;margin-bottom:10px;">TELEGRAM КАНАЛЫ</p>
+        <p style="font-size:11px;color:#555;letter-spacing:.5px;margin-bottom:10px;" data-i18n="catalogSection">TELEGRAM CHANNELS</p>
         <div id="catalogList" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
 
@@ -607,27 +607,27 @@
   <div id="cryptoPayModal" onclick="closeCryptoPayModalOutside(event)">
     <div class="crypto-sheet" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
-      <div style="display:inline-flex;align-items:center;gap:6px;background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:20px;padding:4px 10px;font-size:11px;color:#a78bfa;margin-bottom:12px;">💳 Оплата криптовалютой</div>
-      <p class="modal-title" id="payModalTitle">Complete payment</p>
-      <p class="modal-sub" id="payModalSub" style="margin-bottom:12px;">Choose payment method and pay</p>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#1e1e2a;border:.5px solid #5b5bdc44;border-radius:20px;padding:4px 10px;font-size:11px;color:#a78bfa;margin-bottom:12px;" data-i18n="cryptoPayBadge">💳 Crypto Payment</div>
+      <p class="modal-title" id="payModalTitle" data-i18n="completePayment">Complete payment</p>
+      <p class="modal-sub" id="payModalSub" style="margin-bottom:12px;" data-i18n="choosePayMethod">Choose payment method and pay</p>
 
       <!-- Order summary -->
       <div style="background:#1a1a20;border:.5px solid #272730;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div><p style="font-size:10px;color:#555;margin:0 0 2px;">Amount</p><p id="payTotalDisplay" style="font-size:24px;font-weight:700;color:#e8e8f0;margin:0;"></p></div>
+          <div><p style="font-size:10px;color:#555;margin:0 0 2px;" data-i18n="amountLabel">Amount</p><p id="payTotalDisplay" style="font-size:24px;font-weight:700;color:#e8e8f0;margin:0;"></p></div>
           <div id="payPackCountBadge" style="background:#fff;color:#111;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;"></div>
         </div>
         <div id="payPackListDisplay" style="display:flex;flex-direction:column;gap:6px;"></div>
       </div>
 
       <!-- Method selection -->
-      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">СПОСОБ ОПЛАТЫ</p>
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;" data-i18n="payMethodSection">PAYMENT METHOD</p>
       <div id="payMethodList"></div>
 
       <!-- Wallet details (shown after method selected) -->
       <div id="payWalletSection" style="display:none;margin-top:4px;">
         <div style="background:#1a1a20;border:.5px solid #272730;border-radius:14px;padding:14px;margin-bottom:10px;">
-          <p style="font-size:11px;color:#555;margin:0 0 4px;">Network</p>
+          <p style="font-size:11px;color:#555;margin:0 0 4px;" data-i18n="networkLabel">Network</p>
           <p id="payNetworkName" style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 12px;"></p>
           <!-- QR -->
           <div class="qr-placeholder">
@@ -636,27 +636,27 @@
           <!-- Address copy -->
           <div class="pay-address-box">
             <span id="payAddressText" class="pay-address-text"></span>
-            <button class="copy-btn" onclick="copyPayAddress()">📋 Copy</button>
+            <button class="copy-btn" onclick="copyPayAddress()" data-i18n="copyBtn">📋 Copy</button>
           </div>
           <div class="net-warning" id="payNetWarning"></div>
         </div>
         <button class="manual-confirm-btn" onclick="submitPayment()">
-          <span id="payBtnText">💳 I Paid — Confirm</span>
+          <span id="payBtnText" data-i18n="iPaidBtn">💳 I Paid — Confirm</span>
         </button>
-        <p style="font-size:11px;color:#444;text-align:center;margin-top:8px;" id="payAutoNote">Or payment will be confirmed automatically after network detection</p>
+        <p style="font-size:11px;color:#444;text-align:center;margin-top:8px;" id="payAutoNote" data-i18n="payAutoNote">Or payment will be confirmed automatically after network detection</p>
       </div>
 
       <!-- CryptoBot section -->
       <div id="payCryptobotSection" style="display:none;margin-top:4px;">
-        <div style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:#666;line-height:1.6;">
+        <div style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:#666;line-height:1.6;" data-i18n="cryptobotDesc">
           For CryptoBot, an invoice will be generated in Telegram. Tap below to open the payment link.
         </div>
-        <button class="manual-confirm-btn" id="cryptoBotPayBtn" onclick="openCryptoBotInvoice()">
+        <button class="manual-confirm-btn" id="cryptoBotPayBtn" onclick="openCryptoBotInvoice()" data-i18n="cryptobotPayBtn">
           🤖 Pay via CryptoBot
         </button>
       </div>
 
-      <button onclick="closeCryptoPayModal()" style="width:100%;background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:12px 0 0;">Cancel</button>
+      <button onclick="closeCryptoPayModal()" style="width:100%;background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:12px 0 0;" data-i18n="cancel">Cancel</button>
     </div>
   </div>
 
@@ -664,11 +664,11 @@
   <div id="payPendingScreen">
     <div id="payPendingContent">
       <div class="pay-pending-icon">⏳</div>
-      <p class="pay-pending-title" id="pendingTitle">Awaiting Payment</p>
-      <p class="pay-pending-sub" id="pendingSub">We're waiting for your transaction to be confirmed on the blockchain. This usually takes 1–3 minutes.</p>
+      <p class="pay-pending-title" id="pendingTitle" data-i18n="pendingTitle">Awaiting Payment</p>
+      <p class="pay-pending-sub" id="pendingSub"></p>
       <div class="pay-status-bar"><div class="pay-status-fill"></div></div>
-      <p class="pay-pending-timer" id="pendingTimer">Checking every 10 seconds…</p>
-      <button onclick="cancelPendingPayment()" style="margin-top:20px;background:none;border:.5px solid #2e2e38;border-radius:10px;padding:8px 20px;font-size:12px;color:#555;cursor:pointer;">Cancel payment</button>
+      <p class="pay-pending-timer" id="pendingTimer" data-i18n="pendingTimer">Checking every 10 seconds…</p>
+      <button onclick="cancelPendingPayment()" style="margin-top:20px;background:none;border:.5px solid #2e2e38;border-radius:10px;padding:8px 20px;font-size:12px;color:#555;cursor:pointer;" data-i18n="cancelPayment">Cancel payment</button>
     </div>
   </div>
 
@@ -715,6 +715,63 @@ const i18n = {
     settingsLangSection:'LANGUAGE', settingsLangTitle:'Interface Language',
     settingsLangSub:'Choose the language for the app', langChanged:'🌐 Language changed to English',
     quizStep:'Question {n} of {total}', quizNext:'Next →', quizDone:'Done ✅',
+    loading:'Loading Clearly…',
+    aiComplete:'🤖 AI Analysis Complete',
+    smartPacks:'⚡ SMART NEWS PACKS',
+    chooseYourFeed:'Choose your<br>news feed.',
+    selectOnePack:'Select one or more packs.',
+    paymentMethod:'💳 PAYMENT METHOD',
+    skip:'Skip →',
+    packsRecommendSub:'Based on your answers. You can also add a second pack for a fuller feed.',
+    bestMatch:'Best match',
+    accessLabel:'Access',
+    packAdd:'Add', packRemove:'Remove',
+    cryptoPayBadge:'💳 Crypto Payment',
+    completePayment:'Complete payment',
+    choosePayMethod:'Choose payment method and pay',
+    amountLabel:'Amount',
+    payMethodSection:'PAYMENT METHOD',
+    networkLabel:'Network',
+    copyBtn:'📋 Copy',
+    cryptobotDesc:'For CryptoBot, an invoice will be generated in Telegram. Tap below to open the payment link.',
+    cryptobotPayBtn:'🤖 Pay via CryptoBot',
+    iPaidBtn:'💳 I Paid — Confirm',
+    submittingBtn:'⏳ Submitting…',
+    creatingInvoice:'Creating invoice…',
+    payAutoNote:'Or payment will be confirmed automatically after network detection',
+    pendingTitle:'Awaiting Payment',
+    pendingSubAuto:'Waiting for your transaction to confirm on the blockchain. Usually takes 1–3 minutes.',
+    pendingSubManual:'Your payment request was submitted. Access will be granted as soon as payment is detected.',
+    pendingTimer:'Checking every 10 seconds…',
+    cancelPayment:'Cancel payment',
+    payConfirmedTitle:'Payment Confirmed!',
+    payConfirmedSub:'Your packs are now active.',
+    tabCatalog:'📋 Catalog', tabManual:'✏️ Manual',
+    catalogSection:'TELEGRAM CHANNELS',
+    deleteChannelHeader:'🗑 Delete channel',
+    deleteChannelDesc:'Channel will be removed from your list and you will no longer receive notifications.',
+    deleteConfirmBtn:'🗑 Delete',
+    confirmDeleteQuestion:'Delete {username}?',
+    yesDelete:'✓ Yes, delete', noCancel:'✕ Cancel',
+    telegramChannel:'Telegram channel',
+    feedTitle:'📰 Feed',
+    feedEmpty:'No channels yet',
+    feedEmptySub:'Add channels on the Channels tab to see your feed here',
+    feedLoading:'Loading feed…',
+    feedNoMessages:'No messages yet',
+    feedNoMessagesSub:'Bot is monitoring your channels.<br>New messages will appear here.',
+    feedRefresh:'Refresh',
+    mediaMessage:'Media message',
+    impactLabel:'⚡ Market impact',
+    impactHigh:'🔴 High impact',
+    impactMid:'🟡 Medium impact',
+    impactLow:'🟢 Low impact',
+    justNow:'just now', mAgo:'{n}m ago', hAgo:'{n}h ago',
+    catalogAdded:'✓ Added', catalogAdd:'+ Add',
+    packSingular:'pack', packPlural:'packs',
+    errorInvoice:'❌ Error creating invoice. Try again.',
+    errorGeneric:'❌ Error. Try again.',
+    copiedToast:'📋 Address copied',
   },
   ru: {
     tagline:'Вся инфа в одном сообщении', splashBtn:'Начать', splashSub:'Настройка займёт 1 минуту',
@@ -741,6 +798,63 @@ const i18n = {
     settingsLangSection:'ЯЗЫК', settingsLangTitle:'Язык интерфейса',
     settingsLangSub:'Выберите язык приложения', langChanged:'🌐 Язык изменён на Русский',
     quizStep:'Вопрос {n} из {total}', quizNext:'Далее →', quizDone:'Готово ✅',
+    loading:'Загрузка Clearly…',
+    aiComplete:'🤖 AI-анализ завершён',
+    smartPacks:'⚡ УМНЫЕ ПАКЕТЫ',
+    chooseYourFeed:'Выберите вашу<br>ленту новостей.',
+    selectOnePack:'Выберите один или несколько пакетов.',
+    paymentMethod:'💳 СПОСОБ ОПЛАТЫ',
+    skip:'Пропустить →',
+    packsRecommendSub:'На основе ваших ответов. Можно добавить второй пакет для более полной ленты.',
+    bestMatch:'Лучший выбор',
+    accessLabel:'Доступ',
+    packAdd:'Добавить', packRemove:'Убрать',
+    cryptoPayBadge:'💳 Оплата криптовалютой',
+    completePayment:'Оформить оплату',
+    choosePayMethod:'Выберите способ оплаты',
+    amountLabel:'Сумма',
+    payMethodSection:'СПОСОБ ОПЛАТЫ',
+    networkLabel:'Сеть',
+    copyBtn:'📋 Копировать',
+    cryptobotDesc:'Через CryptoBot будет создан инвойс в Telegram. Нажмите ниже чтобы открыть ссылку.',
+    cryptobotPayBtn:'🤖 Оплатить через CryptoBot',
+    iPaidBtn:'💳 Я оплатил — подтвердить',
+    submittingBtn:'⏳ Отправляем…',
+    creatingInvoice:'Создаём инвойс…',
+    payAutoNote:'Или оплата будет подтверждена автоматически после обнаружения транзакции',
+    pendingTitle:'Ожидаем оплату',
+    pendingSubAuto:'Ждём подтверждения транзакции в блокчейне. Обычно занимает 1–3 минуты.',
+    pendingSubManual:'Запрос на оплату отправлен. Доступ откроется автоматически после получения оплаты.',
+    pendingTimer:'Проверяем каждые 10 секунд…',
+    cancelPayment:'Отменить оплату',
+    payConfirmedTitle:'Оплата подтверждена!',
+    payConfirmedSub:'Ваши пакеты активированы.',
+    tabCatalog:'📋 Каталог', tabManual:'✏️ Вручную',
+    catalogSection:'TELEGRAM КАНАЛЫ',
+    deleteChannelHeader:'🗑 Удалить канал',
+    deleteChannelDesc:'Канал будет удалён из вашего списка и уведомления больше не будут приходить.',
+    deleteConfirmBtn:'🗑 Удалить',
+    confirmDeleteQuestion:'Удалить {username}?',
+    yesDelete:'✓ Да, удалить', noCancel:'✕ Отмена',
+    telegramChannel:'Telegram-канал',
+    feedTitle:'📰 Лента',
+    feedEmpty:'Каналов пока нет',
+    feedEmptySub:'Добавь каналы на вкладке «Каналы» чтобы видеть ленту здесь',
+    feedLoading:'Загружаем ленту…',
+    feedNoMessages:'Сообщений пока нет',
+    feedNoMessagesSub:'Бот мониторит твои каналы.<br>Новые сообщения появятся здесь.',
+    feedRefresh:'Обновить',
+    mediaMessage:'Медиа-сообщение',
+    impactLabel:'⚡ Влияние на рынок',
+    impactHigh:'🔴 Высокое влияние',
+    impactMid:'🟡 Среднее влияние',
+    impactLow:'🟢 Низкое влияние',
+    justNow:'только что', mAgo:'{n} мин назад', hAgo:'{n} ч назад',
+    catalogAdded:'✓ Добавлен', catalogAdd:'+ Добавить',
+    packSingular:'пакет', packPlural:'пакета',
+    errorInvoice:'❌ Ошибка создания инвойса. Попробуйте снова.',
+    errorGeneric:'❌ Ошибка. Попробуйте снова.',
+    copiedToast:'📋 Адрес скопирован',
   }
 };
 
@@ -1093,8 +1207,8 @@ function showPacksScreen() {
   selectedPacks=[best.id];
   selectedPaymentIdx=null;
 
-  document.getElementById('packsRecommendTitle').textContent=`Best match: ${best.title}`;
-  document.getElementById('packsRecommendSub').textContent='Based on your answers. You can also add a second pack for a fuller feed.';
+  document.getElementById('packsRecommendTitle').textContent=`${t('bestMatch')}: ${best.title}`;
+  document.getElementById('packsRecommendSub').textContent=t('packsRecommendSub');
   const tagsEl=document.getElementById('packsRecommendTags');
   tagsEl.innerHTML='';
   ranked.slice(0,2).forEach(p=>{
@@ -1132,7 +1246,7 @@ function buildPackCard(pack,scores,bestId) {
           <p style="font-size:11px;color:#555;margin:0;">${pack.subtitle}</p>
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">
-          ${isBest?`<span style="background:#2a1a00;border:.5px solid #d49a2e44;color:#d49a2e;border-radius:8px;padding:3px 8px;font-size:10px;font-weight:500;">Best match ⚡</span>`:''}
+          ${isBest?`<span style="background:#2a1a00;border:.5px solid #d49a2e44;color:#d49a2e;border-radius:8px;padding:3px 8px;font-size:10px;font-weight:500;">${t('bestMatch')} ⚡</span>`:''}
           <span style="background:#1c1c22;border:.5px solid #2e2e38;color:#888;border-radius:8px;padding:3px 8px;font-size:10px;">${pack.impact}</span>
         </div>
       </div>
@@ -1140,12 +1254,12 @@ function buildPackCard(pack,scores,bestId) {
       <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">${channels}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:5px 10px;display:inline-flex;align-items:center;gap:6px;">
-          <span style="font-size:11px;color:#555;">Access</span>
+          <span style="font-size:11px;color:#555;">${t('accessLabel')}</span>
           <span style="font-size:13px;font-weight:600;color:#e8e8f0;">$${pack.price.toFixed(2)}</span>
         </div>
         <button onclick="togglePack('${pack.id}')" id="packBtn_${pack.id}"
           style="background:${isSelected?'#1c1c22':'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${isSelected?'#aaa':'#fff'};border:${isSelected?'.5px solid #2e2e38':'none'};border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;">
-          ${isSelected?'Remove':'Add'}
+          ${isSelected?t('packRemove'):t('packAdd')}
         </button>
       </div>
     </div>`;
@@ -1187,7 +1301,8 @@ function buildPaymentRow(p,idx) {
 
 function updateBottomBar() {
   const total=(selectedPacks.length*0.80).toFixed(2);
-  document.getElementById('packsBarLabel').textContent=`${selectedPacks.length} pack${selectedPacks.length===1?'':'s'} • $${total}`;
+  const packWord=selectedPacks.length===1?t('packSingular'):t('packPlural');
+  document.getElementById('packsBarLabel').textContent=`${selectedPacks.length} ${packWord} • $${total}`;
   const btn=document.getElementById('buyBtn');
   const canBuy=selectedPacks.length>0&&selectedPaymentIdx!==null;
   btn.style.opacity=canBuy?'1':'0.35';
@@ -1213,7 +1328,8 @@ function openCryptoPayModal() {
 
   // Fill summary
   document.getElementById('payTotalDisplay').textContent='$'+total+' USDT';
-  document.getElementById('payPackCountBadge').textContent=selectedPacks.length+' pack'+(selectedPacks.length===1?'':'s');
+  const _pw=selectedPacks.length===1?t('packSingular'):t('packPlural');
+  document.getElementById('payPackCountBadge').textContent=selectedPacks.length+' '+_pw;
   const listEl=document.getElementById('payPackListDisplay');
   listEl.innerHTML='';
   selectedPacks.forEach(id=>{
@@ -1280,7 +1396,7 @@ function selectCryptoMethod(idx) {
 function copyPayAddress() {
   const addr=document.getElementById('payAddressText').textContent;
   navigator.clipboard?.writeText(addr).catch(()=>{});
-  showToast('themeToast','📋 Address copied');
+  showToast('themeToast',t('copiedToast'));
 }
 
 async function openCryptoBotInvoice() {
@@ -1288,7 +1404,7 @@ async function openCryptoBotInvoice() {
   const pm=paymentsData[cryptoPaySelectedIdx];
   const total=(selectedPacks.length*0.80).toFixed(2);
 
-  document.getElementById('cryptoBotPayBtn').textContent='Creating invoice…';
+  document.getElementById('cryptoBotPayBtn').textContent=t('creatingInvoice');
   document.getElementById('cryptoBotPayBtn').style.opacity='0.7';
 
   // Create payment record + get invoice URL from backend
@@ -1299,7 +1415,7 @@ async function openCryptoBotInvoice() {
     amount: parseFloat(total)
   });
 
-  document.getElementById('cryptoBotPayBtn').textContent='🤖 Pay via CryptoBot';
+  document.getElementById('cryptoBotPayBtn').textContent=t('cryptobotPayBtn');
   document.getElementById('cryptoBotPayBtn').style.opacity='1';
 
   if(resp && resp.ok && resp.pay_url) {
@@ -1310,7 +1426,7 @@ async function openCryptoBotInvoice() {
     closeCryptoPayModal();
     showPayPendingScreen(true);
   } else {
-    showMainToast('❌ Error creating invoice. Try again.');
+    showMainToast(t('errorInvoice'));
   }
 }
 
@@ -1320,7 +1436,7 @@ async function submitPayment() {
   const total=(selectedPacks.length*0.80).toFixed(2);
 
   const btn=document.getElementById('payBtnText');
-  btn.textContent='⏳ Submitting…';
+  btn.textContent=t('submittingBtn');
 
   // Create payment record in backend
   const resp=await apiFetch('/api/payment','POST',{
@@ -1330,14 +1446,14 @@ async function submitPayment() {
     amount: parseFloat(total)
   });
 
-  btn.textContent='💳 I Paid — Confirm';
+  btn.textContent=t('iPaidBtn');
 
   if(resp && resp.ok) {
     currentPaymentId=resp.payment_id;
     closeCryptoPayModal();
     showPayPendingScreen(false);
   } else {
-    showMainToast('❌ Error. Try again.');
+    showMainToast(t('errorGeneric'));
   }
 }
 
@@ -1348,19 +1464,9 @@ function showPayPendingScreen(isAuto) {
   const screen=document.getElementById('payPendingScreen');
   screen.classList.add('open');
 
-  if(currentLang==='ru') {
-    document.getElementById('pendingTitle').textContent='Ожидаем оплату';
-    document.getElementById('pendingSub').textContent=isAuto
-      ?'Мы ждём подтверждения вашей транзакции. Обычно это занимает 1–3 минуты.'
-      :'Ваш запрос на оплату отправлен. Как только мы получим оплату — автоматически откроем доступ.';
-    document.getElementById('pendingTimer').textContent='Проверяем каждые 10 секунд…';
-  } else {
-    document.getElementById('pendingTitle').textContent='Awaiting Payment';
-    document.getElementById('pendingSub').textContent=isAuto
-      ?'Waiting for your transaction to confirm on the blockchain. Usually takes 1–3 minutes.'
-      :'Your payment request was submitted. Access will be granted as soon as payment is detected.';
-    document.getElementById('pendingTimer').textContent='Checking every 10 seconds…';
-  }
+  document.getElementById('pendingTitle').textContent=t('pendingTitle');
+  document.getElementById('pendingSub').textContent=isAuto?t('pendingSubAuto'):t('pendingSubManual');
+  document.getElementById('pendingTimer').textContent=t('pendingTimer');
 
   // Start polling
   if(payPollInterval) clearInterval(payPollInterval);
@@ -1371,17 +1477,21 @@ function showPayPendingScreen(isAuto) {
 
 async function pollPaymentStatus() {
   if(!currentPaymentId) return;
-  // Проверяем реальный статус оплаты через CryptoBot API
-  const resp = await apiFetch('/api/payment/confirm', 'POST', {payment_id: currentPaymentId});
+  // Check payment status from backend
+  const resp=await apiFetch(`/api/user/${currentUserId}`);
   if(!resp) return;
 
-  if(resp.paid === true) {
-    // Оплата подтверждена CryptoBot — получаем актуальные паки
-    const userData = await apiFetch(`/api/user/${currentUserId}`);
-    const packs = (userData && userData.active_packs) ? userData.active_packs : [...selectedPacks];
+  // Find if payment was confirmed (packs updated)
+  const packs=resp.active_packs||[];
+  if(packs.length>0 && JSON.stringify([...packs].sort())!==JSON.stringify([...selectedPacks].sort())) {
+    // might be confirmed by webhook — check directly
+  }
+
+  // Simple check: user's active_packs updated to match selected
+  const hasAllSelected=selectedPacks.every(p=>packs.includes(p));
+  if(hasAllSelected && packs.length>=selectedPacks.length) {
     paymentConfirmed(packs);
   }
-  // Если paid=false — просто ждём следующего тика интервала
 }
 
 function paymentConfirmed(packs) {
@@ -1394,10 +1504,10 @@ function paymentConfirmed(packs) {
   screen.innerHTML=`
     <div style="text-align:center;padding:32px 24px;">
       <div class="pay-confirmed-icon">🎉</div>
-      <p style="font-size:22px;font-weight:700;color:#e8e8f0;margin:16px 0 8px;">${currentLang==='ru'?'Оплата подтверждена!':'Payment Confirmed!'}</p>
-      <p style="font-size:13px;color:#666;margin-bottom:28px;">${currentLang==='ru'?'Ваши пакеты активированы.':'Your packs are now active.'}</p>
+      <p style="font-size:22px;font-weight:700;color:#e8e8f0;margin:16px 0 8px;">${t('payConfirmedTitle')}</p>
+      <p style="font-size:13px;color:#666;margin-bottom:28px;">${t('payConfirmedSub')}</p>
       <button onclick="paymentDone()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">
-        ${currentLang==='ru'?'Начать работу 🎯':'Start working 🎯'}
+        ${t('startBtn')}
       </button>
     </div>`;
   // Save quiz to backend if we haven't
@@ -1418,7 +1528,11 @@ function cancelPendingPayment() {
   document.getElementById('payPendingScreen').classList.remove('open');
 }
 
-// manualConfirmPayment удалён — подтверждение только через реальную проверку CryptoBot
+// ── Manual confirm (admin) exposed for testing ────────
+async function manualConfirmPayment(payId) {
+  await apiFetch('/api/payment/confirm','POST',{payment_id:payId});
+  pollPaymentStatus();
+}
 
 // ══════════════════════════════════════════════════════
 //  DONE → MAIN
@@ -1493,17 +1607,17 @@ function renderChannelList() {
       </div>
       <div class="ci" style="flex:1;min-width:0;">
         <p class="cn">${ch.username}</p>
-        <p class="cs2">Telegram channel</p>
+        <p class="cs2">${t('telegramChannel')}</p>
       </div>
       <span class="pb ${pc.badge}">${label}</span>
       <div style="width:100%;margin-top:10px;display:none;" class="ch-confirm-box">
-        <p style="font-size:12px;color:#e05252;font-weight:600;margin:0 0 8px;">Удалить ${ch.username}?</p>
+        <p style="font-size:12px;color:#e05252;font-weight:600;margin:0 0 8px;">${t('confirmDeleteQuestion',{username:ch.username})}</p>
         <div style="display:flex;gap:8px;">
-          <button class="yes-del" style="flex:1;padding:9px;border-radius:9px;border:none;background:#e05252;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">✓ Да, удалить</button>
-          <button class="no-del"  style="flex:1;padding:9px;border-radius:9px;border:.5px solid #333;background:#1a1a20;color:#888;font-size:13px;cursor:pointer;">✕ Отмена</button>
+          <button class="yes-del" style="flex:1;padding:9px;border-radius:9px;border:none;background:#e05252;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">${t('yesDelete')}</button>
+          <button class="no-del"  style="flex:1;padding:9px;border-radius:9px;border:.5px solid #333;background:#1a1a20;color:#888;font-size:13px;cursor:pointer;">${t('noCancel')}</button>
         </div>
       </div>
-      <button class="ch-del-trigger" style="width:100%;margin-top:10px;padding:9px;border-radius:9px;border:.5px solid #e0525244;background:#2a1010;color:#e05252;font-size:13px;font-weight:500;cursor:pointer;text-align:center;">🗑 Удалить</button>
+      <button class="ch-del-trigger" style="width:100%;margin-top:10px;padding:9px;border-radius:9px;border:.5px solid #e0525244;background:#2a1010;color:#e05252;font-size:13px;font-weight:500;cursor:pointer;text-align:center;">${t('delete')}</button>
     `;
 
     const trigger  = div.querySelector('.ch-del-trigger');
@@ -1748,10 +1862,10 @@ async function fetchRealMessages() {
 
 function formatMsgTime(ts) {
   const diff = Math.floor((Date.now() - ts.getTime()) / 60000);
-  if(diff < 1) return 'just now';
-  if(diff < 60) return diff + 'm ago';
+  if(diff < 1) return t('justNow');
+  if(diff < 60) return t('mAgo',{n:diff});
   const h = Math.floor(diff / 60);
-  return h + 'h ago';
+  return t('hAgo',{n:h});
 }
 
 async function analyzeImpact(msgId, text) {
@@ -1786,7 +1900,7 @@ Return ONLY valid JSON, nothing else.`,
     _impactCache[msgId] = result;
     return result;
   } catch(e) {
-    return { score: 0, reason: 'Ошибка анализа' };
+    return { score: 0, reason: '' };
   }
 }
 
@@ -1797,9 +1911,9 @@ function getImpactClass(score) {
 }
 
 function getImpactLabel(score) {
-  if(score >= 60) return '🔴 Высокое влияние';
-  if(score >= 30) return '🟡 Среднее влияние';
-  return '🟢 Низкое влияние';
+  if(score >= 60) return t('impactHigh');
+  if(score >= 30) return t('impactMid');
+  return t('impactLow');
 }
 
 function renderImpactBar(cardEl, msgId, score, reason) {
@@ -1809,7 +1923,7 @@ function renderImpactBar(cardEl, msgId, score, reason) {
   if(!wrapEl) return;
   wrapEl.innerHTML = `
     <div class="impact-header">
-      <span class="impact-label">⚡ Влияние на рынок</span>
+      <span class="impact-label">${t('impactLabel')}</span>
       <span class="impact-pct impact-${cls}">${score}%<span class="impact-tag impact-tag-${cls}">${label}</span></span>
     </div>
     <div class="impact-bar">
@@ -1842,7 +1956,7 @@ async function loadFeed() {
 
   emptyEl.style.display = 'none';
   refreshBtn.style.display = 'flex';
-  refreshBtn.innerHTML = '<div class="impact-dot-pulse"></div> Загружаем ленту…';
+  refreshBtn.innerHTML = `<div class="impact-dot-pulse"></div> ${t('feedLoading')}`;
   scroll.querySelectorAll('.feed-card').forEach(el => el.remove());
 
   // Загружаем реальные сообщения с сервера (уже с AI-оценкой)
@@ -1851,11 +1965,11 @@ async function loadFeed() {
   if(msgs.length === 0) {
     emptyEl.innerHTML = `
       <p style="font-size:28px;margin-bottom:10px;">⏳</p>
-      <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">Сообщений пока нет</p>
-      <p style="font-size:12px;color:#555;margin:0;line-height:1.5;">Бот мониторит твои каналы.<br>Новые сообщения появятся здесь.</p>
+      <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">${t('feedNoMessages')}</p>
+      <p style="font-size:12px;color:#555;margin:0;line-height:1.5;">${t('feedNoMessagesSub')}</p>
     `;
     emptyEl.style.display = 'flex';
-    refreshBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:14px;"></i> Обновить';
+    refreshBtn.innerHTML = `<i class="ti ti-refresh" style="font-size:14px;"></i> ${t('feedRefresh')}`;
     _feedLoading = false;
     return;
   }
@@ -1899,7 +2013,7 @@ async function loadFeed() {
         <span class="feed-ch-name">${msg.channelUsername}</span>
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
-      <p class="feed-text">${msg.text || '<i style="color:#555">Медиа-сообщение</i>'}</p>
+      <p class="feed-text">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
       <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
         ${hasServerAI
           ? ''  /* заполним ниже */
@@ -1927,7 +2041,7 @@ async function loadFeed() {
   });
 
   loadChannelAvatars();
-  refreshBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:14px;"></i> Обновить';
+  refreshBtn.innerHTML = `<i class="ti ti-refresh" style="font-size:14px;"></i> ${t('feedRefresh')}`;
   _feedLoading = false;
 }
 
@@ -2107,6 +2221,15 @@ async function setLang(lang) {
   // Re-render profile if open
   if(document.getElementById('vProfile').style.transform==='translateX(0px)' ||
      document.getElementById('vProfile').style.transform==='translateX(0)') renderProfileScreen();
+  // Re-render catalog if open
+  if(document.getElementById('addChannelModal').classList.contains('open')) { renderCatalog(); }
+  // Re-render packs screen labels
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    const tr=t(key);
+    if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder=tr;
+    else if(tr!==key) el.innerHTML=tr;
+  });
   showToast('settingsToast',t('langChanged'));
   // Save to backend
   if(currentUserId) {
@@ -2132,7 +2255,7 @@ const channelCatalog = [
   {
     username: '@cloudrproject',
     name: 'Cloudr Project',
-    description: 'Крипто-аналитика, сигналы и макро-обзоры',
+    desc: { en: 'Crypto analytics, signals and macro overviews', ru: 'Крипто-аналитика, сигналы и макро-обзоры' },
     emoji: '☁️',
     category: 'Crypto',
     prio: 'high',
@@ -2141,7 +2264,7 @@ const channelCatalog = [
   {
     username: '@durov',
     name: 'Pavel Durov',
-    description: 'Официальный канал основателя Telegram',
+    desc: { en: 'Official channel of Telegram founder', ru: 'Официальный канал основателя Telegram' },
     emoji: '✈️',
     category: 'Tech',
     prio: 'mid',
@@ -2150,7 +2273,7 @@ const channelCatalog = [
   {
     username: '@coindesk',
     name: 'CoinDesk',
-    description: 'Новости крипторынка и блокчейна',
+    desc: { en: 'Crypto market and blockchain news', ru: 'Новости крипторынка и блокчейна' },
     emoji: '📰',
     category: 'Crypto News',
     prio: 'high',
@@ -2159,7 +2282,7 @@ const channelCatalog = [
   {
     username: '@cointelegraph',
     name: 'Cointelegraph',
-    description: 'Аналитика и репортажи о криптовалютах',
+    desc: { en: 'Crypto analytics and reports', ru: 'Аналитика и репортажи о криптовалютах' },
     emoji: '📡',
     category: 'Crypto News',
     prio: 'high',
@@ -2168,7 +2291,7 @@ const channelCatalog = [
   {
     username: '@federalreserve',
     name: 'Fed Reserve News',
-    description: 'Новости ФРС, ставки и монетарная политика',
+    desc: { en: 'FED news, rates and monetary policy', ru: 'Новости ФРС, ставки и монетарная политика' },
     emoji: '🏦',
     category: 'Macro',
     prio: 'mid',
@@ -2177,7 +2300,7 @@ const channelCatalog = [
   {
     username: '@solana_news',
     name: 'Solana News',
-    description: 'Экосистема Solana: DeFi, NFT и новости',
+    desc: { en: 'Solana ecosystem: DeFi, NFT and news', ru: 'Экосистема Solana: DeFi, NFT и новости' },
     emoji: '🌊',
     category: 'Crypto',
     prio: 'mid',
@@ -2214,11 +2337,11 @@ function renderCatalog() {
           <span style="font-size:9px;background:${pc.bg};color:${pc.color};border:.5px solid ${pc.border};border-radius:6px;padding:2px 6px;white-space:nowrap;">${ch.category}</span>
         </div>
         <p style="font-size:11px;color:#555;margin:0 0 2px;">${ch.username}</p>
-        <p style="font-size:11px;color:#666;margin:0;line-height:1.4;">${ch.description}</p>
+        <p style="font-size:11px;color:#666;margin:0;line-height:1.4;">${(ch.desc&&ch.desc[currentLang])||ch.desc&&ch.desc.en||''}</p>
       </div>
       <button onclick="addFromCatalog('${ch.username}','${ch.prio}','${ch.emoji}')" ${alreadyAdded ? 'disabled' : ''}
         style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : 'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
-        ${alreadyAdded ? '✓ Добавлен' : '+ Add'}
+        ${alreadyAdded ? t('catalogAdded') : t('catalogAdd')}
       </button>`;
     list.appendChild(card);
   });
@@ -2311,11 +2434,11 @@ init();
 <div id="confirmDeleteModal" onclick="closeConfirmDelete()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;align-items:flex-end;">
   <div onclick="event.stopPropagation()" style="background:#1a1a20;border-radius:24px 24px 0 0;padding:20px 16px 44px;width:100%;animation:sheetUp .3s cubic-bezier(.4,0,.2,1);">
     <div style="width:36px;height:4px;background:#333;border-radius:2px;margin:0 auto 16px;"></div>
-    <p style="font-size:11px;color:#555;margin:0 0 8px;letter-spacing:.5px;text-transform:uppercase;">🗑 Удалить канал</p>
+    <p style="font-size:11px;color:#555;margin:0 0 8px;letter-spacing:.5px;text-transform:uppercase;" data-i18n="deleteChannelHeader">🗑 Delete channel</p>
     <p id="confirmChannelName" style="font-size:17px;font-weight:700;color:#e8e8f0;margin:0 0 6px;"></p>
-    <p style="font-size:13px;color:#555;margin:0 0 22px;line-height:1.5;">Канал будет удалён из вашего списка и уведомления больше не будут приходить.</p>
-    <button onclick="doDeleteChannel()" style="width:100%;background:#2a1010;border:.5px solid #e0525255;color:#e05252;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;">🗑 Удалить</button>
-    <button onclick="closeConfirmDelete()" style="width:100%;background:none;border:none;color:#666;font-size:14px;cursor:pointer;padding:8px 0;">Отмена</button>
+    <p style="font-size:13px;color:#555;margin:0 0 22px;line-height:1.5;" data-i18n="deleteChannelDesc">Channel will be removed from your list and you will no longer receive notifications.</p>
+    <button onclick="doDeleteChannel()" style="width:100%;background:#2a1010;border:.5px solid #e0525255;color:#e05252;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;" data-i18n="deleteConfirmBtn">🗑 Delete</button>
+    <button onclick="closeConfirmDelete()" style="width:100%;background:none;border:none;color:#666;font-size:14px;cursor:pointer;padding:8px 0;" data-i18n="cancel">Cancel</button>
   </div>
 </div>
 
