@@ -2565,7 +2565,12 @@ const _quickHints = {
 
 function toggleAiChat() {
   const panel = document.getElementById('aiPanel');
+  const fab   = document.getElementById('aiFab');
   const isOpen = panel.classList.toggle('open');
+  if(fab) {
+    fab.style.opacity = isOpen ? '0' : '';
+    fab.style.pointerEvents = isOpen ? 'none' : '';
+  }
   if(isOpen && _aiHistory.length === 0) {
     const greet = currentLang === 'ru'
       ? 'Привет! 👋 Я Clearly AI — помогу разобраться с ботом и отвечу на вопросы по крипте.'
