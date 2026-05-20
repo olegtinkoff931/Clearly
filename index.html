@@ -981,8 +981,9 @@ function applyTheme() {
 // ── API helpers ───────────────────────────────────────
 async function apiFetch(path, method='GET', body=null) {
   const url = API_BASE + path;
+  const timeoutMs = path === '/api/chat' ? 20000 : 6000;
   const controller = new AbortController();
-  const tid = setTimeout(() => controller.abort(), 6000);
+  const tid = setTimeout(() => controller.abort(), timeoutMs);
   const opts = {
     method,
     headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
@@ -1884,7 +1885,7 @@ async function fetchRealMessages() {
         channelPrio: ch ? ch.prio : 'mid',
         channelEmoji: ch ? ch.emoji : '📰',
         text: m.text || '',
-        ts: new Date(m.created_at || Date.now()),
+        ts: m.created_at ? new Date(m.created_at.endsWith('Z') || m.created_at.includes('+') ? m.created_at : m.created_at + 'Z') : new Date(),
         // AI уже посчитан сервером — используем готовые данные
         aiScore:    typeof m.ai_score === 'number' ? m.ai_score : null,
         aiReason:   m.ai_reason || '',
@@ -2673,7 +2674,16 @@ async function toggleFeedTranslate(msgId, origText) {
   btn.classList.add('loading');
   btn.textContent = '⏳';
   try {
-    const r = await apiFetch('/api/chat', 'POST', {messages:[{role:'user', content:`Translate this text to ${tgt}. Return ONLY the translation, no explanations:\n\n${origText}`}]});
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 20000);
+    const resp = await fetch(API_BASE + '/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
+      signal: controller.signal,
+      body: JSON.stringify({messages:[{role:'user', content:`Translate this text to ${tgt}. Return ONLY the translation, no explanations:\n\n${origText}`}]})
+    });
+    clearTimeout(tid);
+    const r = resp.ok ? await resp.json() : null;
     const translated = r?.reply || origText;
     _txc[key] = translated;
     textEl.textContent = translated;
