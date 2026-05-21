@@ -612,7 +612,20 @@
       <!-- MANUAL TAB -->
       <div id="addTabManual" style="display:none;">
         <p class="modal-title" data-i18n="addChannelTitle">➕ Add Channel</p>
-        <p class="modal-sub" data-i18n="addChannelSub">Enter the Telegram channel username and choose priority</p>
+
+        <!-- Platform switcher -->
+        <div style="display:flex;gap:6px;margin-bottom:14px;background:#111118;border-radius:12px;padding:4px;">
+          <button id="platformTg" onclick="switchPlatform('telegram')"
+            style="flex:1;padding:8px;border-radius:9px;border:none;background:#1e1e30;color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;">
+            ✈️ Telegram
+          </button>
+          <button id="platformTw" onclick="switchPlatform('twitter')"
+            style="flex:1;padding:8px;border-radius:9px;border:none;background:transparent;color:#555;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;">
+            𝕏 Twitter/X
+          </button>
+        </div>
+
+        <p class="modal-sub" id="addChSubtitle" data-i18n="addChannelSub">Enter the Telegram channel username and choose priority</p>
         <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:5px;" data-i18n="labelUsername">CHANNEL USERNAME</label>
         <input class="ch-input" id="chUsername" type="text" placeholder="@channel_name" oninput="validateAddChannel()">
         <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:8px;" data-i18n="labelPriority">PRIORITY</label>
@@ -1047,6 +1060,7 @@ async function init() {
     prio:     c.priority,
     emoji:    c.emoji || '🔔',
     notifOn:  c.notif_on !== 0,
+    source:   c.source || 'telegram',
   }));
 
   // Restore purchased packs
@@ -1646,7 +1660,7 @@ function renderChannelList() {
       </div>
       <div class="ci" style="flex:1;min-width:0;">
         <p class="cn">${ch.username}</p>
-        <p class="cs2">${t('telegramChannel')}</p>
+        <p class="cs2">${ch.source === 'twitter' ? '𝕏 Twitter/X' : t('telegramChannel')}</p>
       </div>
       <span class="pb ${pc.badge}">${label}</span>
       <div style="width:100%;margin-top:10px;display:none;" class="ch-confirm-box">
@@ -1750,14 +1764,56 @@ function syncNotifScreen() {
 }
 
 let addChPrio=null;
+let addChPlatform='telegram';
+
+function switchPlatform(platform) {
+  addChPlatform = platform;
+  const tgBtn = document.getElementById('platformTg');
+  const twBtn = document.getElementById('platformTw');
+  const input = document.getElementById('chUsername');
+  const subtitle = document.getElementById('addChSubtitle');
+  const previewSub = document.getElementById('chPreviewSub');
+
+  if (platform === 'twitter') {
+    tgBtn.style.background = 'transparent';
+    tgBtn.style.color = '#555';
+    twBtn.style.background = '#1a1a1a';
+    twBtn.style.color = '#1d9bf0';
+    twBtn.style.border = '1px solid #1d9bf044';
+    input.placeholder = '@elonmusk';
+    if (subtitle) subtitle.textContent = (window._lang === 'ru')
+      ? 'Введите username Twitter/X аккаунта и выберите важность'
+      : 'Enter the Twitter/X account username and choose priority';
+    if (previewSub) previewSub.textContent = '𝕏 Twitter/X account';
+  } else {
+    twBtn.style.background = 'transparent';
+    twBtn.style.color = '#555';
+    twBtn.style.border = 'none';
+    tgBtn.style.background = '#1e1e30';
+    tgBtn.style.color = '#a78bfa';
+    input.placeholder = '@channel_name';
+    if (subtitle) subtitle.textContent = (window._lang === 'ru')
+      ? 'Введите username канала и выберите важность'
+      : 'Enter the Telegram channel username and choose priority';
+    if (previewSub) previewSub.textContent = 'Telegram channel';
+  }
+  document.getElementById('chUsername').value = '';
+  validateAddChannel();
+}
 
 function openAddChannel() {
   addChPrio=null;
+  addChPlatform='telegram';
   document.getElementById('chUsername').value='';
   document.getElementById('chPreview').style.display='none';
   document.getElementById('addChBtn').style.opacity='.35';
   document.getElementById('addChBtn').style.pointerEvents='none';
   ['prioHigh','prioMid','prioLow'].forEach(id=>document.getElementById(id).className='prio-btn');
+  // Reset platform UI
+  const tgBtn=document.getElementById('platformTg');
+  const twBtn=document.getElementById('platformTw');
+  if(tgBtn){tgBtn.style.background='#1e1e30';tgBtn.style.color='#a78bfa';}
+  if(twBtn){twBtn.style.background='transparent';twBtn.style.color='#555';twBtn.style.border='none';}
   switchAddTab('catalog');
   renderCatalog();
   document.getElementById('addChannelModal').classList.add('open');
@@ -1807,6 +1863,7 @@ async function confirmAddChannel() {
   const raw=document.getElementById('chUsername').value.trim();
   if(!raw||!addChPrio) return;
   const username=raw.startsWith('@')?raw:'@'+raw;
+  const source = addChPlatform || 'telegram';
 
   let channelId=null;
   if(currentUserId) {
@@ -1814,12 +1871,13 @@ async function confirmAddChannel() {
       user_id:currentUserId,
       username:username.replace('@',''),
       priority:addChPrio,
-      emoji:prioEmojis[addChPrio]
+      emoji:prioEmojis[addChPrio],
+      source:source
     });
     if(resp&&resp.id) channelId=resp.id;
   }
 
-  channels.push({id:channelId,username,prio:addChPrio,emoji:prioEmojis[addChPrio],notifOn:true});
+  channels.push({id:channelId,username,prio:addChPrio,emoji:prioEmojis[addChPrio],notifOn:true,source:source});
   closeAddChannel();
   renderChannelList();
   syncNotifScreen();
@@ -1891,6 +1949,8 @@ async function fetchRealMessages() {
         aiReason:   m.ai_reason || '',
         aiAffected: Array.isArray(m.ai_affected) ? m.ai_affected : [],
         aiDirection: m.ai_direction || 'neutral',
+        source: m.source || 'telegram',
+        sourceUrl: m.source_url || null,
       };
     });
   } catch(e) {
@@ -2032,14 +2092,31 @@ async function loadFeed() {
     card.id = 'feedcard_' + msg.id;
     card.style.animationDelay = (idx * 0.04) + 's';
 
+    // Twitter карточки — синяя рамка
+    const isTwitter = msg.source === 'twitter';
+    if(isTwitter) { card.style.borderColor = '#1d9bf033'; }
+
     // Стиль карточки по важности (сразу, т.к. данные уже есть)
     if(hasServerAI) {
       if(msg.aiScore >= 60) { card.style.borderColor='#e0525244'; card.style.background='#1f1818'; }
-      else if(msg.aiScore >= 30) { card.style.borderColor='#d49a2e33'; }
+      else if(msg.aiScore >= 30 && !isTwitter) { card.style.borderColor='#d49a2e33'; }
     }
 
     // Направление
     const dirIcon = { up:'📈', down:'📉', neutral:'➡️' }[msg.aiDirection] || '➡️';
+
+    // Платформа — значок
+    const platformBadge = isTwitter
+      ? `<span style="font-size:10px;color:#1d9bf0;margin-left:4px;font-weight:700;">𝕏</span>`
+      : `<span style="font-size:10px;color:#7b7bff;margin-left:4px;">✈</span>`;
+
+    // Twitter ссылка
+    const twitterLink = isTwitter && msg.sourceUrl
+      ? `<a href="https://twitter.com/i/web/status/${msg.sourceUrl}" target="_blank"
+           style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:#1d9bf0;text-decoration:none;background:#0d1a26;border:.5px solid #1d9bf033;border-radius:8px;padding:4px 10px;">
+           𝕏 View on Twitter/X
+         </a>`
+      : '';
 
     card.innerHTML = `
       <div class="feed-card-header">
@@ -2049,11 +2126,15 @@ async function loadFeed() {
           <span style="position:relative;z-index:1;">${initials}</span>
           <span style="position:absolute;bottom:-3px;right:-3px;font-size:10px;z-index:2;">${msg.channelEmoji}</span>
         </div>
-        <span class="feed-ch-name">${msg.channelUsername}</span>
+        <div style="display:flex;align-items:center;gap:2px;">
+          <span class="feed-ch-name">${msg.channelUsername}</span>
+          ${platformBadge}
+        </div>
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
       <p class="feed-text" id="feedtext_${msg.id}">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
       ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" onclick="toggleFeedTranslate('${msg.id}',${JSON.stringify(msg.text)})">🌐 ${currentLang==='ru'?'Перевести':'Translate'}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
+      ${twitterLink}
       <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
         ${hasServerAI
           ? ''  /* заполним ниже */
