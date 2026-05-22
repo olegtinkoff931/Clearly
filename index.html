@@ -524,6 +524,11 @@
         <span class="lang-pill-name">Русский</span>
         <span class="lang-pill-tag">RU</span>
       </div>
+      <div class="lang-pill" id="pill-uk" onclick="setLang('uk')">
+        <span class="lang-pill-flag">🇺🇦</span>
+        <span class="lang-pill-name">Українська</span>
+        <span class="lang-pill-tag">UK</span>
+      </div>
     </div>
     <div class="toast" id="settingsToast"></div>
   </div>
@@ -822,6 +827,89 @@ const i18n = {
     errorGeneric:'❌ Error. Try again.',
     copiedToast:'📋 Address copied',
   },
+  uk: {
+    tagline:'Вся інфа в одному повідомленні', splashBtn:'Почати', splashSub:'Налаштування займе 1 хвилину',
+    welcomeTitle:'Привіт! Ласкаво просимо до <span>Clearly</span>',
+    welcomeDesc:'Ми поставимо кілька запитань, щоб підібрати найкращий пакет і налаштувати все під вас.',
+    welcomeBtn:'Поїхали 🚀', doneTitle:'Все готово!',
+    doneSub:'Налаштування збережені. Ласкаво просимо до <strong style="color:#b0a8ff;">Clearly</strong>!',
+    startBtn:'Починаємо 🎯', navProfile:'Профіль', navNotif:'Сповіщення', navTheme:'Тема',
+    navSettings:'Налаштування', navChannels:'Канали', navFeed:'Стрічка', myChannels:'МОЇ КАНАЛИ',
+    delete:'🗑 Видалити', high:'🔴 Важливо', medium:'🟡 Середнє', low:'🟢 Не важливо', newChannel:'Новий канал',
+    addChannelTitle:'➕ Додати канал', addChannelSub:'Введіть username каналу і оберіть важливість',
+    labelUsername:'USERNAME КАНАЛУ', labelPriority:'ВАЖЛИВІСТЬ', addChannelBtn:'Додати канал',
+    cancel:'Скасувати', channelAdded:'✅ Канал додано!', channelDeleted:'🗑 Канал видалено',
+    noChannelsTitle:'Каналів поки немає', noChannelsSub:'Натисніть «Новий канал» щоб додати',
+    profMyProfile:'👤 МІЙ ПРОФІЛЬ', profMyPlans:'📦 МОЇ ПЛАНИ', profStats:'📊 СТАТИСТИКА',
+    profChannelsLabel:'Канали', profPlansLabel:'Плани', profPerMonth:'На місяць',
+    profActivePlan:'Активний план', profActiveLabel:'● Активний', profNoPlans:'Немає активних планів. Оберіть пакет нижче.',
+    profActivBtn:'✓ Активний', profAddBtn:'+ Додати', profUpToDate:'План актуальний', profChangePlan:'Змінити план',
+    themeTitle:'🎨 Тема', themeSub:'Оберіть стиль', applyTheme:'Застосувати тему',
+    themeApplied:'Тему «{name}» застосовано', notifTitle:'🔔 Сповіщення', notifSub:'Управління',
+    notifOn:'{n} увімк', allNotif:'Всі сповіщення', allNotifSub:'Увімкнути або вимкнути все',
+    userChannels:'КАНАЛИ', saveSettings:'Зберегти', settingsSaved:'✅ Налаштування збережено!',
+    settingsTitle:'⚙️ Налаштування', settingsSub:'Персоналізація',
+    settingsLangSection:'МОВА', settingsLangTitle:'Мова інтерфейсу',
+    settingsLangSub:'Оберіть мову застосунку', langChanged:'🌐 Мову змінено на Українську',
+    quizStep:'Питання {n} з {total}', quizNext:'Далі →', quizDone:'Готово ✅',
+    loading:'Завантаження Clearly…',
+    aiComplete:'🤖 AI-аналіз завершено',
+    smartPacks:'⚡ РОЗУМНІ ПАКЕТИ',
+    chooseYourFeed:'Оберіть вашу<br>стрічку новин.',
+    selectOnePack:'Оберіть один або кілька пакетів.',
+    paymentMethod:'💳 СПОСІБ ОПЛАТИ',
+    skip:'Пропустити →',
+    packsRecommendSub:'На основі ваших відповідей. Можна додати другий пакет для повнішої стрічки.',
+    bestMatch:'Найкращий вибір',
+    accessLabel:'Доступ',
+    packAdd:'Додати', packRemove:'Прибрати',
+    cryptoPayBadge:'💳 Оплата криптовалютою',
+    completePayment:'Оформити оплату',
+    choosePayMethod:'Оберіть спосіб оплати',
+    amountLabel:'Сума',
+    payMethodSection:'СПОСІБ ОПЛАТИ',
+    networkLabel:'Мережа',
+    copyBtn:'📋 Копіювати',
+    cryptobotDesc:'Через CryptoBot буде створено інвойс у Telegram. Натисніть нижче щоб відкрити посилання.',
+    cryptobotPayBtn:'🤖 Оплатити через CryptoBot',
+    iPaidBtn:'💳 Я оплатив — підтвердити',
+    submittingBtn:'⏳ Надсилаємо…',
+    creatingInvoice:'Створюємо інвойс…',
+    payAutoNote:'Або оплата буде підтверджена автоматично після виявлення транзакції',
+    pendingTitle:'Очікуємо оплату',
+    pendingSubAuto:'Чекаємо підтвердження транзакції в блокчейні. Зазвичай займає 1–3 хвилини.',
+    pendingSubManual:'Запит на оплату надіслано. Доступ відкриється автоматично після отримання оплати.',
+    pendingTimer:'Перевіряємо кожні 10 секунд…',
+    cancelPayment:'Скасувати оплату',
+    payConfirmedTitle:'Оплату підтверджено!',
+    payConfirmedSub:'Ваші пакети активовано.',
+    tabCatalog:'📋 Каталог', tabManual:'✏️ Вручну',
+    catalogSection:'TELEGRAM КАНАЛИ',
+    deleteChannelHeader:'🗑 Видалити канал',
+    deleteChannelDesc:'Канал буде видалено зі вашого списку і сповіщення більше не надходитимуть.',
+    deleteConfirmBtn:'🗑 Видалити',
+    confirmDeleteQuestion:'Видалити {username}?',
+    yesDelete:'✓ Так, видалити', noCancel:'✕ Скасувати',
+    telegramChannel:'Telegram-канал',
+    feedTitle:'📰 Стрічка',
+    feedEmpty:'Каналів поки немає',
+    feedEmptySub:'Додай канали на вкладці «Канали» щоб бачити стрічку тут',
+    feedLoading:'Завантажуємо стрічку…',
+    feedNoMessages:'Повідомлень поки немає',
+    feedNoMessagesSub:'Бот моніторить твої канали.<br>Нові повідомлення з\'являться тут.',
+    feedRefresh:'Оновити',
+    mediaMessage:'Медіа-повідомлення',
+    impactLabel:'⚡ Вплив на ринок',
+    impactHigh:'🔴 Високий вплив',
+    impactMid:'🟡 Середній вплив',
+    impactLow:'🟢 Низький вплив',
+    justNow:'щойно', mAgo:'{n} хв тому', hAgo:'{n} год тому',
+    catalogAdded:'✓ Додано', catalogAdd:'+ Додати',
+    packSingular:'пакет', packPlural:'пакети',
+    errorInvoice:'❌ Помилка створення інвойсу. Спробуйте знову.',
+    errorGeneric:'❌ Помилка. Спробуйте знову.',
+    copiedToast:'📋 Адресу скопійовано',
+  },
   ru: {
     tagline:'Вся инфа в одном сообщении', splashBtn:'Начать', splashSub:'Настройка займёт 1 минуту',
     welcomeTitle:'Привет! Добро пожаловать в <span>Clearly</span>',
@@ -1051,6 +1139,7 @@ async function init() {
   currentLang = userData.lang || 'en';
   document.getElementById('pill-en').classList.toggle('active', currentLang==='en');
   document.getElementById('pill-ru').classList.toggle('active', currentLang==='ru');
+  document.getElementById('pill-uk').classList.toggle('active', currentLang==='uk');
   applyI18n();
 
   // Restore channels
@@ -1129,6 +1218,18 @@ const quizData = {
      opts:[{label:'Новичок',emoji:'🐣',points:{crypto:3}},{label:'Средний',emoji:'🧐',points:{news:2,crypto:2}},{label:'Прошаренный криптан',emoji:'🔥',points:{meme:2,news:3}}]},
     {key:'goal',q:'Для чего вам новости?',sub:'Выберем пакет под вашу цель',
      opts:[{label:'Торговать на новостях',emoji:'⚡',points:{news:5}},{label:'Видеть общую картину',emoji:'🌐',points:{macro:3,crypto:2}},{label:'Искать хайп',emoji:'🐸',points:{meme:5}},{label:'Собирать аналитику',emoji:'📋',points:{macro:3,crypto:2}}]}
+  ],
+  uk:[
+    {key:'sphere',q:'Ваша сфера діяльності?',sub:'Оберіть те, що найближче до вашої стратегії',
+     opts:[{label:'Крипта',emoji:'🪙',points:{crypto:3,news:1}},{label:'Трейдинг',emoji:'📈',points:{news:3,crypto:1}},{label:'Мемкоїни',emoji:'🐸',points:{meme:4,news:1}},{label:'AI / Tech',emoji:'🤖',points:{macro:2,crypto:1}},{label:'Stocks / Macro',emoji:'🌎',points:{macro:4}}]},
+    {key:'style',q:'Ваш стиль торгівлі?',sub:'Це допоможе зрозуміти потрібну швидкість новин',
+     opts:[{label:'Скальпинг',emoji:'⚡',points:{news:4,meme:2}},{label:'Денний трейдинг',emoji:'☀️',points:{news:3,crypto:2}},{label:'Свінг',emoji:'🌊',points:{macro:3,crypto:2}},{label:'Я спостерігаю',emoji:'👀',points:{crypto:2,macro:2}}]},
+    {key:'capital',q:'Ваш капітал?',sub:'Для підбору рівня ризику',
+     opts:[{label:'До $500',emoji:'🌱',points:{meme:1,crypto:2}},{label:'До $1 000',emoji:'💼',points:{crypto:2,news:2}},{label:'Від $5 000+',emoji:'🚀',points:{macro:2,news:3}}]},
+    {key:'experience',q:'Ваш досвід у крипті?',sub:'Будемо чесні',
+     opts:[{label:'Новачок',emoji:'🐣',points:{crypto:3}},{label:'Середній',emoji:'🧐',points:{news:2,crypto:2}},{label:'Досвідчений криптан',emoji:'🔥',points:{meme:2,news:3}}]},
+    {key:'goal',q:'Навіщо вам новини?',sub:'Оберемо пакет під вашу мету',
+     opts:[{label:'Торгувати на новинах',emoji:'⚡',points:{news:5}},{label:'Бачити загальну картину',emoji:'🌐',points:{macro:3,crypto:2}},{label:'Шукати хайп',emoji:'🐸',points:{meme:5}},{label:'Збирати аналітику',emoji:'📋',points:{macro:3,crypto:2}}]}
   ]
 };
 
@@ -1808,6 +1909,8 @@ function switchPlatform(platform) {
     input.placeholder = '@elonmusk';
     if (subtitle) subtitle.textContent = (window._lang === 'ru')
       ? 'Введите username Twitter/X аккаунта и выберите важность'
+      : (window._lang === 'uk')
+      ? 'Введіть username Twitter/X акаунта і оберіть важливість'
       : 'Enter the Twitter/X account username and choose priority';
     if (previewSub) previewSub.textContent = '𝕏 Twitter/X account';
   } else {
@@ -1819,6 +1922,8 @@ function switchPlatform(platform) {
     input.placeholder = '@channel_name';
     if (subtitle) subtitle.textContent = (window._lang === 'ru')
       ? 'Введите username канала и выберите важность'
+      : (window._lang === 'uk')
+      ? 'Введіть username каналу і оберіть важливість'
       : 'Enter the Telegram channel username and choose priority';
     if (previewSub) previewSub.textContent = 'Telegram channel';
   }
@@ -2367,6 +2472,7 @@ async function setLang(lang) {
   currentLang=lang;
   document.getElementById('pill-en').classList.toggle('active',lang==='en');
   document.getElementById('pill-ru').classList.toggle('active',lang==='ru');
+  document.getElementById('pill-uk').classList.toggle('active',lang==='uk');
   applyI18n();
   renderChannelList();
   syncNotifScreen();
@@ -2407,7 +2513,7 @@ const channelCatalog = [
   {
     username: '@cloudrproject',
     name: 'Cloudr Project',
-    desc: { en: 'Crypto analytics, signals and macro overviews', ru: 'Крипто-аналитика, сигналы и макро-обзоры' },
+    desc: { en: 'Crypto analytics, signals and macro overviews', ru: 'Крипто-аналитика, сигналы и макро-обзоры', uk: 'Крипто-аналітика, сигнали та макро-огляди' },
     emoji: '☁️',
     category: 'Crypto',
     prio: 'high',
@@ -2416,7 +2522,7 @@ const channelCatalog = [
   {
     username: '@durov',
     name: 'Pavel Durov',
-    desc: { en: 'Official channel of Telegram founder', ru: 'Официальный канал основателя Telegram' },
+    desc: { en: 'Official channel of Telegram founder', ru: 'Официальный канал основателя Telegram', uk: 'Офіційний канал засновника Telegram' },
     emoji: '✈️',
     category: 'Tech',
     prio: 'mid',
@@ -2425,7 +2531,7 @@ const channelCatalog = [
   {
     username: '@coindesk',
     name: 'CoinDesk',
-    desc: { en: 'Crypto market and blockchain news', ru: 'Новости крипторынка и блокчейна' },
+    desc: { en: 'Crypto market and blockchain news', ru: 'Новости крипторынка и блокчейна', uk: 'Новини крипторинку та блокчейну' },
     emoji: '📰',
     category: 'Crypto News',
     prio: 'high',
@@ -2434,7 +2540,7 @@ const channelCatalog = [
   {
     username: '@cointelegraph',
     name: 'Cointelegraph',
-    desc: { en: 'Crypto analytics and reports', ru: 'Аналитика и репортажи о криптовалютах' },
+    desc: { en: 'Crypto analytics and reports', ru: 'Аналитика и репортажи о криптовалютах', uk: 'Аналітика та репортажі про криптовалюти' },
     emoji: '📡',
     category: 'Crypto News',
     prio: 'high',
@@ -2443,7 +2549,7 @@ const channelCatalog = [
   {
     username: '@federalreserve',
     name: 'Fed Reserve News',
-    desc: { en: 'FED news, rates and monetary policy', ru: 'Новости ФРС, ставки и монетарная политика' },
+    desc: { en: 'FED news, rates and monetary policy', ru: 'Новости ФРС, ставки и монетарная политика', uk: 'Новини ФРС, ставки та монетарна політика' },
     emoji: '🏦',
     category: 'Macro',
     prio: 'mid',
@@ -2452,7 +2558,7 @@ const channelCatalog = [
   {
     username: '@solana_news',
     name: 'Solana News',
-    desc: { en: 'Solana ecosystem: DeFi, NFT and news', ru: 'Экосистема Solana: DeFi, NFT и новости' },
+    desc: { en: 'Solana ecosystem: DeFi, NFT and news', ru: 'Экосистема Solana: DeFi, NFT и новости', uk: 'Екосистема Solana: DeFi, NFT та новини' },
     emoji: '🌊',
     category: 'Crypto',
     prio: 'mid',
@@ -2601,7 +2707,8 @@ let _aiTyping = false;
 
 const _quickHints = {
   en: ['How do I add a channel?','What is the impact score?','How to enable notifications?','Explain DeFi'],
-  ru: ['Как добавить канал?','Что такое оценка влияния?','Как включить уведомления?','Объясни DeFi']
+  ru: ['Как добавить канал?','Что такое оценка влияния?','Как включить уведомления?','Объясни DeFi'],
+  uk: ['Як додати канал?','Що таке оцінка впливу?','Як увімкнути сповіщення?','Поясни DeFi']
 };
 
 // ══ AI FAB DRAG ══
@@ -2703,6 +2810,8 @@ function toggleAiChat() {
   if(isOpen && _aiHistory.length === 0) {
     const greet = currentLang === 'ru'
       ? 'Привет! 👋 Я Clearly AI — помогу разобраться с ботом и отвечу на вопросы по крипте.'
+      : currentLang === 'uk'
+      ? 'Привіт! 👋 Я Clearly AI — допоможу розібратися з ботом і відповім на питання з крипти.'
       : 'Hey! 👋 I\'m Clearly AI — here to help with the app and answer crypto questions.';
     _addBubble('a', greet);
     _renderQuick();
@@ -2755,18 +2864,18 @@ async function aiSend() {
   _aiTyping = true;
   document.getElementById('aiSendBtn').disabled = true;
   const st = document.getElementById('aiStatus');
-  if(st) st.textContent = currentLang === 'ru' ? 'Печатает…' : 'Typing…';
+  if(st) st.textContent = currentLang === 'ru' ? 'Печатает…' : currentLang === 'uk' ? 'Друкує…' : 'Typing…';
   _showTyping();
   try {
     const r = await apiFetch('/api/chat', 'POST', {messages: _aiHistory});
     document.getElementById('aiTyping')?.remove();
-    const reply = r?.reply || (currentLang === 'ru' ? '⚠️ Нет ответа от сервера.' : '⚠️ No response from server.');
+    const reply = r?.reply || (currentLang === 'ru' ? '⚠️ Нет ответа от сервера.' : currentLang === 'uk' ? '⚠️ Немає відповіді від сервера.' : '⚠️ No response from server.');
     _addBubble('a', reply);
     _aiHistory.push({role:'assistant', content:reply});
     if(_aiHistory.length > 40) _aiHistory.splice(0, _aiHistory.length - 40);
   } catch(e) {
     document.getElementById('aiTyping')?.remove();
-    _addBubble('a', currentLang === 'ru' ? '⚠️ Ошибка соединения.' : '⚠️ Connection error.');
+    _addBubble('a', currentLang === 'ru' ? '⚠️ Ошибка соединения.' : currentLang === 'uk' ? '⚠️ Помилка з\'єднання.' : '⚠️ Connection error.');
   }
   _aiTyping = false;
   document.getElementById('aiSendBtn').disabled = false;
@@ -2786,18 +2895,18 @@ async function toggleFeedTranslate(btn) {
   if(btn.dataset.translated === '1') {
     textEl.textContent = origText;
     btn.dataset.translated = '0';
-    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : '🌐 Translate';
+    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : '🌐 Translate';
     if(badge) badge.style.display = 'none';
     return;
   }
-  const tgt = currentLang === 'ru' ? 'Russian' : 'English';
-  const tgtShort = currentLang === 'ru' ? 'ru' : 'en';
+  const tgt = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English';
+  const tgtShort = currentLang === 'ru' ? 'ru' : currentLang === 'uk' ? 'uk' : 'en';
   const key = msgId + '_' + tgtShort;
   if(_txc[key]) {
     textEl.textContent = _txc[key];
     btn.dataset.translated = '1';
-    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : '↩ Original';
-    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : '🌐 Translated to English'; badge.style.display='block'; }
+    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
+    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
     return;
   }
   btn.classList.add('loading');
@@ -2818,11 +2927,11 @@ async function toggleFeedTranslate(btn) {
     textEl.textContent = translated;
     btn.dataset.translated = '1';
     btn.classList.remove('loading');
-    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : '↩ Original';
-    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : '🌐 Translated to English'; badge.style.display='block'; }
+    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
+    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
   } catch(e) {
     btn.classList.remove('loading');
-    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : '🌐 Translate';
+    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : '🌐 Translate';
   }
 }
 
