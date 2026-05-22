@@ -679,8 +679,8 @@
           <p style="font-size:11px;color:#555;margin:0 0 4px;" data-i18n="networkLabel">Network</p>
           <p id="payNetworkName" style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 12px;"></p>
           <!-- QR -->
-          <div class="qr-placeholder">
-            <div class="qr-inner" id="payQRText">QR<br>MOCK</div>
+          <div class="qr-placeholder" id="payQRContainer">
+            <div class="qr-inner" id="payQRText">QR</div>
           </div>
           <!-- Address copy -->
           <div class="pay-address-box">
@@ -1236,20 +1236,21 @@ const packsData=[
 
 const paymentsData=[
   {id:'cryptobot',emoji:'🤖',name:'CryptoBot (Telegram)',tag:'Fast',asset:'USDT'},
-  {id:'TON',emoji:'🟢',name:'USDT (TON)',tag:'Telegram native',network:'TON Network',address:'UQDY...K9mT',warning:'Send only USDT via TON network. Wrong network = lost funds.'},
-  {id:'USDT',emoji:'🟣',name:'USDT (Polygon)',tag:'Low fee',network:'Polygon Network',address:'0x7A3F...92D1',warning:'Send only USDT via Polygon network. Wrong network = lost funds.'},
+  {id:'ETH',emoji:'🔷',name:'Ethereum (ETH)',tag:'ERC-20',network:'Ethereum Network',address:'0x331dF8A2264c5d46490bE2e30bba75f5A224acC0',warning:'Send only ETH via Ethereum network. Wrong network = lost funds.'},
+  {id:'BTC',emoji:'🟠',name:'Bitcoin (BTC)',tag:'Native',network:'Bitcoin Network',address:'bc1qsgf7c84wjh903ke8jg04xrj0ugt89evjtd877z',warning:'Send only BTC via Bitcoin network. Wrong network = lost funds.'},
   {id:'card',emoji:'💳',name:'Visa / Mastercard',tag:'Coming soon',disabled:true},
 ];
 
 const walletDetails={
-  TON:{network:'TON Network',address:'UQDYxxxxxxxxxxxxxxxxxxxxxxK9mT',warning:'Send only USDT via TON network.'},
-  USDT:{network:'Polygon Network',address:'0x7A3Fxxxxxxxxxxxxxxxxxxxx92D1',warning:'Send only USDT via Polygon network.'},
+  ETH:{network:'Ethereum Network',address:'0x331dF8A2264c5d46490bE2e30bba75f5A224acC0',warning:'Send only ETH via Ethereum network. Wrong network = lost funds.'},
+  BTC:{network:'Bitcoin Network',address:'bc1qsgf7c84wjh903ke8jg04xrj0ugt89evjtd877z',warning:'Send only BTC via Bitcoin network. Wrong network = lost funds.'},
 };
 
 let selectedPacks=[], selectedPaymentIdx=null;
 let purchasedPacks=[];
 let profileSelectedPacks=[], profilePayIdx=null;
 let currentPaymentId=null, payPollInterval=null;
+let currentPaymentMethod=null, currentPaymentCreatedAt=null;
 
 // ── Packs screen ──────────────────────────────────────
 function showPacksScreen() {
@@ -1439,7 +1440,10 @@ function selectCryptoMethod(idx) {
       document.getElementById('payNetworkName').textContent=wallet.network;
       document.getElementById('payAddressText').textContent=wallet.address;
       document.getElementById('payNetWarning').textContent='⚠️ '+wallet.warning;
-      document.getElementById('payQRText').innerHTML=`QR<br>${wallet.network}<br>${total} USDT`;
+      // Реальный QR через api.qrserver.com
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(wallet.address)}&bgcolor=ffffff&color=000000&margin=8`;
+      const qrContainer = document.getElementById('payQRContainer');
+      qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width:140px;height:140px;border-radius:8px;display:block;" onerror="this.parentElement.innerHTML='<div style=\\'font-size:9px;color:#111;word-break:break-all;padding:4px;\\'>${wallet.address.slice(0,20)}...</div>'" />`;
       document.getElementById('payCryptobotSection').style.display='none';
       document.getElementById('payWalletSection').style.display='block';
     }
@@ -1491,6 +1495,8 @@ async function submitPayment() {
   const btn=document.getElementById('payBtnText');
   btn.textContent=t('submittingBtn');
 
+  const createdAt=new Date().toISOString();
+
   // Create payment record in backend
   const resp=await apiFetch('/api/payment','POST',{
     user_id: currentUserId,
@@ -1503,8 +1509,12 @@ async function submitPayment() {
 
   if(resp && resp.ok) {
     currentPaymentId=resp.payment_id;
+    currentPaymentMethod=pm.id;
+    currentPaymentCreatedAt=createdAt;
     closeCryptoPayModal();
-    showPayPendingScreen(false);
+    // ETH/BTC — автоматическая проверка через блокчейн
+    const isBlockchain=(pm.id==='ETH'||pm.id==='BTC');
+    showPayPendingScreen(isBlockchain);
   } else {
     showMainToast(t('errorGeneric'));
   }
@@ -1530,17 +1540,28 @@ function showPayPendingScreen(isAuto) {
 
 async function pollPaymentStatus() {
   if(!currentPaymentId) return;
-  // Check payment status from backend
-  const resp=await apiFetch(`/api/user/${currentUserId}`);
-  if(!resp) return;
 
-  // Find if payment was confirmed (packs updated)
-  const packs=resp.active_packs||[];
-  if(packs.length>0 && JSON.stringify([...packs].sort())!==JSON.stringify([...selectedPacks].sort())) {
-    // might be confirmed by webhook — check directly
+  // ── ETH / BTC: проверяем блокчейн напрямую ───────────────────────
+  if(currentPaymentMethod==='ETH' || currentPaymentMethod==='BTC') {
+    const total=(selectedPacks.length*0.80).toFixed(2);
+    const resp=await apiFetch('/api/payment/check','POST',{
+      payment_id: currentPaymentId,
+      method: currentPaymentMethod,
+      amount: parseFloat(total),
+      created_at: currentPaymentCreatedAt||new Date().toISOString()
+    });
+    if(resp && resp.confirmed) {
+      // Сразу получаем обновлённого пользователя
+      const user=await apiFetch(`/api/user/${currentUserId}`);
+      paymentConfirmed(user ? (user.active_packs||[]) : selectedPacks);
+    }
+    return;
   }
 
-  // Simple check: user's active_packs updated to match selected
+  // ── CryptoBot: старая логика через active_packs ──────────────────
+  const resp=await apiFetch(`/api/user/${currentUserId}`);
+  if(!resp) return;
+  const packs=resp.active_packs||[];
   const hasAllSelected=selectedPacks.every(p=>packs.includes(p));
   if(hasAllSelected && packs.length>=selectedPacks.length) {
     paymentConfirmed(packs);
