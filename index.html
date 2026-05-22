@@ -2778,44 +2778,43 @@ async function toggleFeedTranslate(msgId, origText) {
   if(btn.dataset.translated === '1') {
     textEl.textContent = origText;
     btn.dataset.translated = '0';
-    btn.textContent = currentLang === 'ru' ? '🌐 Перевести' : '🌐 Translate';
+    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : '🌐 Translate';
     if(badge) badge.style.display = 'none';
     return;
   }
-  // Переводим на язык интерфейса
   const tgt = currentLang === 'ru' ? 'Russian' : 'English';
   const tgtShort = currentLang === 'ru' ? 'ru' : 'en';
   const key = msgId + '_' + tgtShort;
   if(_txc[key]) {
     textEl.textContent = _txc[key];
     btn.dataset.translated = '1';
-    btn.textContent = currentLang === 'ru' ? '↩ Оригинал' : '↩ Original';
+    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : '↩ Original';
     if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : '🌐 Translated to English'; badge.style.display='block'; }
     return;
   }
   btn.classList.add('loading');
-  btn.textContent = '⏳';
+  btn.innerHTML = '⏳';
   try {
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), 20000);
-    const resp = await fetch(API_BASE + '/api/chat', {
+    const resp = await fetch(API_BASE + '/api/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
       signal: controller.signal,
-      body: JSON.stringify({messages:[{role:'user', content:`Translate this text to ${tgt}. Return ONLY the translation, no explanations:\n\n${origText}`}]})
+      body: JSON.stringify({ text: origText, target: tgt })
     });
     clearTimeout(tid);
     const r = resp.ok ? await resp.json() : null;
-    const translated = r?.reply || origText;
+    const translated = r?.translated || origText;
     _txc[key] = translated;
     textEl.textContent = translated;
     btn.dataset.translated = '1';
     btn.classList.remove('loading');
-    btn.textContent = currentLang === 'ru' ? '↩ Оригинал' : '↩ Original';
+    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : '↩ Original';
     if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : '🌐 Translated to English'; badge.style.display='block'; }
   } catch(e) {
     btn.classList.remove('loading');
-    btn.textContent = currentLang === 'ru' ? '🌐 Перевести' : '🌐 Translate';
+    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : '🌐 Translate';
   }
 }
 
