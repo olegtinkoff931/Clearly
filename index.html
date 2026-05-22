@@ -2158,7 +2158,7 @@ async function loadFeed() {
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
       <p class="feed-text" id="feedtext_${msg.id}">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
-      ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" onclick="toggleFeedTranslate('${msg.id}',${JSON.stringify(msg.text)})">🌐 ${currentLang==='ru'?'Перевести':'Translate'}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
+      ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" data-msgid="${msg.id}" onclick="toggleFeedTranslate(this)">🌐 ${currentLang==='ru'?'Перевести':'Translate'}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
       ${twitterLink}
       <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
         ${hasServerAI
@@ -2168,6 +2168,12 @@ async function loadFeed() {
       </div>
     `;
     scroll.appendChild(card);
+
+    // Сохраняем оригинальный текст в кнопке перевода (безопасно, без inline JS)
+    if(msg.text) {
+      const tBtn = document.getElementById('feedtransbtn_' + msg.id);
+      if(tBtn) tBtn.dataset.origtext = msg.text;
+    }
 
     // Рендерим AI-бар
     if(hasServerAI) {
@@ -2770,11 +2776,13 @@ async function aiSend() {
 // ══ FEED TRANSLATE ══
 const _txc = {};
 
-async function toggleFeedTranslate(msgId, origText) {
-  const textEl = document.getElementById('feedtext_' + msgId);
-  const btn    = document.getElementById('feedtransbtn_' + msgId);
-  const badge  = document.getElementById('feedtransbadge_' + msgId);
-  if(!textEl || !btn) return;
+async function toggleFeedTranslate(btn) {
+  const msgId   = btn.dataset.msgid;
+  const origText = btn.dataset.origtext || '';
+  const textEl  = document.getElementById('feedtext_' + msgId);
+  const badge   = document.getElementById('feedtransbadge_' + msgId);
+  if(!textEl || !origText) return;
+
   if(btn.dataset.translated === '1') {
     textEl.textContent = origText;
     btn.dataset.translated = '0';
