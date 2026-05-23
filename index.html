@@ -446,7 +446,8 @@
     <div class="fab" onclick="openAddChannel()"><i class="ti ti-plus"></i> <span data-i18n="newChannel">New Channel</span></div>
     <div class="bn" id="mainBottomNav" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
       <div class="ni ac" id="navChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
-      <div class="ni" id="navFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span data-i18n="navFeed">Feed</span></div>
+      <div class="ni" id="navMarket" onclick="switchTab('market')"><i class="ti ti-chart-line niv"></i><span data-i18n="navMarket">Market</span></div>
+      <div class="ni" id="navFeed" onclick="switchTab('feed')"><i class="ti ti-bell niv"></i><span data-i18n="navFeed">Alerts</span></div>
       <div class="ni" id="navProfile" onclick="switchTab('profile')"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
     </div>
   </div>
@@ -574,15 +575,16 @@
     <!-- Nav bar sits OUTSIDE scroll area — always pinned to bottom -->
     <div class="bn" style="flex-shrink:0;background:#111114;border-top:.5px solid #1e1e26;" id="profBottomNav">
       <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
-      <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-rss niv"></i><span data-i18n="navFeed">Feed</span></div>
+      <div class="ni" id="profNavMarket" onclick="switchTab('market')"><i class="ti ti-chart-line niv"></i><span data-i18n="navMarket">Market</span></div>
+      <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-bell niv"></i><span data-i18n="navFeed">Alerts</span></div>
       <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
     </div>
   </div>
 
-  <!-- ═══ FEED SCREEN ═══ -->
+  <!-- ═══ ALERTS SCREEN (канальная лента) ═══ -->
   <div id="vFeed">
     <div class="feed-topbar">
-      <p class="feed-title" data-i18n="feedTitle">📰 Feed</p>
+      <p class="feed-title" data-i18n="feedTitle">🔔 Alerts</p>
       <span class="feed-ai-badge">🤖 AI Impact</span>
     </div>
     <div class="feed-scroll" id="feedScroll">
@@ -594,6 +596,25 @@
     </div>
     <div class="feed-refresh-btn" id="feedRefreshBtn" onclick="loadFeed()" style="display:none;">
       <i class="ti ti-refresh" style="font-size:14px;"></i> <span data-i18n="feedRefresh">Refresh</span>
+    </div>
+  </div>
+
+  <!-- ═══ MARKET SCREEN ═══ -->
+  <div id="vMarket" style="background:#111114;display:none;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:62px;z-index:15;overflow-y:auto;">
+    <!-- Header -->
+    <div class="feed-topbar" style="flex-shrink:0;">
+      <p class="feed-title">📈 Market</p>
+      <button onclick="loadMarket()" style="background:none;border:none;color:#555;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;" id="marketRefreshBtn">
+        <i class="ti ti-refresh" style="font-size:13px;"></i> Refresh
+      </button>
+    </div>
+
+    <div id="marketContent" style="padding:12px;display:flex;flex-direction:column;gap:12px;">
+      <!-- Loading placeholder -->
+      <div id="marketLoading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;">
+        <div class="impact-dot-pulse" style="width:10px;height:10px;"></div>
+        <p style="font-size:12px;color:#555;margin-top:12px;">Loading market data…</p>
+      </div>
     </div>
   </div>
 
@@ -776,6 +797,9 @@ const i18n = {
     selectOnePack:'Select one or more packs.',
     paymentMethod:'💳 PAYMENT METHOD',
     skip:'Skip →',
+    navMarket:'Market',
+    navFeed:'Alerts',
+    feedTitle:'🔔 Alerts',
     packsRecommendSub:'Based on your answers. You can also add a second pack for a fuller feed.',
     bestMatch:'Best match',
     accessLabel:'Access',
@@ -808,10 +832,9 @@ const i18n = {
     confirmDeleteQuestion:'Delete {username}?',
     yesDelete:'✓ Yes, delete', noCancel:'✕ Cancel',
     telegramChannel:'Telegram channel',
-    feedTitle:'📰 Feed',
     feedEmpty:'No channels yet',
-    feedEmptySub:'Add channels on the Channels tab to see your feed here',
-    feedLoading:'Loading feed…',
+    feedEmptySub:'Add channels on the Alerts tab to see your alerts here',
+    feedLoading:'Loading alerts…',
     feedNoMessages:'No messages yet',
     feedNoMessagesSub:'Bot is monitoring your channels.<br>New messages will appear here.',
     feedRefresh:'Refresh',
@@ -834,7 +857,7 @@ const i18n = {
     welcomeBtn:'Поїхали 🚀', doneTitle:'Все готово!',
     doneSub:'Налаштування збережені. Ласкаво просимо до <strong style="color:#b0a8ff;">Clearly</strong>!',
     startBtn:'Починаємо 🎯', navProfile:'Профіль', navNotif:'Сповіщення', navTheme:'Тема',
-    navSettings:'Налаштування', navChannels:'Канали', navFeed:'Стрічка', myChannels:'МОЇ КАНАЛИ',
+    navSettings:'Налаштування', navChannels:'Канали', navFeed:'Сповіщення', navMarket:'Ринок', myChannels:'МОЇ КАНАЛИ',
     delete:'🗑 Видалити', high:'🔴 Важливо', medium:'🟡 Середнє', low:'🟢 Не важливо', newChannel:'Новий канал',
     addChannelTitle:'➕ Додати канал', addChannelSub:'Введіть username каналу і оберіть важливість',
     labelUsername:'USERNAME КАНАЛУ', labelPriority:'ВАЖЛИВІСТЬ', addChannelBtn:'Додати канал',
@@ -891,10 +914,10 @@ const i18n = {
     confirmDeleteQuestion:'Видалити {username}?',
     yesDelete:'✓ Так, видалити', noCancel:'✕ Скасувати',
     telegramChannel:'Telegram-канал',
-    feedTitle:'📰 Стрічка',
+    feedTitle:'🔔 Сповіщення',
     feedEmpty:'Каналів поки немає',
-    feedEmptySub:'Додай канали на вкладці «Канали» щоб бачити стрічку тут',
-    feedLoading:'Завантажуємо стрічку…',
+    feedEmptySub:'Додай канали на вкладці «Канали» щоб бачити сповіщення тут',
+    feedLoading:'Завантажуємо сповіщення…',
     feedNoMessages:'Повідомлень поки немає',
     feedNoMessagesSub:'Бот моніторить твої канали.<br>Нові повідомлення з\'являться тут.',
     feedRefresh:'Оновити',
@@ -917,7 +940,7 @@ const i18n = {
     welcomeBtn:'Поехали 🚀', doneTitle:'Всё готово!',
     doneSub:'Настройки сохранены. Добро пожаловать в <strong style="color:#b0a8ff;">Clearly</strong>!',
     startBtn:'Приступаем 🎯', navProfile:'Профиль', navNotif:'Уведомления', navTheme:'Тема',
-    navSettings:'Настройки', navChannels:'Каналы', navFeed:'Лента', myChannels:'МОИ КАНАЛЫ',
+    navSettings:'Настройки', navChannels:'Каналы', navFeed:'Уведомления', navMarket:'Рынок', myChannels:'МОИ КАНАЛЫ',
     delete:'🗑 Удалить', high:'🔴 Важно', medium:'🟡 Среднее', low:'🟢 Не важно', newChannel:'Новый канал',
     addChannelTitle:'➕ Добавить канал', addChannelSub:'Введите username канала и выберите важность',
     labelUsername:'USERNAME КАНАЛА', labelPriority:'ВАЖНОСТЬ', addChannelBtn:'Добавить канал',
@@ -974,10 +997,10 @@ const i18n = {
     confirmDeleteQuestion:'Удалить {username}?',
     yesDelete:'✓ Да, удалить', noCancel:'✕ Отмена',
     telegramChannel:'Telegram-канал',
-    feedTitle:'📰 Лента',
+    feedTitle:'🔔 Уведомления',
     feedEmpty:'Каналов пока нет',
-    feedEmptySub:'Добавь каналы на вкладке «Каналы» чтобы видеть ленту здесь',
-    feedLoading:'Загружаем ленту…',
+    feedEmptySub:'Добавь каналы на вкладке «Каналы» чтобы видеть уведомления здесь',
+    feedLoading:'Загружаем уведомления…',
     feedNoMessages:'Сообщений пока нет',
     feedNoMessagesSub:'Бот мониторит твои каналы.<br>Новые сообщения появятся здесь.',
     feedRefresh:'Обновить',
@@ -2150,13 +2173,13 @@ let currentTab='channels';
 
 function switchTab(tab) {
   currentTab=tab;
-  ['channels','feed','profile'].forEach(tt=>{
+  ['channels','market','feed','profile'].forEach(tt=>{
     const el=document.getElementById('nav'+tt.charAt(0).toUpperCase()+tt.slice(1));
     if(el) el.classList.toggle('ac',tt===tab);
     const profEl=document.getElementById('profNav'+tt.charAt(0).toUpperCase()+tt.slice(1));
     if(profEl) profEl.classList.toggle('ac',tt===tab);
   });
-  // Feed screen toggle
+  // Alerts/Feed screen toggle
   const feedEl=document.getElementById('vFeed');
   if(tab==='feed'){
     feedEl.classList.add('visible');
@@ -2167,6 +2190,14 @@ function switchTab(tab) {
     setTimeout(loadChannelAvatars, 300);
   } else {
     feedEl.classList.remove('visible');
+  }
+  // Market screen toggle
+  const marketEl=document.getElementById('vMarket');
+  if(tab==='market'){
+    marketEl.style.display='flex';
+    loadMarket();
+  } else {
+    marketEl.style.display='none';
   }
   if(tab==='profile'){openProfileScreen();}
   else{closeProfileScreen();}
@@ -2451,7 +2482,7 @@ function _applyAccentToProfileNav() {
     if(label) label.style.color=th.accent;
   }
   // Reset inactive items
-  ['profNavChannels','profNavFeed'].forEach(id=>{
+  ['profNavChannels','profNavFeed','profNavMarket'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){ el.style.color=''; const icon=el.querySelector('.niv'); if(icon) icon.style.color=''; }
   });
@@ -2826,6 +2857,186 @@ function loadChannelAvatars() {
 // ══════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  MARKET SCREEN
+// ══════════════════════════════════════════════════════
+let _marketLoaded = false;
+let _marketLoading = false;
+
+async function loadMarket() {
+  if (_marketLoading) return;
+  _marketLoading = true;
+  const content = document.getElementById('marketContent');
+  const loading = document.getElementById('marketLoading');
+  if (loading) loading.style.display = 'flex';
+
+  try {
+    const th = getTheme();
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a professional crypto market analyst. Return ONLY a valid JSON object (no markdown, no backticks) with this exact structure:
+{
+  "sentiment": "bullish" | "bearish" | "neutral",
+  "sentiment_score": 0-100,
+  "btc_trend": "up" | "down" | "sideways",
+  "summary": "2-3 sentence overall market summary in the user language",
+  "fear_greed": 0-100,
+  "top_news": [
+    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
+    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
+    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
+    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
+    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"}
+  ],
+  "upcoming": [
+    {"event": "...", "date": "...", "importance": "high" | "medium"},
+    {"event": "...", "date": "...", "importance": "high" | "medium"},
+    {"event": "...", "date": "...", "importance": "high" | "medium"}
+  ],
+  "sectors": [
+    {"name": "BTC", "status": "up" | "down" | "neutral", "note": "short note"},
+    {"name": "ETH", "status": "up" | "down" | "neutral", "note": "short note"},
+    {"name": "DeFi", "status": "up" | "down" | "neutral", "note": "short note"},
+    {"name": "Altcoins", "status": "up" | "down" | "neutral", "note": "short note"}
+  ]
+}`,
+        messages: [{
+          role: 'user',
+          content: `Analyze the current crypto market state as of today (${new Date().toLocaleDateString()}). Use real knowledge of market conditions up to your training cutoff. Language: ${currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English'}. Return only the JSON.`
+        }]
+      })
+    });
+
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text || '{}';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const m = JSON.parse(clean);
+
+    if (loading) loading.style.display = 'none';
+    _renderMarket(m, th);
+    _marketLoaded = true;
+  } catch(e) {
+    if (loading) loading.style.display = 'none';
+    const content = document.getElementById('marketContent');
+    content.innerHTML = `<div style="text-align:center;padding:40px 20px;">
+      <p style="font-size:28px;margin-bottom:10px;">⚠️</p>
+      <p style="font-size:14px;color:#555;">Failed to load market data. Tap Refresh to try again.</p>
+    </div>`;
+  }
+  _marketLoading = false;
+}
+
+function _renderMarket(m, th) {
+  const content = document.getElementById('marketContent');
+  const sentColor = m.sentiment === 'bullish' ? '#3aaa6e' : m.sentiment === 'bearish' ? '#e05252' : '#d49a2e';
+  const sentEmoji = m.sentiment === 'bullish' ? '🐂' : m.sentiment === 'bearish' ? '🐻' : '➡️';
+  const btcArrow = m.btc_trend === 'up' ? '📈' : m.btc_trend === 'down' ? '📉' : '➡️';
+  const fgColor = m.fear_greed >= 60 ? '#3aaa6e' : m.fear_greed >= 40 ? '#d49a2e' : '#e05252';
+  const fgLabel = m.fear_greed >= 75 ? (currentLang==='ru'?'Жадность':currentLang==='uk'?'Жадібність':'Greed')
+    : m.fear_greed >= 55 ? (currentLang==='ru'?'Оптимизм':currentLang==='uk'?'Оптимізм':'Optimism')
+    : m.fear_greed >= 45 ? (currentLang==='ru'?'Нейтрально':currentLang==='uk'?'Нейтрально':'Neutral')
+    : m.fear_greed >= 25 ? (currentLang==='ru'?'Страх':currentLang==='uk'?'Страх':'Fear')
+    : (currentLang==='ru'?'Паника':currentLang==='uk'?'Паніка':'Panic');
+
+  const impactColor = {high:'#e05252', medium:'#d49a2e', low:'#3aaa6e'};
+  const dirIcon = {up:'📈', down:'📉', neutral:'➡️'};
+  const impIcon = {high:'🔴', medium:'🟡', low:'🟢'};
+
+  const sectorStatus = {up:`color:#3aaa6e`, down:`color:#e05252`, neutral:`color:#d49a2e`};
+  const sectorArrow = {up:'↑', down:'↓', neutral:'→'};
+
+  const newsHTML = (m.top_news||[]).map(n => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:.5px solid #1e1e26;">
+      <span style="font-size:16px;flex-shrink:0;margin-top:1px;">${dirIcon[n.direction]||'➡️'}</span>
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:13px;color:#e0e0f0;margin:0 0 4px;line-height:1.45;">${n.title}</p>
+        <span style="font-size:10px;background:${impactColor[n.impact]||'#555'}22;color:${impactColor[n.impact]||'#555'};border:.5px solid ${impactColor[n.impact]||'#555'}44;border-radius:6px;padding:2px 8px;">${impIcon[n.impact]||''} ${n.impact}</span>
+      </div>
+    </div>`).join('');
+
+  const upcomingHTML = (m.upcoming||[]).map(u => `
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid #1e1e26;">
+      <div style="width:36px;height:36px;border-radius:10px;background:${u.importance==='high'?'#2a1010':'#221a08'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">
+        ${u.importance==='high'?'🔔':'📅'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:13px;color:#e0e0f0;margin:0 0 2px;">${u.event}</p>
+        <p style="font-size:11px;color:#555;margin:0;">${u.date}</p>
+      </div>
+      ${u.importance==='high'?`<span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;">HOT</span>`:''}
+    </div>`).join('');
+
+  const sectorsHTML = (m.sectors||[]).map(s => `
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${s.name}</p>
+        <p style="font-size:11px;color:#555;margin:0;">${s.note}</p>
+      </div>
+      <span style="font-size:18px;font-weight:700;${sectorStatus[s.status]||''}">${sectorArrow[s.status]||'→'}</span>
+    </div>`).join('');
+
+  content.innerHTML = `
+    <!-- Sentiment card -->
+    <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid ${th.accent}33;border-radius:16px;padding:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${currentLang==='ru'?'НАСТРОЕНИЕ РЫНКА':currentLang==='uk'?'НАСТРІЙ РИНКУ':'MARKET SENTIMENT'}</p>
+          <p style="font-size:22px;font-weight:700;color:${sentColor};margin:0;text-transform:capitalize;">${sentEmoji} ${m.sentiment}</p>
+        </div>
+        <div style="text-align:right;">
+          <p style="font-size:10px;color:#555;margin:0 0 4px;">BTC</p>
+          <p style="font-size:22px;margin:0;">${btcArrow}</p>
+        </div>
+      </div>
+      <!-- Sentiment bar -->
+      <div style="background:#111116;border-radius:8px;height:6px;overflow:hidden;margin-bottom:8px;">
+        <div style="height:100%;width:${m.sentiment_score}%;background:${th.gradient};border-radius:8px;transition:width .8s cubic-bezier(.4,0,.2,1);"></div>
+      </div>
+      <p style="font-size:12px;color:#888;margin:0;line-height:1.5;">${m.summary}</p>
+    </div>
+
+    <!-- Fear & Greed -->
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 12px;">${currentLang==='ru'?'СТРАХ & ЖАДНОСТЬ':currentLang==='uk'?'СТРАХ & ЖАДІБНІСТЬ':'FEAR & GREED INDEX'}</p>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:60px;height:60px;border-radius:50%;background:conic-gradient(${fgColor} 0% ${m.fear_greed}%,#1e1e28 ${m.fear_greed}% 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="width:46px;height:46px;border-radius:50%;background:#1a1a20;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:15px;font-weight:700;color:${fgColor};">${m.fear_greed}</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:16px;font-weight:600;color:${fgColor};margin:0 0 4px;">${fgLabel}</p>
+          <p style="font-size:11px;color:#555;margin:0;">${currentLang==='ru'?'Индекс настроения рынка':currentLang==='uk'?'Індекс настрою ринку':'Market mood index'} 0–100</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top news -->
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${currentLang==='ru'?'ГЛАВНЫЕ НОВОСТИ':currentLang==='uk'?'ГОЛОВНІ НОВИНИ':'TOP GLOBAL NEWS'}</p>
+      ${newsHTML}
+    </div>
+
+    <!-- Sectors -->
+    <div>
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 8px;">${currentLang==='ru'?'СЕКТОРЫ':currentLang==='uk'?'СЕКТОРИ':'SECTORS'}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${sectorsHTML}
+      </div>
+    </div>
+
+    <!-- Upcoming events -->
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;margin-bottom:24px;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${currentLang==='ru'?'ПРЕДСТОЯЩИЕ СОБЫТИЯ':currentLang==='uk'?'МАЙБУТНІ ПОДІЇ':'UPCOMING EVENTS'}</p>
+      ${upcomingHTML}
+    </div>
+  `;
+}
+
 // ══ AI CHAT ══
 const _aiHistory = [];
 const _txCache = {};
