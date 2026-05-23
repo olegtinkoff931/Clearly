@@ -1050,12 +1050,136 @@ function _applyThemeById(themeId) {
     span.style.borderColor=th.accent+'44';
     span.style.color=th.accent;
   });
-  // Apply accent color to profile screen nav items directly
+  // Apply accent color to all gradient buttons everywhere
   document.querySelectorAll('.splash-btn,.w-btn,.next-btn,.start-btn,.fab,.save-btn,.manual-confirm-btn').forEach(el=>el.style.background=th.gradient);
   const applyBtn=document.getElementById('applyBtn');
   if(applyBtn) applyBtn.style.background=th.gradient;
+
+  // ── Add Channel modal: "Add Channel" button ──
+  const addChBtn=document.getElementById('addChBtn');
+  if(addChBtn) addChBtn.style.background=th.gradient;
+
+  // ── Add Channel modal: active tab highlight ──
+  const tabCatalog=document.getElementById('tabCatalog');
+  const tabManual=document.getElementById('tabManual');
+  if(tabCatalog && tabCatalog.style.color !== 'rgb(85, 85, 85)') {
+    if(tabCatalog.style.background==='rgb(30, 30, 48)') { tabCatalog.style.color=th.accent; }
+  }
+  if(tabManual && tabManual.style.color !== 'rgb(85, 85, 85)') {
+    if(tabManual.style.background==='rgb(30, 30, 48)') { tabManual.style.color=th.accent; }
+  }
+
+  // ── Catalog featured badge ──
+  document.querySelectorAll('#catalogList [style*="FEATURED"]').forEach(el=>{
+    if(el.style.background && el.style.background.includes('linear-gradient')) {
+      el.style.background=th.gradient;
+    }
+  });
+
+  // ── AI Chat FAB ──
+  const aiFab=document.getElementById('aiFab');
+  if(aiFab) aiFab.style.background=th.gradient;
+
+  // ── AI Chat panel header avatar & send button ──
+  const aiAv=document.querySelector('.aiav');
+  if(aiAv) aiAv.style.background=th.gradient;
+  const aiSend=document.querySelector('.aisend');
+  if(aiSend) aiSend.style.background=th.gradient;
+
+  // ── AI Chat status dot color ──
+  const aiStatusDot=document.querySelector('#aiPanel .aich span[style*="background:#6b6bff"]');
+  if(aiStatusDot) aiStatusDot.style.background=th.accent;
+
+  // ── Feed AI badge ──
+  const feedAiBadge=document.querySelector('.feed-ai-badge');
+  if(feedAiBadge) { feedAiBadge.style.color=th.accent; feedAiBadge.style.borderColor=th.accent+'44'; feedAiBadge.style.background=th.accent+'22'; }
+
+  // ── Feed translate button accent ──
+  document.querySelectorAll('.feed-translate-btn').forEach(btn=>{
+    btn.style.color=th.accent;
+    btn.style.borderColor=th.accent+'44';
+    btn.style.background=th.accent+'11';
+  });
+
+  // ── Impact dot pulse ──
+  document.querySelectorAll('.impact-dot-pulse').forEach(el=>el.style.background=th.accent);
+
+  // ── Pay status fill bar ──
+  const payFill=document.querySelector('.pay-status-fill');
+  if(payFill) payFill.style.background=th.gradient;
+
+  // ── Payment method active row border ──
+  document.querySelectorAll('.method-row.active').forEach(row=>{
+    row.style.background='#1e1e30'; row.style.borderColor=th.accent+'88';
+  });
+  document.querySelectorAll('.method-row.active .method-tag').forEach(el=>el.style.color=th.accent);
+
+  // ── Platform tabs in Add Channel (Telegram active) ──
+  const platformTg=document.getElementById('platformTg');
+  if(platformTg && platformTg.style.background && platformTg.style.background!=='transparent') {
+    platformTg.style.color=th.accent;
+  }
+
+  // ── Active language pills in settings ──
+  document.querySelectorAll('.lang-pill.active').forEach(pill=>{
+    pill.style.borderColor=th.accent+'88';
+    pill.style.background=th.accent+'11';
+    pill.querySelector('.lang-pill-name').style.color=th.accent;
+    pill.querySelector('.lang-pill-tag').style.color=th.accent;
+  });
+
+  // ── Notification screen: global card border ──
+  const globalCard=document.querySelector('.global-card');
+  if(globalCard) globalCard.style.borderColor=th.accent+'44';
+
+  // ── QBs (quick action buttons in main top bar) icon color ──
+  document.querySelectorAll('.qb i').forEach(i=>i.style.color=th.accent);
+
+  // ── Buy button on packs screen ──
+  const buyBtn=document.getElementById('buyBtn');
+  if(buyBtn) buyBtn.style.background=th.gradient;
+
+  // ── Profile spend stat color ──
+  const spEl=document.getElementById('profileSpend');
+  if(spEl) spEl.style.color=th.accent;
+
   const style=document.getElementById('themeStyleTag')||(() => {const s=document.createElement('style');s.id='themeStyleTag';document.head.appendChild(s);return s;})();
-  style.textContent=`.ni.ac{color:${th.accent}!important}.opt-btn.sel{border-color:${th.accent}88!important;color:${th.accent}!important;background:${th.accent}11!important}.t-card.active{border-color:${th.accent}!important}.next-btn{background:${th.gradient}!important}.splash-btn,.w-btn,.start-btn{background:${th.gradient}!important}.splash-title,.w-title span,.lr-name{background:${th.gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent}.logo-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.lr-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}.notif-count{background:${th.accent}!important}.toggle-input:checked+.toggle-label{background:${th.accent}!important}.qb i{color:${th.accent}!important}.done-ring{border-color:${th.accent}55!important}.lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}.lang-pill.active .lang-pill-name{color:${th.accent}!important}.lang-pill.active .lang-pill-tag{color:${th.accent}!important}#vProfile,#profBottomNav{background:#111114!important}`;
+  style.textContent=`
+    .ni.ac{color:${th.accent}!important}
+    .opt-btn.sel{border-color:${th.accent}88!important;color:${th.accent}!important;background:${th.accent}11!important}
+    .t-card.active{border-color:${th.accent}!important}
+    .next-btn{background:${th.gradient}!important}
+    .splash-btn,.w-btn,.start-btn{background:${th.gradient}!important}
+    .splash-title,.w-title span,.lr-name{background:${th.gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .logo-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}
+    .lr-ring{background:linear-gradient(#111114,#111114) padding-box,${th.gradient} border-box!important}
+    .notif-count{background:${th.accent}!important}
+    .toggle-input:checked+.toggle-label{background:${th.accent}!important}
+    .qb i{color:${th.accent}!important}
+    .done-ring{border-color:${th.accent}55!important}
+    .lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}
+    .lang-pill.active .lang-pill-name{color:${th.accent}!important}
+    .lang-pill.active .lang-pill-tag{color:${th.accent}!important}
+    #vProfile,#profBottomNav{background:#111114!important}
+    .fab{background:${th.gradient}!important}
+    .save-btn{background:${th.accent}!important}
+    #addChBtn{background:${th.gradient}!important}
+    #aiFab{background:${th.gradient}!important}
+    .aiav{background:${th.gradient}!important}
+    .aisend{background:${th.gradient}!important}
+    .ch-input:focus{border-color:${th.accent}88!important}
+    .method-row.active{border-color:${th.accent}88!important}
+    .method-row.active .method-tag{color:${th.accent}!important}
+    .feed-ai-badge{color:${th.accent}!important;border-color:${th.accent}44!important;background:${th.accent}22!important}
+    .feed-translate-btn{color:${th.accent}!important;border-color:${th.accent}44!important;background:${th.accent}11!important}
+    .impact-dot-pulse{background:${th.accent}!important}
+    .pay-status-fill{background:${th.gradient}!important}
+    .manual-confirm-btn{background:${th.gradient}!important}
+    #buyBtn{background:${th.gradient}!important}
+    #profileSpend{color:${th.accent}!important}
+    .global-card{border-color:${th.accent}44!important}
+    .apply-btn{background:${th.gradient}!important}
+  `;
 }
 
 function renderThemes() {
@@ -1905,8 +2029,7 @@ function switchPlatform(platform) {
     tgBtn.style.color = '#555';
     twBtn.style.background = '#1a1a1a';
     twBtn.style.color = '#1d9bf0';
-    twBtn.style.border = '1px solid #1d9bf044';
-    input.placeholder = '@elonmusk';
+    twBtn.style.border = '1px solid #1d9bf044';    input.placeholder = '@elonmusk';
     if (subtitle) subtitle.textContent = (window._lang === 'ru')
       ? 'Введите username Twitter/X аккаунта и выберите важность'
       : (window._lang === 'uk')
@@ -1917,8 +2040,9 @@ function switchPlatform(platform) {
     twBtn.style.background = 'transparent';
     twBtn.style.color = '#555';
     twBtn.style.border = 'none';
+    const _th=getTheme();
     tgBtn.style.background = '#1e1e30';
-    tgBtn.style.color = '#a78bfa';
+    tgBtn.style.color = _th.accent;
     input.placeholder = '@channel_name';
     if (subtitle) subtitle.textContent = (window._lang === 'ru')
       ? 'Введите username канала и выберите важность'
@@ -1942,7 +2066,7 @@ function openAddChannel() {
   // Reset platform UI
   const tgBtn=document.getElementById('platformTg');
   const twBtn=document.getElementById('platformTw');
-  if(tgBtn){tgBtn.style.background='#1e1e30';tgBtn.style.color='#a78bfa';}
+  if(tgBtn){tgBtn.style.background='#1e1e30';tgBtn.style.color=getTheme().accent;}
   if(twBtn){twBtn.style.background='transparent';twBtn.style.color='#555';twBtn.style.border='none';}
   switchAddTab('catalog');
   renderCatalog();
@@ -2112,7 +2236,7 @@ async function analyzeImpact(msgId, text) {
 
 Scoring guide:
 0-15: routine/personal content
-16-35: minor news, low relevance  
+16-35: minor news, low relevance
 36-60: notable news, possible price movement
 61-80: major event, likely price impact
 81-100: critical event, near-certain significant market move
@@ -2569,6 +2693,7 @@ const channelCatalog = [
 function renderCatalog() {
   const list = document.getElementById('catalogList');
   if (!list) return;
+  const th = getTheme();
   list.innerHTML = '';
   channelCatalog.forEach(ch => {
     const alreadyAdded = channels.some(c => c.username.toLowerCase() === ch.username.toLowerCase());
@@ -2579,12 +2704,12 @@ function renderCatalog() {
     };
     const pc = prioColors[ch.prio];
     const card = document.createElement('div');
-    card.style.cssText = `background:#1a1a20;border:.5px solid ${ch.featured ? '#5b5bdc44' : '#272730'};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;`;
+    card.style.cssText = `background:#1a1a20;border:.5px solid ${ch.featured ? th.accent+'44' : '#272730'};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;`;
     if (ch.featured) {
-      card.innerHTML += `<div style="position:absolute;top:0;right:0;background:linear-gradient(135deg,#6b6bff,#a78bfa);font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:600;">★ FEATURED</div>`;
+      card.innerHTML += `<div style="position:absolute;top:0;right:0;background:${th.gradient};font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:600;">★ FEATURED</div>`;
     }
     card.innerHTML += `
-      <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? 'linear-gradient(135deg,#6b6bff,#a78bfa)' : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden;">
+      <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? th.gradient : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden;">
         <img data-avatar-channel="${ch.username.replace('@','')}" alt=""
           style="width:100%;height:100%;object-fit:cover;border-radius:12px;position:absolute;inset:0;display:none;">
         <span class="av-fallback" style="position:relative;z-index:1;">${ch.emoji}</span>
@@ -2598,7 +2723,7 @@ function renderCatalog() {
         <p style="font-size:11px;color:#666;margin:0;line-height:1.4;">${(ch.desc&&ch.desc[currentLang])||ch.desc&&ch.desc.en||''}</p>
       </div>
       <button onclick="addFromCatalog('${ch.username}','${ch.prio}','${ch.emoji}')" ${alreadyAdded ? 'disabled' : ''}
-        style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : 'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
+        style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : th.gradient};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
         ${alreadyAdded ? t('catalogAdded') : t('catalogAdd')}
       </button>`;
     list.appendChild(card);
@@ -2629,12 +2754,13 @@ let addChannelCurrentTab = 'catalog';
 
 function switchAddTab(tab) {
   addChannelCurrentTab = tab;
+  const th=getTheme();
   document.getElementById('addTabCatalog').style.display = tab === 'catalog' ? '' : 'none';
   document.getElementById('addTabManual').style.display  = tab === 'manual'  ? '' : 'none';
   document.getElementById('tabCatalog').style.background = tab === 'catalog' ? '#1e1e30' : '#1a1a20';
-  document.getElementById('tabCatalog').style.color      = tab === 'catalog' ? '#b0a8ff' : '#555';
+  document.getElementById('tabCatalog').style.color      = tab === 'catalog' ? th.accent : '#555';
   document.getElementById('tabManual').style.background  = tab === 'manual'  ? '#1e1e30' : '#1a1a20';
-  document.getElementById('tabManual').style.color       = tab === 'manual'  ? '#b0a8ff' : '#555';
+  document.getElementById('tabManual').style.color       = tab === 'manual'  ? th.accent : '#555';
 }
 
 // ══════════════════════════════════════════════════════
