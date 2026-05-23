@@ -603,17 +603,209 @@
   <div id="vMarket" style="background:#111114;display:none;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:62px;z-index:15;overflow-y:auto;">
     <!-- Header -->
     <div class="feed-topbar" style="flex-shrink:0;">
-      <p class="feed-title">📈 Market</p>
+      <p class="feed-title" data-i18n="marketTitle">📈 Market</p>
       <button onclick="loadMarket()" style="background:none;border:none;color:#555;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;" id="marketRefreshBtn">
-        <i class="ti ti-refresh" style="font-size:13px;"></i> Refresh
+        <i class="ti ti-refresh" style="font-size:13px;"></i> <span data-i18n="marketRefresh">Refresh</span>
       </button>
     </div>
 
-    <div id="marketContent" style="padding:12px;display:flex;flex-direction:column;gap:12px;">
+    <!-- ── MOCK: Market alerts feed ── -->
+    <div id="marketMock" style="padding:12px;display:flex;flex-direction:column;gap:12px;">
+
+      <!-- State summary card -->
+      <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid #6b6bff33;border-radius:16px;padding:14px 16px;">
+        <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 10px;" data-i18n="marketStateSection">📊 СОСТОЯНИЕ РЫНКА</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div>
+            <p style="font-size:10px;color:#555;margin:0 0 3px;" data-i18n="marketStateOverall">Общее состояние</p>
+            <p style="font-size:20px;font-weight:700;color:#3aaa6e;margin:0;">🐂 <span data-i18n="marketStateBullish">Бычий</span></p>
+          </div>
+          <div style="text-align:right;">
+            <p style="font-size:10px;color:#555;margin:0 0 3px;">BTC</p>
+            <p style="font-size:20px;margin:0;">📈</p>
+          </div>
+        </div>
+        <!-- sentiment bar -->
+        <div style="background:#111116;border-radius:8px;height:5px;overflow:hidden;margin-bottom:8px;">
+          <div style="height:100%;width:72%;background:linear-gradient(90deg,#3aaa6e88,#3aaa6e);border-radius:8px;"></div>
+        </div>
+        <!-- fear/greed -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:11px;color:#555;">Fear &amp; Greed</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="height:3px;width:80px;background:#111116;border-radius:2px;overflow:hidden;">
+              <div style="height:100%;width:68%;background:#3aaa6e;border-radius:2px;"></div>
+            </div>
+            <span style="font-size:12px;font-weight:700;color:#3aaa6e;">68</span>
+          </div>
+        </div>
+        <!-- sectors row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:10px;">
+          <div style="background:#0c1f1688;border:.5px solid #3aaa6e33;border-radius:10px;padding:7px 6px;text-align:center;">
+            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">BTC</p>
+            <p style="font-size:16px;color:#3aaa6e;margin:2px 0 0;">↑</p>
+          </div>
+          <div style="background:#0c1f1688;border:.5px solid #3aaa6e33;border-radius:10px;padding:7px 6px;text-align:center;">
+            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">ETH</p>
+            <p style="font-size:16px;color:#3aaa6e;margin:2px 0 0;">↑</p>
+          </div>
+          <div style="background:#221a0888;border:.5px solid #d49a2e33;border-radius:10px;padding:7px 6px;text-align:center;">
+            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">DeFi</p>
+            <p style="font-size:16px;color:#d49a2e;margin:2px 0 0;">→</p>
+          </div>
+          <div style="background:#2a101088;border:.5px solid #e0525233;border-radius:10px;padding:7px 6px;text-align:center;">
+            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">ALT</p>
+            <p style="font-size:16px;color:#e05252;margin:2px 0 0;">↓</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Market alerts / messages section ── -->
+      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin:2px 0 0;" data-i18n="marketAlertsSection">🔔 СИГНАЛЫ РЫНКА</p>
+
+      <!-- Alert card HIGH -->
+      <div style="background:#1a1a20;border:.5px solid #e0525244;border-radius:14px;padding:12px 14px;animation:slideIn .35s ease both;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#2a1010;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">⚠️</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;font-weight:600;">🔴 HIGH</span>
+              <span style="font-size:10px;color:#444;">2 мин назад</span>
+            </div>
+            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertHigh1">⚠️ Ожидается решение ФРС — возможна высокая волатильность</p>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:#555;">Источник:</span>
+              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@federalreserve_news</span>
+            </div>
+          </div>
+        </div>
+        <!-- impact bar -->
+        <div style="margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
+            <span style="font-size:11px;font-weight:700;color:#e05252;">87%</span>
+          </div>
+          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:87%;background:linear-gradient(90deg,#8a2020,#e05252);border-radius:2px;transition:width .8s;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert card HIGH 2 -->
+      <div style="background:#1a1a20;border:.5px solid #e0525444;border-radius:14px;padding:12px 14px;animation:slideIn .45s ease both;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#2a1010;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📉</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;font-weight:600;">🔴 HIGH</span>
+              <span style="font-size:10px;color:#444;">14 мин назад</span>
+            </div>
+            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertHigh2">🔴 BTC пробивает поддержку $68K — следите за каскадом</p>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:#555;">Источник:</span>
+              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@whalewatch</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
+            <span style="font-size:11px;font-weight:700;color:#e05252;">74%</span>
+          </div>
+          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:74%;background:linear-gradient(90deg,#8a2020,#e05252);border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert card MEDIUM -->
+      <div style="background:#1a1a20;border:.5px solid #d49a2e33;border-radius:14px;padding:12px 14px;animation:slideIn .55s ease both;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#221a08;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🔧</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:9px;background:#221a08;color:#d49a2e;border:.5px solid #d49a2e44;border-radius:6px;padding:2px 8px;font-weight:600;">🟡 MED</span>
+              <span style="font-size:10px;color:#444;">1 ч назад</span>
+            </div>
+            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertMid1">🟡 Обновление ETH запланировано — возможна перегрузка сети</p>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:#555;">Источник:</span>
+              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@ethereum_official</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
+            <span style="font-size:11px;font-weight:700;color:#d49a2e;">45%</span>
+          </div>
+          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:45%;background:linear-gradient(90deg,#7a5a10,#d49a2e);border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert card LOW -->
+      <div style="background:#1a1a20;border:.5px solid #3aaa6e33;border-radius:14px;padding:12px 14px;animation:slideIn .65s ease both;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#0c1f16;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">💰</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:9px;background:#0c1f16;color:#3aaa6e;border:.5px solid #3aaa6e44;border-radius:6px;padding:2px 8px;font-weight:600;">🟢 LOW</span>
+              <span style="font-size:10px;color:#444;">2 ч назад</span>
+            </div>
+            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertLow1">🟢 Приток стейблкоинов растёт — сигнал накопления</p>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:#555;">Источник:</span>
+              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@cryptoquant_alerts</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
+            <span style="font-size:11px;font-weight:700;color:#3aaa6e;">22%</span>
+          </div>
+          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:22%;background:linear-gradient(90deg,#1a6e44,#3aaa6e);border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert card LOW 2 -->
+      <div style="background:#1a1a20;border:.5px solid #3aaa6e22;border-radius:14px;padding:12px 14px;animation:slideIn .75s ease both;margin-bottom:4px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#0c1f16;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📊</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:9px;background:#0c1f16;color:#3aaa6e;border:.5px solid #3aaa6e44;border-radius:6px;padding:2px 8px;font-weight:600;">🟢 LOW</span>
+              <span style="font-size:10px;color:#444;">3 ч назад</span>
+            </div>
+            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertLow2">🟢 TVL в DeFi вырос на 12% за неделю</p>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:#555;">Источник:</span>
+              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@defillama</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
+            <span style="font-size:11px;font-weight:700;color:#3aaa6e;">18%</span>
+          </div>
+          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:18%;background:linear-gradient(90deg,#1a6e44,#3aaa6e);border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /marketMock -->
+
+    <div id="marketContent" style="padding:12px;display:flex;flex-direction:column;gap:12px;display:none;">
       <!-- Loading placeholder -->
       <div id="marketLoading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;">
         <div class="impact-dot-pulse" style="width:10px;height:10px;"></div>
-        <p style="font-size:12px;color:#555;margin-top:12px;">Loading market data…</p>
+        <p style="font-size:12px;color:#555;margin-top:12px;" data-i18n="feedLoading">Loading…</p>
       </div>
     </div>
   </div>
@@ -849,6 +1041,22 @@ const i18n = {
     errorInvoice:'❌ Error creating invoice. Try again.',
     errorGeneric:'❌ Error. Try again.',
     copiedToast:'📋 Address copied',
+    marketTitle:'📈 Market',
+    marketRefresh:'Refresh',
+    marketSentimentLabel:'MARKET SENTIMENT',
+    marketAlertsSection:'🔔 MARKET ALERTS',
+    marketStateSection:'📊 MARKET STATE',
+    marketAlertHigh1:'⚠️ Fed rate decision expected — potential high volatility',
+    marketAlertHigh2:'🔴 BTC breaks key $68K support level — watch for cascade',
+    marketAlertMid1:'🟡 ETH upgrade scheduled — network congestion possible',
+    marketAlertLow1:'🟢 Stablecoin inflows increasing — accumulation signal',
+    marketAlertLow2:'🟢 DeFi TVL up 12% this week',
+    marketStateOverall:'Overall market',
+    marketStateBullish:'Bullish',
+    marketStateBearish:'Bearish',
+    marketStateNeutral:'Neutral',
+    minsAgo:'{n}m ago',
+    hoursAgo:'{n}h ago',
   },
   uk: {
     tagline:'Вся інфа в одному повідомленні', splashBtn:'Почати', splashSub:'Налаштування займе 1 хвилину',
@@ -932,6 +1140,22 @@ const i18n = {
     errorInvoice:'❌ Помилка створення інвойсу. Спробуйте знову.',
     errorGeneric:'❌ Помилка. Спробуйте знову.',
     copiedToast:'📋 Адресу скопійовано',
+    marketTitle:'📈 Ринок',
+    marketRefresh:'Оновити',
+    marketSentimentLabel:'НАСТРІЙ РИНКУ',
+    marketAlertsSection:'🔔 СИГНАЛИ РИНКУ',
+    marketStateSection:'📊 СТАН РИНКУ',
+    marketAlertHigh1:'⚠️ Очікується рішення ФРС — можлива висока волатильність',
+    marketAlertHigh2:'🔴 BTC пробиває підтримку $68K — стежте за каскадом',
+    marketAlertMid1:'🟡 Оновлення ETH заплановано — можливе перевантаження мережі',
+    marketAlertLow1:'🟢 Приплив стейблкоїнів зростає — сигнал накопичення',
+    marketAlertLow2:'🟢 TVL у DeFi зріс на 12% за тиждень',
+    marketStateOverall:'Загальний стан',
+    marketStateBullish:'Бичачий',
+    marketStateBearish:'Ведмежий',
+    marketStateNeutral:'Нейтральний',
+    minsAgo:'{n} хв тому',
+    hoursAgo:'{n} год тому',
   },
   ru: {
     tagline:'Вся инфа в одном сообщении', splashBtn:'Начать', splashSub:'Настройка займёт 1 минуту',
@@ -1015,6 +1239,22 @@ const i18n = {
     errorInvoice:'❌ Ошибка создания инвойса. Попробуйте снова.',
     errorGeneric:'❌ Ошибка. Попробуйте снова.',
     copiedToast:'📋 Адрес скопирован',
+    marketTitle:'📈 Рынок',
+    marketRefresh:'Обновить',
+    marketSentimentLabel:'НАСТРОЕНИЕ РЫНКА',
+    marketAlertsSection:'🔔 СИГНАЛЫ РЫНКА',
+    marketStateSection:'📊 СОСТОЯНИЕ РЫНКА',
+    marketAlertHigh1:'⚠️ Ожидается решение ФРС — возможна высокая волатильность',
+    marketAlertHigh2:'🔴 BTC пробивает поддержку $68K — следите за каскадом',
+    marketAlertMid1:'🟡 Обновление ETH запланировано — возможна перегрузка сети',
+    marketAlertLow1:'🟢 Приток стейблкоинов растёт — сигнал накопления',
+    marketAlertLow2:'🟢 TVL в DeFi вырос на 12% за неделю',
+    marketStateOverall:'Общее состояние',
+    marketStateBullish:'Бычий',
+    marketStateBearish:'Медвежий',
+    marketStateNeutral:'Нейтральный',
+    minsAgo:'{n} мин назад',
+    hoursAgo:'{n} ч назад',
   }
 };
 
@@ -2941,6 +3181,11 @@ function _renderMarket(m, th) {
     : m.fear_greed >= 45 ? (currentLang==='ru'?'Нейтрально':currentLang==='uk'?'Нейтрально':'Neutral')
     : m.fear_greed >= 25 ? (currentLang==='ru'?'Страх':currentLang==='uk'?'Страх':'Fear')
     : (currentLang==='ru'?'Паника':currentLang==='uk'?'Паніка':'Panic');
+  // Hide mock, show real content
+  const mockEl = document.getElementById('marketMock');
+  if (mockEl) mockEl.style.display = 'none';
+  const content = document.getElementById('marketContent');
+  if (content) content.style.display = 'flex';
 
   const impactColor = {high:'#e05252', medium:'#d49a2e', low:'#3aaa6e'};
   const dirIcon = {up:'📈', down:'📉', neutral:'➡️'};
@@ -2984,7 +3229,7 @@ function _renderMarket(m, th) {
     <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid ${th.accent}33;border-radius:16px;padding:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
-          <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${currentLang==='ru'?'НАСТРОЕНИЕ РЫНКА':currentLang==='uk'?'НАСТРІЙ РИНКУ':'MARKET SENTIMENT'}</p>
+          <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${t('marketSentimentLabel')}</p>
           <p style="font-size:22px;font-weight:700;color:${sentColor};margin:0;text-transform:capitalize;">${sentEmoji} ${m.sentiment}</p>
         </div>
         <div style="text-align:right;">
