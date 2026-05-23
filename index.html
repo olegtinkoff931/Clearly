@@ -2905,60 +2905,87 @@ function showToast(id,msg) {
 //  CHANNEL CATALOG
 // ══════════════════════════════════════════════════════
 const channelCatalog = [
-  {
-    username: '@cloudrproject',
-    name: 'Cloudr Project',
-    desc: { en: 'Crypto analytics, signals and macro overviews', ru: 'Крипто-аналитика, сигналы и макро-обзоры', uk: 'Крипто-аналітика, сигнали та макро-огляди' },
-    emoji: '☁️',
-    category: 'Crypto',
-    prio: 'high',
-    featured: true
-  },
-  {
-    username: '@durov',
-    name: 'Pavel Durov',
-    desc: { en: 'Official channel of Telegram founder', ru: 'Официальный канал основателя Telegram', uk: 'Офіційний канал засновника Telegram' },
-    emoji: '✈️',
-    category: 'Tech',
-    prio: 'mid',
-    featured: false
-  },
-  {
-    username: '@coindesk',
-    name: 'CoinDesk',
-    desc: { en: 'Crypto market and blockchain news', ru: 'Новости крипторынка и блокчейна', uk: 'Новини крипторинку та блокчейну' },
-    emoji: '📰',
-    category: 'Crypto News',
-    prio: 'high',
-    featured: false
-  },
-  {
-    username: '@cointelegraph',
-    name: 'Cointelegraph',
+  // ── Telegram channels ────────────────────────────────
+  { source: 'telegram', username: '@financialjuice_news', name: 'Financial Juice',
+    desc: { en: 'Fast macro & FED news feed', ru: 'Быстрые макро и новости ФРС', uk: 'Швидкі макро та новини ФРС' },
+    emoji: '🍊', category: 'Macro', prio: 'high', featured: false },
+  { source: 'telegram', username: '@ReutersWorld', name: 'Reuters World',
+    desc: { en: 'Global breaking news by Reuters', ru: 'Мировые новости от Reuters', uk: 'Світові новини від Reuters' },
+    emoji: '📡', category: 'Macro', prio: 'high', featured: false },
+  { source: 'telegram', username: '@Bloomberg', name: 'Bloomberg',
+    desc: { en: 'Bloomberg markets and economy', ru: 'Bloomberg: рынки и экономика', uk: 'Bloomberg: ринки та економіка' },
+    emoji: '📊', category: 'Macro', prio: 'high', featured: false },
+  { source: 'telegram', username: '@whale_alert', name: 'Whale Alert',
+    desc: { en: 'Large crypto transaction alerts', ru: 'Алерты крупных транзакций крипты', uk: 'Алерти великих транзакцій крипти' },
+    emoji: '🐋', category: 'Memecoin', prio: 'high', featured: false },
+  { source: 'telegram', username: '@solanaffloor', name: 'Solana Floor',
+    desc: { en: 'Solana NFT floors and hype', ru: 'Полы Solana NFT и хайп', uk: 'Поли Solana NFT та хайп' },
+    emoji: '🌊', category: 'Memecoin', prio: 'mid', featured: false },
+  { source: 'telegram', username: '@tree_news', name: 'Tree News',
+    desc: { en: 'Fast crypto & market news', ru: 'Быстрые крипто и рыночные новости', uk: 'Швидкі крипто та ринкові новини' },
+    emoji: '🌲', category: 'News', prio: 'high', featured: false },
+  { source: 'telegram', username: '@dbnews', name: 'DB News',
+    desc: { en: 'Breaking news for traders', ru: 'Срочные новости для трейдеров', uk: 'Термінові новини для трейдерів' },
+    emoji: '📰', category: 'News', prio: 'high', featured: false },
+  { source: 'telegram', username: '@tier10k', name: 'Tier10k',
+    desc: { en: 'High-signal news and alpha', ru: 'Новости с высоким сигналом и альфа', uk: 'Новини з високим сигналом та альфа' },
+    emoji: '⚡', category: 'News', prio: 'high', featured: false },
+  { source: 'telegram', username: '@WuBlockchain', name: 'Wu Blockchain',
+    desc: { en: 'Crypto industry news from Asia', ru: 'Крипто-новости из Азии', uk: 'Крипто-новини з Азії' },
+    emoji: '⛓️', category: 'Crypto', prio: 'high', featured: false },
+  { source: 'telegram', username: '@binance_announcements', name: 'Binance Announcements',
+    desc: { en: 'Official Binance listings and news', ru: 'Официальные анонсы Binance', uk: 'Офіційні анонси Binance' },
+    emoji: '🔶', category: 'Crypto', prio: 'high', featured: false },
+  { source: 'telegram', username: '@cointelegraph', name: 'Cointelegraph',
     desc: { en: 'Crypto analytics and reports', ru: 'Аналитика и репортажи о криптовалютах', uk: 'Аналітика та репортажі про криптовалюти' },
-    emoji: '📡',
-    category: 'Crypto News',
-    prio: 'high',
-    featured: false
-  },
-  {
-    username: '@federalreserve',
-    name: 'Fed Reserve News',
-    desc: { en: 'FED news, rates and monetary policy', ru: 'Новости ФРС, ставки и монетарная политика', uk: 'Новини ФРС, ставки та монетарна політика' },
-    emoji: '🏦',
-    category: 'Macro',
-    prio: 'mid',
-    featured: false
-  },
-  {
-    username: '@solana_news',
-    name: 'Solana News',
-    desc: { en: 'Solana ecosystem: DeFi, NFT and news', ru: 'Экосистема Solana: DeFi, NFT и новости', uk: 'Екосистема Solana: DeFi, NFT та новини' },
-    emoji: '🌊',
-    category: 'Crypto',
-    prio: 'mid',
-    featured: false
-  },
+    emoji: '📡', category: 'Crypto', prio: 'mid', featured: false },
+  { source: 'telegram', username: '@durov', name: 'Pavel Durov',
+    desc: { en: 'Official channel of Telegram founder', ru: 'Официальный канал основателя Telegram', uk: 'Офіційний канал засновника Telegram' },
+    emoji: '✈️', category: 'Tech', prio: 'mid', featured: false },
+  { source: 'telegram', username: '@cloudrproject', name: 'Cloudr Project',
+    desc: { en: 'Crypto analytics, signals and macro overviews', ru: 'Крипто-аналитика, сигналы и макро-обзоры', uk: 'Крипто-аналітика, сигнали та макро-огляди' },
+    emoji: '☁️', category: 'Crypto', prio: 'high', featured: true },
+
+  // ── Twitter / X accounts ────────────────────────────
+  { source: 'twitter', username: '@financialjuice', name: 'Financial Juice',
+    desc: { en: 'Macro & FED news on X', ru: 'Макро и ФРС в X', uk: 'Макро та ФРС в X' },
+    emoji: '🍊', category: 'Macro', prio: 'high', featured: false },
+  { source: 'twitter', username: '@Reuters', name: 'Reuters',
+    desc: { en: 'Reuters breaking news on X', ru: 'Срочные новости Reuters в X', uk: 'Термінові новини Reuters в X' },
+    emoji: '📡', category: 'Macro', prio: 'high', featured: false },
+  { source: 'twitter', username: '@unusual_whales', name: 'Unusual Whales',
+    desc: { en: 'Options flow and smart money on X', ru: 'Опционный поток и умные деньги в X', uk: 'Опційний потік і розумні гроші в X' },
+    emoji: '🐋', category: 'Macro', prio: 'mid', featured: false },
+  { source: 'twitter', username: '@WalterBloomberg', name: 'Walter Bloomberg',
+    desc: { en: 'Market-moving headlines on X', ru: 'Рыночные заголовки в X', uk: 'Ринкові заголовки в X' },
+    emoji: '📊', category: 'Macro', prio: 'mid', featured: false },
+  { source: 'twitter', username: '@whale_alert', name: 'Whale Alert',
+    desc: { en: 'Large crypto moves on X', ru: 'Крупные крипто-переводы в X', uk: 'Великі крипто-перекази в X' },
+    emoji: '🐋', category: 'Memecoin', prio: 'high', featured: false },
+  { source: 'twitter', username: '@lookonchain', name: 'Lookonchain',
+    desc: { en: 'On-chain whale tracking on X', ru: 'Отслеживание китов on-chain в X', uk: 'Відстеження китів on-chain в X' },
+    emoji: '🔍', category: 'Memecoin', prio: 'high', featured: false },
+  { source: 'twitter', username: '@SolanaFloor', name: 'Solana Floor',
+    desc: { en: 'Solana NFT & meme trends on X', ru: 'Solana NFT и мем-тренды в X', uk: 'Solana NFT та мем-тренди в X' },
+    emoji: '🌊', category: 'Memecoin', prio: 'mid', featured: false },
+  { source: 'twitter', username: '@Dexscreener', name: 'Dexscreener',
+    desc: { en: 'DEX token trends and screener', ru: 'Тренды токенов DEX и скринер', uk: 'Тренди токенів DEX і скрінер' },
+    emoji: '📈', category: 'Memecoin', prio: 'mid', featured: false },
+  { source: 'twitter', username: '@tier10k', name: 'Tier10k',
+    desc: { en: 'Breaking crypto news on X', ru: 'Срочные крипто-новости в X', uk: 'Термінові крипто-новини в X' },
+    emoji: '⚡', category: 'News', prio: 'high', featured: false },
+  { source: 'twitter', username: '@Deltaone', name: 'Delta One',
+    desc: { en: 'Market intelligence and news on X', ru: 'Рыночная аналитика и новости в X', uk: 'Ринкова аналітика та новини в X' },
+    emoji: '🎯', category: 'News', prio: 'mid', featured: false },
+  { source: 'twitter', username: '@WatcherGuru', name: 'Watcher Guru',
+    desc: { en: 'Fast news and alerts on X', ru: 'Быстрые новости и алерты в X', uk: 'Швидкі новини та алерти в X' },
+    emoji: '👁️', category: 'News', prio: 'high', featured: false },
+  { source: 'twitter', username: '@WuBlockchain', name: 'Wu Blockchain',
+    desc: { en: 'Asian crypto news on X', ru: 'Азиатские крипто-новости в X', uk: 'Азіатські крипто-новини в X' },
+    emoji: '⛓️', category: 'Crypto', prio: 'high', featured: false },
+  { source: 'twitter', username: '@CoinDesk', name: 'CoinDesk',
+    desc: { en: 'Crypto market news on X', ru: 'Новости крипторынка в X', uk: 'Новини крипторинку в X' },
+    emoji: '📰', category: 'Crypto', prio: 'mid', featured: false },
 ];
 
 function renderCatalog() {
@@ -2966,54 +2993,71 @@ function renderCatalog() {
   if (!list) return;
   const th = getTheme();
   list.innerHTML = '';
-  channelCatalog.forEach(ch => {
-    const alreadyAdded = channels.some(c => c.username.toLowerCase() === ch.username.toLowerCase());
-    const prioColors = {
-      high: { bg: '#2a1010', color: '#e05252', border: '#e0525244' },
-      mid:  { bg: '#221a08', color: '#d49a2e', border: '#d49a2e44' },
-      low:  { bg: '#0c1f16', color: '#3aaa6e', border: '#3aaa6e44' },
-    };
-    const pc = prioColors[ch.prio];
-    const card = document.createElement('div');
-    card.style.cssText = `background:#1a1a20;border:.5px solid ${ch.featured ? th.accent+'44' : '#272730'};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;`;
-    if (ch.featured) {
-      card.innerHTML += `<div style="position:absolute;top:0;right:0;background:${th.gradient};font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:600;">★ FEATURED</div>`;
-    }
-    card.innerHTML += `
-      <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? th.gradient : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden;">
-        <img data-avatar-channel="${ch.username.replace('@','')}" alt=""
-          style="width:100%;height:100%;object-fit:cover;border-radius:12px;position:absolute;inset:0;display:none;">
-        <span class="av-fallback" style="position:relative;z-index:1;">${ch.emoji}</span>
-      </div>
-      <div style="flex:1;min-width:0;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
-          <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ch.name}</p>
-          <span style="font-size:9px;background:${pc.bg};color:${pc.color};border:.5px solid ${pc.border};border-radius:6px;padding:2px 6px;white-space:nowrap;">${ch.category}</span>
+
+  const telegramChannels = channelCatalog.filter(c => c.source === 'telegram');
+  const twitterChannels  = channelCatalog.filter(c => c.source === 'twitter');
+
+  function renderSection(title, icon, items) {
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;margin:10px 0 6px;';
+    header.innerHTML = `<span style="font-size:16px;">${icon}</span><span style="font-size:11px;font-weight:700;color:#666;letter-spacing:.8px;text-transform:uppercase;">${title}</span><div style="flex:1;height:.5px;background:#1e1e2a;"></div>`;
+    list.appendChild(header);
+
+    items.forEach(ch => {
+      const alreadyAdded = channels.some(c => c.username.toLowerCase() === ch.username.toLowerCase() && (c.source || 'telegram') === ch.source);
+      const prioColors = {
+        high: { bg: '#2a1010', color: '#e05252', border: '#e0525244' },
+        mid:  { bg: '#221a08', color: '#d49a2e', border: '#d49a2e44' },
+        low:  { bg: '#0c1f16', color: '#3aaa6e', border: '#3aaa6e44' },
+      };
+      const pc = prioColors[ch.prio];
+      const card = document.createElement('div');
+      card.style.cssText = `background:#1a1a20;border:.5px solid ${ch.featured ? th.accent+'44' : '#272730'};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;`;
+      if (ch.featured) {
+        card.innerHTML += `<div style="position:absolute;top:0;right:0;background:${th.gradient};font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:600;">★ FEATURED</div>`;
+      }
+      card.innerHTML += `
+        <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? th.gradient : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden;">
+          <img data-avatar-channel="${ch.username.replace('@','')}" alt=""
+            style="width:100%;height:100%;object-fit:cover;border-radius:12px;position:absolute;inset:0;display:none;">
+          <span class="av-fallback" style="position:relative;z-index:1;">${ch.emoji}</span>
         </div>
-        <p style="font-size:11px;color:#555;margin:0 0 2px;">${ch.username}</p>
-        <p style="font-size:11px;color:#666;margin:0;line-height:1.4;">${(ch.desc&&ch.desc[currentLang])||ch.desc&&ch.desc.en||''}</p>
-      </div>
-      <button onclick="addFromCatalog('${ch.username}','${ch.prio}','${ch.emoji}')" ${alreadyAdded ? 'disabled' : ''}
-        style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : th.gradient};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
-        ${alreadyAdded ? t('catalogAdded') : t('catalogAdd')}
-      </button>`;
-    list.appendChild(card);
-  });
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+            <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ch.name}</p>
+            <span style="font-size:9px;background:${pc.bg};color:${pc.color};border:.5px solid ${pc.border};border-radius:6px;padding:2px 6px;white-space:nowrap;">${ch.category}</span>
+          </div>
+          <p style="font-size:11px;color:#555;margin:0 0 2px;">${ch.username}</p>
+          <p style="font-size:11px;color:#666;margin:0;line-height:1.4;">${(ch.desc&&ch.desc[currentLang])||ch.desc&&ch.desc.en||''}</p>
+        </div>
+        <button onclick="addFromCatalog('${ch.username}','${ch.prio}','${ch.emoji}','${ch.source}')" ${alreadyAdded ? 'disabled' : ''}
+          style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : th.gradient};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
+          ${alreadyAdded ? t('catalogAdded') : t('catalogAdd')}
+        </button>`;
+      list.appendChild(card);
+    });
+  }
+
+  renderSection('Telegram Channels', '✈️', telegramChannels);
+  renderSection('Twitter / X', '𝕏', twitterChannels);
+
   loadChannelAvatars();
 }
 
-async function addFromCatalog(username, prio, emoji) {
+async function addFromCatalog(username, prio, emoji, source) {
+  source = source || 'telegram';
   let channelId = null;
   if (currentUserId) {
     const resp = await apiFetch('/api/channel', 'POST', {
       user_id: currentUserId,
       username: username.replace('@', ''),
       priority: prio,
-      emoji: emoji
+      emoji: emoji,
+      source: source
     });
     if (resp && resp.id) channelId = resp.id;
   }
-  channels.push({ id: channelId, username, prio, emoji, notifOn: true });
+  channels.push({ id: channelId, username, prio, emoji, notifOn: true, source });
   renderChannelList();
   syncNotifScreen();
   renderCatalog(); // refresh buttons
