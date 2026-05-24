@@ -602,212 +602,41 @@
   <!-- ═══ MARKET SCREEN ═══ -->
   <div id="vMarket" style="background:#111114;display:none;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:62px;z-index:15;overflow-y:auto;">
     <!-- Header -->
-    <div class="feed-topbar" style="flex-shrink:0;">
-      <p class="feed-title" data-i18n="marketTitle">📈 Market</p>
-      <button onclick="loadMarket()" style="background:none;border:none;color:#555;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;" id="marketRefreshBtn">
-        <i class="ti ti-refresh" style="font-size:13px;"></i> <span data-i18n="marketRefresh">Refresh</span>
+    <div class="feed-topbar" style="flex-shrink:0;position:sticky;top:0;background:#111114;z-index:5;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <p class="feed-title" data-i18n="marketTitle">📈 Market</p>
+        <div id="marketLiveDot" style="display:none;width:6px;height:6px;border-radius:50%;background:#3aaa6e;animation:dotPulse 1.6s ease-in-out infinite;"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="marketLastUpdate" style="font-size:10px;color:#444;"></span>
+        <button onclick="loadMarket(true)" style="background:none;border:none;color:#555;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;" id="marketRefreshBtn">
+          <i class="ti ti-refresh" style="font-size:13px;"></i> <span data-i18n="marketRefresh">Refresh</span>
+        </button>
+      </div>
+    </div>
+    <!-- Loading state -->
+    <div id="marketLoading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;">
+      <div style="position:relative;width:52px;height:52px;">
+        <div style="position:absolute;inset:0;border-radius:50%;border:2px solid #1e1e28;"></div>
+        <div style="position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:#6b6bff;animation:spin .9s linear infinite;"></div>
+        <div style="position:absolute;inset:8px;border-radius:50%;border:2px solid transparent;border-top-color:#a78bfa44;animation:spin 1.4s linear infinite reverse;"></div>
+      </div>
+      <div style="text-align:center;">
+        <p id="marketLoadingText" style="font-size:13px;color:#888;margin:0 0 4px;">🤖 AI анализирует рынок…</p>
+        <p style="font-size:11px;color:#444;margin:0;">Fetching latest signals</p>
+      </div>
+    </div>
+    <!-- Error state -->
+    <div id="marketError" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;">
+      <p style="font-size:32px;margin-bottom:12px;">⚠️</p>
+      <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">Could not load market data</p>
+      <p style="font-size:12px;color:#555;margin:0 0 20px;">Check your connection and try again</p>
+      <button onclick="loadMarket(true)" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:12px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;">
+        🔄 Refresh
       </button>
     </div>
-
-    <!-- ── MOCK: Market alerts feed ── -->
-    <div id="marketMock" style="padding:12px;display:flex;flex-direction:column;gap:12px;">
-
-      <!-- State summary card -->
-      <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid #6b6bff33;border-radius:16px;padding:14px 16px;">
-        <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 10px;" data-i18n="marketStateSection">📊 СОСТОЯНИЕ РЫНКА</p>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <div>
-            <p style="font-size:10px;color:#555;margin:0 0 3px;" data-i18n="marketStateOverall">Общее состояние</p>
-            <p style="font-size:20px;font-weight:700;color:#3aaa6e;margin:0;">🐂 <span data-i18n="marketStateBullish">Бычий</span></p>
-          </div>
-          <div style="text-align:right;">
-            <p style="font-size:10px;color:#555;margin:0 0 3px;">BTC</p>
-            <p style="font-size:20px;margin:0;">📈</p>
-          </div>
-        </div>
-        <!-- sentiment bar -->
-        <div style="background:#111116;border-radius:8px;height:5px;overflow:hidden;margin-bottom:8px;">
-          <div style="height:100%;width:72%;background:linear-gradient(90deg,#3aaa6e88,#3aaa6e);border-radius:8px;"></div>
-        </div>
-        <!-- fear/greed -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span style="font-size:11px;color:#555;">Fear &amp; Greed</span>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <div style="height:3px;width:80px;background:#111116;border-radius:2px;overflow:hidden;">
-              <div style="height:100%;width:68%;background:#3aaa6e;border-radius:2px;"></div>
-            </div>
-            <span style="font-size:12px;font-weight:700;color:#3aaa6e;">68</span>
-          </div>
-        </div>
-        <!-- sectors row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:10px;">
-          <div style="background:#0c1f1688;border:.5px solid #3aaa6e33;border-radius:10px;padding:7px 6px;text-align:center;">
-            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">BTC</p>
-            <p style="font-size:16px;color:#3aaa6e;margin:2px 0 0;">↑</p>
-          </div>
-          <div style="background:#0c1f1688;border:.5px solid #3aaa6e33;border-radius:10px;padding:7px 6px;text-align:center;">
-            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">ETH</p>
-            <p style="font-size:16px;color:#3aaa6e;margin:2px 0 0;">↑</p>
-          </div>
-          <div style="background:#221a0888;border:.5px solid #d49a2e33;border-radius:10px;padding:7px 6px;text-align:center;">
-            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">DeFi</p>
-            <p style="font-size:16px;color:#d49a2e;margin:2px 0 0;">→</p>
-          </div>
-          <div style="background:#2a101088;border:.5px solid #e0525233;border-radius:10px;padding:7px 6px;text-align:center;">
-            <p style="font-size:11px;font-weight:600;color:#e8e8f0;margin:0;">ALT</p>
-            <p style="font-size:16px;color:#e05252;margin:2px 0 0;">↓</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Market alerts / messages section ── -->
-      <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin:2px 0 0;" data-i18n="marketAlertsSection">🔔 СИГНАЛЫ РЫНКА</p>
-
-      <!-- Alert card HIGH -->
-      <div style="background:#1a1a20;border:.5px solid #e0525244;border-radius:14px;padding:12px 14px;animation:slideIn .35s ease both;">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:10px;background:#2a1010;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">⚠️</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;font-weight:600;">🔴 HIGH</span>
-              <span style="font-size:10px;color:#444;">2 мин назад</span>
-            </div>
-            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertHigh1">⚠️ Ожидается решение ФРС — возможна высокая волатильность</p>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:11px;color:#555;">Источник:</span>
-              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@federalreserve_news</span>
-            </div>
-          </div>
-        </div>
-        <!-- impact bar -->
-        <div style="margin-top:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
-            <span style="font-size:11px;font-weight:700;color:#e05252;">87%</span>
-          </div>
-          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
-            <div style="height:100%;width:87%;background:linear-gradient(90deg,#8a2020,#e05252);border-radius:2px;transition:width .8s;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Alert card HIGH 2 -->
-      <div style="background:#1a1a20;border:.5px solid #e0525444;border-radius:14px;padding:12px 14px;animation:slideIn .45s ease both;">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:10px;background:#2a1010;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📉</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;font-weight:600;">🔴 HIGH</span>
-              <span style="font-size:10px;color:#444;">14 мин назад</span>
-            </div>
-            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertHigh2">🔴 BTC пробивает поддержку $68K — следите за каскадом</p>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:11px;color:#555;">Источник:</span>
-              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@whalewatch</span>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
-            <span style="font-size:11px;font-weight:700;color:#e05252;">74%</span>
-          </div>
-          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
-            <div style="height:100%;width:74%;background:linear-gradient(90deg,#8a2020,#e05252);border-radius:2px;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Alert card MEDIUM -->
-      <div style="background:#1a1a20;border:.5px solid #d49a2e33;border-radius:14px;padding:12px 14px;animation:slideIn .55s ease both;">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:10px;background:#221a08;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🔧</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-size:9px;background:#221a08;color:#d49a2e;border:.5px solid #d49a2e44;border-radius:6px;padding:2px 8px;font-weight:600;">🟡 MED</span>
-              <span style="font-size:10px;color:#444;">1 ч назад</span>
-            </div>
-            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertMid1">🟡 Обновление ETH запланировано — возможна перегрузка сети</p>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:11px;color:#555;">Источник:</span>
-              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@ethereum_official</span>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
-            <span style="font-size:11px;font-weight:700;color:#d49a2e;">45%</span>
-          </div>
-          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
-            <div style="height:100%;width:45%;background:linear-gradient(90deg,#7a5a10,#d49a2e);border-radius:2px;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Alert card LOW -->
-      <div style="background:#1a1a20;border:.5px solid #3aaa6e33;border-radius:14px;padding:12px 14px;animation:slideIn .65s ease both;">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:10px;background:#0c1f16;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">💰</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-size:9px;background:#0c1f16;color:#3aaa6e;border:.5px solid #3aaa6e44;border-radius:6px;padding:2px 8px;font-weight:600;">🟢 LOW</span>
-              <span style="font-size:10px;color:#444;">2 ч назад</span>
-            </div>
-            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertLow1">🟢 Приток стейблкоинов растёт — сигнал накопления</p>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:11px;color:#555;">Источник:</span>
-              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@cryptoquant_alerts</span>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
-            <span style="font-size:11px;font-weight:700;color:#3aaa6e;">22%</span>
-          </div>
-          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
-            <div style="height:100%;width:22%;background:linear-gradient(90deg,#1a6e44,#3aaa6e);border-radius:2px;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Alert card LOW 2 -->
-      <div style="background:#1a1a20;border:.5px solid #3aaa6e22;border-radius:14px;padding:12px 14px;animation:slideIn .75s ease both;margin-bottom:4px;">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:10px;background:#0c1f16;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📊</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-size:9px;background:#0c1f16;color:#3aaa6e;border:.5px solid #3aaa6e44;border-radius:6px;padding:2px 8px;font-weight:600;">🟢 LOW</span>
-              <span style="font-size:10px;color:#444;">3 ч назад</span>
-            </div>
-            <p style="font-size:13px;color:#e0e0f0;margin:0 0 6px;line-height:1.45;" data-i18n="marketAlertLow2">🟢 TVL в DeFi вырос на 12% за неделю</p>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:11px;color:#555;">Источник:</span>
-              <span style="font-size:11px;color:#a0a0c0;font-weight:500;">@defillama</span>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:10px;color:#555;">⚡ Влияние на рынок</span>
-            <span style="font-size:11px;font-weight:700;color:#3aaa6e;">18%</span>
-          </div>
-          <div style="height:3px;background:#1e1e28;border-radius:2px;overflow:hidden;">
-            <div style="height:100%;width:18%;background:linear-gradient(90deg,#1a6e44,#3aaa6e);border-radius:2px;"></div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /marketMock -->
-
-    <div id="marketContent" style="padding:12px;display:flex;flex-direction:column;gap:12px;display:none;">
-      <!-- Loading placeholder -->
-      <div id="marketLoading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;">
-        <div class="impact-dot-pulse" style="width:10px;height:10px;"></div>
-        <p style="font-size:12px;color:#555;margin-top:12px;" data-i18n="feedLoading">Loading…</p>
-      </div>
-    </div>
+    <!-- Real content -->
+    <div id="marketContent" style="display:none;padding:12px;flex-direction:column;gap:12px;padding-bottom:24px;"></div>
   </div>
 
   <!-- Add Channel Modal — Catalog -->
@@ -1960,7 +1789,7 @@ async function openCryptoBotInvoice() {
   const resp=await apiFetch('/api/payment','POST',{
     user_id: currentUserId,
     packs: selectedPacks,
-    method: pm.asset||'USDT',
+    method: 'cryptobot',
     amount: parseFloat(total)
   });
 
@@ -3144,180 +2973,325 @@ function loadChannelAvatars() {
 // ══════════════════════════════════════════════════════
 let _marketLoaded = false;
 let _marketLoading = false;
+let _marketData = null;
 
-async function loadMarket() {
+async function loadMarket(forceRefresh) {
   if (_marketLoading) return;
+  if (_marketLoaded && !forceRefresh) return;
   _marketLoading = true;
-  const content = document.getElementById('marketContent');
-  const loading = document.getElementById('marketLoading');
-  if (loading) loading.style.display = 'flex';
+
+  const loadingEl = document.getElementById('marketLoading');
+  const errorEl   = document.getElementById('marketError');
+  const contentEl = document.getElementById('marketContent');
+  const liveDot   = document.getElementById('marketLiveDot');
+
+  if (loadingEl) { loadingEl.style.display = 'flex'; }
+  if (errorEl)   { errorEl.style.display = 'none'; }
+  if (contentEl) { contentEl.style.display = 'none'; }
+  if (liveDot)   { liveDot.style.display = 'none'; }
+
+  // Rotating loading messages
+  const loadMsgs = {
+    ru: ['🤖 AI анализирует рынок…','📡 Сканирую сигналы…','🔍 Обрабатываю данные…','⚡ Почти готово…'],
+    uk: ['🤖 AI аналізує ринок…','📡 Сканую сигнали…','🔍 Обробляю дані…','⚡ Майже готово…'],
+    en: ['🤖 AI analysing market…','📡 Scanning signals…','🔍 Processing data…','⚡ Almost ready…']
+  };
+  const msgs = loadMsgs[currentLang] || loadMsgs.en;
+  let msgIdx = 0;
+  const msgEl = document.getElementById('marketLoadingText');
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % msgs.length;
+    if (msgEl) msgEl.textContent = msgs[msgIdx];
+  }, 1800);
 
   try {
     const th = getTheme();
+    const lang = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English';
+    const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `You are a professional crypto market analyst. Return ONLY a valid JSON object (no markdown, no backticks) with this exact structure:
+        max_tokens: 2000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `You are a professional crypto market analyst providing REAL, CURRENT data. Today is ${today}.
+
+CRITICAL: Use web_search to find REAL current data before answering:
+1. Search "crypto market sentiment today ${today}" for current sentiment
+2. Search "fear greed index crypto today" for F&G index
+3. Search "crypto news today most important" for top news
+4. Search "bitcoin price today trend" for BTC trend
+5. Search "upcoming crypto events this week" for events
+
+After searching, return ONLY a valid JSON object (no markdown, no backticks):
 {
   "sentiment": "bullish" | "bearish" | "neutral",
   "sentiment_score": 0-100,
   "btc_trend": "up" | "down" | "sideways",
-  "summary": "2-3 sentence overall market summary in the user language",
+  "btc_price": "current BTC price as string e.g. $103,400",
+  "btc_change_24h": "+2.3% (always include + or -)",
+  "eth_price": "current ETH price",
+  "eth_change_24h": "+1.1%",
+  "summary": "2-3 sentence real market summary in ${lang} based on actual current data",
   "fear_greed": 0-100,
+  "fear_greed_label": "real label from index e.g. Greed",
+  "market_cap": "total crypto market cap as string",
+  "dominance_btc": "BTC dominance % as string",
   "top_news": [
-    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
-    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
-    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
-    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"},
-    {"title": "...", "impact": "high" | "medium" | "low", "direction": "up" | "down" | "neutral"}
+    {"title": "REAL news headline in ${lang}", "impact": "high"|"medium"|"low", "direction": "up"|"down"|"neutral", "source": "source name"},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."}
   ],
   "upcoming": [
-    {"event": "...", "date": "...", "importance": "high" | "medium"},
-    {"event": "...", "date": "...", "importance": "high" | "medium"},
-    {"event": "...", "date": "...", "importance": "high" | "medium"}
+    {"event": "real upcoming event in ${lang}", "date": "specific date", "importance": "high"|"medium"},
+    {"event": "...", "date": "...", "importance": "..."},
+    {"event": "...", "date": "...", "importance": "..."}
   ],
   "sectors": [
-    {"name": "BTC", "status": "up" | "down" | "neutral", "note": "short note"},
-    {"name": "ETH", "status": "up" | "down" | "neutral", "note": "short note"},
-    {"name": "DeFi", "status": "up" | "down" | "neutral", "note": "short note"},
-    {"name": "Altcoins", "status": "up" | "down" | "neutral", "note": "short note"}
+    {"name": "BTC", "status": "up"|"down"|"neutral", "note": "short note in ${lang} with real data"},
+    {"name": "ETH", "status": "up"|"down"|"neutral", "note": "..."},
+    {"name": "DeFi", "status": "up"|"down"|"neutral", "note": "..."},
+    {"name": "Altcoins", "status": "up"|"down"|"neutral", "note": "..."}
+  ],
+  "key_levels": [
+    {"coin": "BTC", "support": "price", "resistance": "price"},
+    {"coin": "ETH", "support": "price", "resistance": "price"}
   ]
 }`,
         messages: [{
           role: 'user',
-          content: `Analyze the current crypto market state as of today (${new Date().toLocaleDateString()}). Use real knowledge of market conditions up to your training cutoff. Language: ${currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English'}. Return only the JSON.`
+          content: `Search for REAL current crypto market data as of ${today} and return JSON. Language: ${lang}.`
         }]
       })
     });
 
+    clearInterval(msgInterval);
+
     const data = await resp.json();
-    const raw = data.content?.[0]?.text || '{}';
-    const clean = raw.replace(/```json|```/g, '').trim();
+    // Handle multi-block response (web_search returns tool use blocks + text)
+    const textBlocks = (data.content || []).filter(b => b.type === 'text');
+    const raw = textBlocks.map(b => b.text).join('');
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const clean = jsonMatch ? jsonMatch[0] : raw.replace(/```json|```/g, '').trim();
     const m = JSON.parse(clean);
 
-    if (loading) loading.style.display = 'none';
+    _marketData = m;
+    if (loadingEl) loadingEl.style.display = 'none';
     _renderMarket(m, th);
     _marketLoaded = true;
+
+    // Show live dot + update time
+    if (liveDot) liveDot.style.display = 'block';
+    const upEl = document.getElementById('marketLastUpdate');
+    if (upEl) {
+      const now = new Date();
+      upEl.textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    }
   } catch(e) {
-    if (loading) loading.style.display = 'none';
-    content.innerHTML = `<div style="text-align:center;padding:40px 20px;">
-      <p style="font-size:28px;margin-bottom:10px;">⚠️</p>
-      <p style="font-size:14px;color:#555;">Failed to load market data. Tap Refresh to try again.</p>
-    </div>`;
+    clearInterval(msgInterval);
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'flex';
+    console.error('loadMarket error:', e);
   }
   _marketLoading = false;
 }
 
 function _renderMarket(m, th) {
   const content = document.getElementById('marketContent');
+  if (!content) return;
+
   const sentColor = m.sentiment === 'bullish' ? '#3aaa6e' : m.sentiment === 'bearish' ? '#e05252' : '#d49a2e';
   const sentEmoji = m.sentiment === 'bullish' ? '🐂' : m.sentiment === 'bearish' ? '🐻' : '➡️';
-  const btcArrow = m.btc_trend === 'up' ? '📈' : m.btc_trend === 'down' ? '📉' : '➡️';
-  const fgColor = m.fear_greed >= 60 ? '#3aaa6e' : m.fear_greed >= 40 ? '#d49a2e' : '#e05252';
-  const fgLabel = m.fear_greed >= 75 ? (currentLang==='ru'?'Жадность':currentLang==='uk'?'Жадібність':'Greed')
+  const btcArrow  = m.btc_trend === 'up' ? '📈' : m.btc_trend === 'down' ? '📉' : '➡️';
+  const fgColor   = m.fear_greed >= 60 ? '#3aaa6e' : m.fear_greed >= 40 ? '#d49a2e' : '#e05252';
+  const fgLabel   = m.fear_greed_label || (
+    m.fear_greed >= 75 ? (currentLang==='ru'?'Жадность':currentLang==='uk'?'Жадібність':'Greed')
     : m.fear_greed >= 55 ? (currentLang==='ru'?'Оптимизм':currentLang==='uk'?'Оптимізм':'Optimism')
     : m.fear_greed >= 45 ? (currentLang==='ru'?'Нейтрально':currentLang==='uk'?'Нейтрально':'Neutral')
     : m.fear_greed >= 25 ? (currentLang==='ru'?'Страх':currentLang==='uk'?'Страх':'Fear')
-    : (currentLang==='ru'?'Паника':currentLang==='uk'?'Паніка':'Panic');
-  // Hide mock, show real content
-  const mockEl = document.getElementById('marketMock');
-  if (mockEl) mockEl.style.display = 'none';
-  if (content) content.style.display = 'flex';
+    : (currentLang==='ru'?'Паника':currentLang==='uk'?'Паніка':'Panic')
+  );
 
   const impactColor = {high:'#e05252', medium:'#d49a2e', low:'#3aaa6e'};
-  const dirIcon = {up:'📈', down:'📉', neutral:'➡️'};
-  const impIcon = {high:'🔴', medium:'🟡', low:'🟢'};
+  const impBg      = {high:'#2a1010', medium:'#221a08', low:'#0c1f16'};
+  const dirIcon    = {up:'📈', down:'📉', neutral:'➡️'};
+  const impIcon    = {high:'🔴', medium:'🟡', low:'🟢'};
+  const sectorArrow= {up:'↑', down:'↓', neutral:'→'};
+  const sectorColor= {up:'#3aaa6e', down:'#e05252', neutral:'#d49a2e'};
+  const sectorBg   = {up:'#0c1f16', down:'#2a1010', neutral:'#221a08'};
+  const sectorBorder= {up:'#3aaa6e33', down:'#e0525233', neutral:'#d49a2e33'};
 
-  const sectorStatus = {up:`color:#3aaa6e`, down:`color:#e05252`, neutral:`color:#d49a2e`};
-  const sectorArrow = {up:'↑', down:'↓', neutral:'→'};
+  const L = currentLang;
+  const s = {
+    sentiment: L==='ru'?'СОСТОЯНИЕ РЫНКА':L==='uk'?'СТАН РИНКУ':'MARKET SENTIMENT',
+    fearGreed: L==='ru'?'СТРАХ & ЖАДНОСТЬ':L==='uk'?'СТРАХ & ЖАДІБНІСТЬ':'FEAR & GREED INDEX',
+    prices:    L==='ru'?'ЦЕНЫ':L==='uk'?'ЦІНИ':'PRICES',
+    news:      L==='ru'?'ГЛАВНЫЕ НОВОСТИ':L==='uk'?'ГОЛОВНІ НОВИНИ':'TOP NEWS',
+    sectors:   L==='ru'?'СЕКТОРЫ':L==='uk'?'СЕКТОРИ':'SECTORS',
+    upcoming:  L==='ru'?'ПРЕДСТОЯЩИЕ СОБЫТИЯ':L==='uk'?'МАЙБУТНІ ПОДІЇ':'UPCOMING EVENTS',
+    levels:    L==='ru'?'КЛЮЧЕВЫЕ УРОВНИ':L==='uk'?'КЛЮЧОВІ РІВНІ':'KEY LEVELS',
+    support:   L==='ru'?'Поддержка':L==='uk'?'Підтримка':'Support',
+    resist:    L==='ru'?'Сопротивление':L==='uk'?'Спротив':'Resistance',
+    moodIdx:   L==='ru'?'Индекс настроения':L==='uk'?'Індекс настрою':'Mood index',
+    mcap:      L==='ru'?'Кап. рынка':L==='uk'?'Кап. ринку':'Market Cap',
+    dom:       L==='ru'?'Доминация BTC':L==='uk'?'Домінація BTC':'BTC Dominance',
+    source:    L==='ru'?'Источник':L==='uk'?'Джерело':'Source',
+  };
 
-  const newsHTML = (m.top_news||[]).map(n => `
-    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:.5px solid #1e1e26;">
-      <span style="font-size:16px;flex-shrink:0;margin-top:1px;">${dirIcon[n.direction]||'➡️'}</span>
+  // Prices block
+  const pricesHTML = (m.btc_price || m.eth_price) ? `
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 10px;">${s.prices}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${m.btc_price ? `
+        <div style="background:#111118;border:.5px solid #272730;border-radius:12px;padding:10px 12px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span style="font-size:18px;">₿</span>
+            <span style="font-size:11px;font-weight:600;color:#888;">BTC</span>
+          </div>
+          <p style="font-size:15px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${m.btc_price}</p>
+          <p style="font-size:11px;color:${(m.btc_change_24h||'').startsWith('-')?'#e05252':'#3aaa6e'};margin:0;">${m.btc_change_24h||''}</p>
+        </div>` : ''}
+        ${m.eth_price ? `
+        <div style="background:#111118;border:.5px solid #272730;border-radius:12px;padding:10px 12px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span style="font-size:18px;">Ξ</span>
+            <span style="font-size:11px;font-weight:600;color:#888;">ETH</span>
+          </div>
+          <p style="font-size:15px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${m.eth_price}</p>
+          <p style="font-size:11px;color:${(m.eth_change_24h||'').startsWith('-')?'#e05252':'#3aaa6e'};margin:0;">${m.eth_change_24h||''}</p>
+        </div>` : ''}
+      </div>
+      ${(m.market_cap || m.dominance_btc) ? `
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        ${m.market_cap ? `<div style="flex:1;background:#111118;border:.5px solid #272730;border-radius:10px;padding:8px 10px;"><p style="font-size:9px;color:#555;margin:0 0 2px;letter-spacing:.5px;">${s.mcap}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${m.market_cap}</p></div>` : ''}
+        ${m.dominance_btc ? `<div style="flex:1;background:#111118;border:.5px solid #272730;border-radius:10px;padding:8px 10px;"><p style="font-size:9px;color:#555;margin:0 0 2px;letter-spacing:.5px;">${s.dom}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${m.dominance_btc}</p></div>` : ''}
+      </div>` : ''}
+    </div>` : '';
+
+  const newsHTML = (m.top_news||[]).map((n,i) => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;${i < (m.top_news.length-1) ? 'border-bottom:.5px solid #1a1a24;' : ''}">
+      <div style="width:32px;height:32px;border-radius:9px;background:${impBg[n.impact]||'#1a1a20'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${dirIcon[n.direction]||'➡️'}</div>
       <div style="flex:1;min-width:0;">
-        <p style="font-size:13px;color:#e0e0f0;margin:0 0 4px;line-height:1.45;">${n.title}</p>
-        <span style="font-size:10px;background:${impactColor[n.impact]||'#555'}22;color:${impactColor[n.impact]||'#555'};border:.5px solid ${impactColor[n.impact]||'#555'}44;border-radius:6px;padding:2px 8px;">${impIcon[n.impact]||''} ${n.impact}</span>
+        <p style="font-size:13px;color:#e0e0f0;margin:0 0 5px;line-height:1.45;">${n.title}</p>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:9px;background:${impBg[n.impact]||'#1a1a20'};color:${impactColor[n.impact]||'#888'};border:.5px solid ${impactColor[n.impact]||'#444'}44;border-radius:5px;padding:2px 7px;font-weight:600;">${impIcon[n.impact]||''} ${n.impact?.toUpperCase()}</span>
+          ${n.source ? `<span style="font-size:10px;color:#444;">${s.source}: ${n.source}</span>` : ''}
+        </div>
       </div>
     </div>`).join('');
 
-  const upcomingHTML = (m.upcoming||[]).map(u => `
-    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid #1e1e26;">
-      <div style="width:36px;height:36px;border-radius:10px;background:${u.importance==='high'?'#2a1010':'#221a08'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">
+  const upcomingHTML = (m.upcoming||[]).map((u,i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;${i < (m.upcoming.length-1) ? 'border-bottom:.5px solid #1a1a24;' : ''}">
+      <div style="width:36px;height:36px;border-radius:10px;background:${u.importance==='high'?'#2a1010':'#1e1e28'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
         ${u.importance==='high'?'🔔':'📅'}
       </div>
       <div style="flex:1;min-width:0;">
-        <p style="font-size:13px;color:#e0e0f0;margin:0 0 2px;">${u.event}</p>
+        <p style="font-size:13px;color:#e0e0f0;margin:0 0 2px;line-height:1.4;">${u.event}</p>
         <p style="font-size:11px;color:#555;margin:0;">${u.date}</p>
       </div>
-      ${u.importance==='high'?`<span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;">HOT</span>`:''}
+      ${u.importance==='high'?`<span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;font-weight:600;flex-shrink:0;">HOT</span>`:''}
     </div>`).join('');
 
-  const sectorsHTML = (m.sectors||[]).map(s => `
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;">
+  const sectorsHTML = (m.sectors||[]).map(s2 => `
+    <div style="background:${sectorBg[s2.status]||'#1a1a20'}88;border:.5px solid ${sectorBorder[s2.status]||'#272730'};border-radius:12px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${s.name}</p>
-        <p style="font-size:11px;color:#555;margin:0;">${s.note}</p>
+        <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${s2.name}</p>
+        <p style="font-size:10px;color:#555;margin:0;line-height:1.3;">${s2.note}</p>
       </div>
-      <span style="font-size:18px;font-weight:700;${sectorStatus[s.status]||''}">${sectorArrow[s.status]||'→'}</span>
+      <span style="font-size:20px;font-weight:700;color:${sectorColor[s2.status]||'#888'};flex-shrink:0;margin-left:8px;">${sectorArrow[s2.status]||'→'}</span>
     </div>`).join('');
 
+  const levelsHTML = (m.key_levels||[]).map(kl => `
+    <div style="background:#111118;border:.5px solid #272730;border-radius:11px;padding:10px 12px;">
+      <p style="font-size:11px;font-weight:600;color:#888;margin:0 0 6px;">${kl.coin}</p>
+      <div style="display:flex;justify-content:space-between;gap:8px;">
+        <div><p style="font-size:9px;color:#3aaa6e;margin:0 0 2px;">▲ ${s.support}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${kl.support}</p></div>
+        <div style="text-align:right;"><p style="font-size:9px;color:#e05252;margin:0 0 2px;">▼ ${s.resist}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${kl.resistance}</p></div>
+      </div>
+    </div>`).join('');
+
+  content.style.display = 'flex';
   content.innerHTML = `
     <!-- Sentiment card -->
-    <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid ${th.accent}33;border-radius:16px;padding:16px;">
+    <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid ${th.accent}33;border-radius:16px;padding:16px;animation:slideIn .3s ease both;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 10px;">${s.sentiment}</p>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
-          <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${t('marketSentimentLabel')}</p>
-          <p style="font-size:22px;font-weight:700;color:${sentColor};margin:0;text-transform:capitalize;">${sentEmoji} ${m.sentiment}</p>
+          <p style="font-size:24px;font-weight:700;color:${sentColor};margin:0;text-transform:capitalize;">${sentEmoji} ${m.sentiment}</p>
+          <p style="font-size:12px;color:#666;margin:4px 0 0;">${m.summary}</p>
         </div>
-        <div style="text-align:right;">
-          <p style="font-size:10px;color:#555;margin:0 0 4px;">BTC</p>
-          <p style="font-size:22px;margin:0;">${btcArrow}</p>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px;">
+          <p style="font-size:10px;color:#555;margin:0 0 2px;">BTC</p>
+          <p style="font-size:24px;margin:0;">${btcArrow}</p>
         </div>
       </div>
-      <!-- Sentiment bar -->
-      <div style="background:#111116;border-radius:8px;height:6px;overflow:hidden;margin-bottom:8px;">
-        <div style="height:100%;width:${m.sentiment_score}%;background:${th.gradient};border-radius:8px;transition:width .8s cubic-bezier(.4,0,.2,1);"></div>
+      <div style="background:#111116;border-radius:8px;height:6px;overflow:hidden;">
+        <div style="height:100%;width:${m.sentiment_score}%;background:${th.gradient};border-radius:8px;transition:width 1s cubic-bezier(.4,0,.2,1);"></div>
       </div>
-      <p style="font-size:12px;color:#888;margin:0;line-height:1.5;">${m.summary}</p>
     </div>
 
+    <!-- Prices -->
+    ${pricesHTML}
+
     <!-- Fear & Greed -->
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 12px;">${currentLang==='ru'?'СТРАХ & ЖАДНОСТЬ':currentLang==='uk'?'СТРАХ & ЖАДІБНІСТЬ':'FEAR & GREED INDEX'}</p>
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;animation:slideIn .4s ease both;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 12px;">${s.fearGreed}</p>
       <div style="display:flex;align-items:center;gap:14px;">
-        <div style="width:60px;height:60px;border-radius:50%;background:conic-gradient(${fgColor} 0% ${m.fear_greed}%,#1e1e28 ${m.fear_greed}% 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <div style="width:46px;height:46px;border-radius:50%;background:#1a1a20;display:flex;align-items:center;justify-content:center;">
-            <span style="font-size:15px;font-weight:700;color:${fgColor};">${m.fear_greed}</span>
-          </div>
+        <div style="position:relative;width:66px;height:66px;flex-shrink:0;">
+          <svg width="66" height="66" viewBox="0 0 66 66">
+            <circle cx="33" cy="33" r="28" fill="none" stroke="#1e1e28" stroke-width="5"/>
+            <circle cx="33" cy="33" r="28" fill="none" stroke="${fgColor}" stroke-width="5"
+              stroke-dasharray="${Math.round(2*3.14159*28*m.fear_greed/100)} ${Math.round(2*3.14159*28*(1-m.fear_greed/100))}"
+              stroke-dashoffset="${Math.round(2*3.14159*28*0.25)}"
+              stroke-linecap="round"/>
+            <text x="33" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="${fgColor}" font-family="system-ui">${m.fear_greed}</text>
+          </svg>
         </div>
         <div>
-          <p style="font-size:16px;font-weight:600;color:${fgColor};margin:0 0 4px;">${fgLabel}</p>
-          <p style="font-size:11px;color:#555;margin:0;">${currentLang==='ru'?'Индекс настроения рынка':currentLang==='uk'?'Індекс настрою ринку':'Market mood index'} 0–100</p>
+          <p style="font-size:18px;font-weight:700;color:${fgColor};margin:0 0 4px;">${fgLabel}</p>
+          <p style="font-size:11px;color:#555;margin:0;">${s.moodIdx} 0–100</p>
         </div>
       </div>
     </div>
 
     <!-- Top news -->
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${currentLang==='ru'?'ГЛАВНЫЕ НОВОСТИ':currentLang==='uk'?'ГОЛОВНІ НОВИНИ':'TOP GLOBAL NEWS'}</p>
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;animation:slideIn .5s ease both;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${s.news}</p>
       ${newsHTML}
     </div>
 
     <!-- Sectors -->
-    <div>
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 8px;">${currentLang==='ru'?'СЕКТОРЫ':currentLang==='uk'?'СЕКТОРИ':'SECTORS'}</p>
+    <div style="animation:slideIn .6s ease both;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 8px;">${s.sectors}</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         ${sectorsHTML}
       </div>
     </div>
 
+    ${(m.key_levels||[]).length > 0 ? `
+    <!-- Key Levels -->
+    <div style="animation:slideIn .65s ease both;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 8px;">${s.levels}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${levelsHTML}
+      </div>
+    </div>` : ''}
+
     <!-- Upcoming events -->
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;margin-bottom:24px;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${currentLang==='ru'?'ПРЕДСТОЯЩИЕ СОБЫТИЯ':currentLang==='uk'?'МАЙБУТНІ ПОДІЇ':'UPCOMING EVENTS'}</p>
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;animation:slideIn .7s ease both;margin-bottom:8px;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${s.upcoming}</p>
       ${upcomingHTML}
+    </div>
+
+    <!-- AI badge -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 0 8px;">
+      <span style="font-size:10px;color:#444;">🤖 Powered by Claude AI + Web Search</span>
     </div>
   `;
 }
