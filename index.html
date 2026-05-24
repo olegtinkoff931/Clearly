@@ -3048,76 +3048,17 @@ async function loadMarket(forceRefresh) {
     const lang = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English';
     const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
 
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(API_BASE + '/api/market', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        system: `You are a professional crypto market analyst providing REAL, CURRENT data. Today is ${today}.
-
-CRITICAL: Use web_search to find REAL current data before answering:
-1. Search "crypto market sentiment today ${today}" for current sentiment
-2. Search "fear greed index crypto today" for F&G index
-3. Search "crypto news today most important" for top news
-4. Search "bitcoin price today trend" for BTC trend
-5. Search "upcoming crypto events this week" for events
-
-After searching, return ONLY a valid JSON object (no markdown, no backticks):
-{
-  "sentiment": "bullish" | "bearish" | "neutral",
-  "sentiment_score": 0-100,
-  "btc_trend": "up" | "down" | "sideways",
-  "btc_price": "current BTC price as string e.g. $103,400",
-  "btc_change_24h": "+2.3% (always include + or -)",
-  "eth_price": "current ETH price",
-  "eth_change_24h": "+1.1%",
-  "summary": "2-3 sentence real market summary in ${lang} based on actual current data",
-  "fear_greed": 0-100,
-  "fear_greed_label": "real label from index e.g. Greed",
-  "market_cap": "total crypto market cap as string",
-  "dominance_btc": "BTC dominance % as string",
-  "top_news": [
-    {"title": "REAL news headline in ${lang}", "impact": "high"|"medium"|"low", "direction": "up"|"down"|"neutral", "source": "source name"},
-    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
-    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
-    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
-    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
-    {"title": "...", "impact": "...", "direction": "...", "source": "..."}
-  ],
-  "upcoming": [
-    {"event": "real upcoming event in ${lang}", "date": "specific date", "importance": "high"|"medium"},
-    {"event": "...", "date": "...", "importance": "..."},
-    {"event": "...", "date": "...", "importance": "..."}
-  ],
-  "sectors": [
-    {"name": "BTC", "status": "up"|"down"|"neutral", "note": "short note in ${lang} with real data"},
-    {"name": "ETH", "status": "up"|"down"|"neutral", "note": "..."},
-    {"name": "DeFi", "status": "up"|"down"|"neutral", "note": "..."},
-    {"name": "Altcoins", "status": "up"|"down"|"neutral", "note": "..."}
-  ],
-  "key_levels": [
-    {"coin": "BTC", "support": "price", "resistance": "price"},
-    {"coin": "ETH", "support": "price", "resistance": "price"}
-  ]
-}`,
-        messages: [{
-          role: 'user',
-          content: `Search for REAL current crypto market data as of ${today} and return JSON. Language: ${lang}.`
-        }]
-      })
+      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
+      body: JSON.stringify({ lang, today })
     });
 
     clearInterval(msgInterval);
 
-    const data = await resp.json();
-    // Handle multi-block response (web_search returns tool use blocks + text)
-    const textBlocks = (data.content || []).filter(b => b.type === 'text');
-    const raw = textBlocks.map(b => b.text).join('');
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    const clean = jsonMatch ? jsonMatch[0] : raw.replace(/```json|```/g, '').trim();
-    const m = JSON.parse(clean);
+    if (!resp.ok) throw new Error('Server error ' + resp.status);
+    const m = await resp.json();
+    if (m.error) throw new Error(m.error);
 
     _marketData = m;
     if (loadingEl) loadingEl.style.display = 'none';
