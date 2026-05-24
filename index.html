@@ -330,6 +330,33 @@
     .aisend:active { opacity:.8; }
     .aisend:disabled { opacity:.3; pointer-events:none; }
     .qbtn { font-size:11px; color:#a78bfa; background:#18182a; border:.5px solid #5b5bdc33; border-radius:8px; padding:5px 11px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+
+    /* ── Subscription Screen ── */
+    #vSubscription { position:fixed; inset:0; background:#0e0e10; z-index:500; display:flex; flex-direction:column; overflow-y:auto; }
+    .sub-header { padding:20px 20px 10px; text-align:center; }
+    .sub-lock-icon { font-size:40px; margin-bottom:12px; }
+    .sub-title { font-size:22px; font-weight:700; color:#e8e8f0; margin:0 0 6px; }
+    .sub-desc { font-size:13px; color:#666; line-height:1.5; margin:0; }
+    .sub-plans { padding:16px 14px; display:flex; flex-direction:column; gap:12px; }
+    .sub-plan { background:#1a1a20; border-radius:18px; padding:18px; border:1.5px solid #272730; position:relative; cursor:pointer; transition:border-color .2s; }
+    .sub-plan.active-plan { border-color:#6b6bff; background:#1a1a2e; }
+    .sub-plan.plan-pro { border-color:#6b6bff88; }
+    .sub-plan-badge { position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#6b6bff,#a78bfa); color:#fff; font-size:10px; font-weight:700; padding:3px 12px; border-radius:20px; white-space:nowrap; letter-spacing:.5px; }
+    .sub-plan-name { font-size:17px; font-weight:700; color:#e8e8f0; margin:0 0 2px; }
+    .sub-plan-desc { font-size:11px; color:#666; margin:0 0 12px; }
+    .sub-plan-price { font-size:32px; font-weight:800; color:#e8e8f0; margin:0 0 2px; line-height:1; }
+    .sub-plan-period { font-size:11px; color:#555; margin:0 0 14px; }
+    .sub-plan-crypto { font-size:10px; color:#444; margin:0 0 14px; }
+    .sub-plan-features { display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
+    .sub-plan-feature { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:#b0b0c8; line-height:1.4; }
+    .sub-plan-feature .fcheck { color:#6b6bff; font-size:13px; flex-shrink:0; margin-top:1px; }
+    .sub-plan-btn { width:100%; padding:13px; border:none; border-radius:13px; font-size:14px; font-weight:700; cursor:pointer; transition:opacity .15s; }
+    .sub-plan-btn.btn-outline { background:transparent; border:1.5px solid #2e2e38; color:#888; }
+    .sub-plan-btn.btn-outline:hover { border-color:#6b6bff55; color:#b0a8ff; }
+    .sub-plan-btn.btn-gradient { background:linear-gradient(135deg,#6b6bff,#a78bfa); color:#fff; }
+    .sub-plan-btn.btn-gradient:hover { opacity:.88; }
+    .sub-plan-btn.btn-active { background:#1e3a1e; border:.5px solid #3aaa6e55; color:#3aaa6e; cursor:default; }
+    .sub-footer { padding:12px 20px 40px; text-align:center; font-size:11px; color:#444; line-height:1.6; }
   </style>
 </head>
 <body>
@@ -340,6 +367,19 @@
     <div class="spin"></div>
     <div class="load-label" data-i18n="loading">Loading Clearly…</div>
   </div>
+
+  <!-- ═══ SUBSCRIPTION SCREEN ═══ -->
+  <div id="vSubscription" style="display:none;">
+    <div class="sub-header">
+      <div class="sub-lock-icon">🔐</div>
+      <p class="sub-title" id="subTitle">Выберите тариф</p>
+      <p class="sub-desc" id="subDesc">Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.</p>
+    </div>
+    <div class="sub-plans" id="subPlans"></div>
+    <div class="sub-footer">Оплата через Telegram Stars или крипту.<br>Управление тарифом — в разделе Профиль.</div>
+  </div>
+
+
 
   <!-- Splash -->
   <div class="view hidden" id="vSplash">
@@ -542,6 +582,7 @@
     <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
       <div style="padding:16px 16px 10px;border-bottom:.5px solid #222228;">
         <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="profMyProfile">👤 MY PROFILE</p>
+        <div id="profPlanInfo" style="margin-bottom:12px;"></div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
           <div id="profileAvatar" style="width:56px;height:56px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;position:relative;">
             <img id="profileAvatarImg" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:16px;position:absolute;inset:0;display:none;">
@@ -557,7 +598,7 @@
       <div style="padding:14px 16px 8px;">
         <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="profMyPlans">📦 MY PLANS</p>
         <div id="profilePacksList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
-        <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn" class="profile-buy-btn">
+        <button onclick="openChangePlan()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn" class="profile-buy-btn">
           <i class="ti ti-credit-card"></i> <span data-i18n="profChangePlan">Change plan</span> 💳
         </button>
       </div>
@@ -779,6 +820,63 @@
 const API_BASE = 'https://spender-crane-revise.ngrok-free.dev';
 // ⚠️ Вставьте ваш Anthropic API-ключ сюда (sk-ant-...)
 const GROQ_API_KEY = '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';
+// ══ SUBSCRIPTION PLANS ══
+const PLANS = {
+  basic: {
+    id: 'basic',
+    name: { ru:'Базовый', uk:'Базовий', en:'Basic' },
+    desc: { ru:'Для начинающих трейдеров', uk:'Для початківців', en:'For beginner traders' },
+    price: 12,
+    btc: '0.0003', ton: '4',
+    maxChannels: 10,
+    hasAI: false,
+    badge: null,
+    features: {
+      ru:['До 10 каналов','Мгновенные уведомления','Настройка приоритетов'],
+      uk:['До 10 каналів','Миттєві сповіщення','Налаштування пріоритетів'],
+      en:['Up to 10 channels','Instant notifications','Priority settings']
+    }
+  },
+  pro: {
+    id: 'pro',
+    name: { ru:'Про', uk:'Про', en:'Pro' },
+    desc: { ru:'Для активных трейдеров', uk:'Для активних трейдерів', en:'For active traders' },
+    price: 18,
+    btc: '0.0007', ton: '11',
+    maxChannels: 25,
+    hasAI: true,
+    badge: { ru:'⭐ ПОПУЛЯРНЫЙ', uk:'⭐ ПОПУЛЯРНИЙ', en:'⭐ POPULAR' },
+    features: {
+      ru:['До 25 каналов','Приоритетные алерты','Расширенные фильтры','Умный ассистент (AI чат)'],
+      uk:['До 25 каналів','Пріоритетні алерти','Розширені фільтри','Розумний асистент (AI чат)'],
+      en:['Up to 25 channels','Priority alerts','Advanced filters','Smart assistant (AI chat)']
+    }
+  },
+  max: {
+    id: 'max',
+    name: { ru:'Максимум', uk:'Максимум', en:'Maximum' },
+    desc: { ru:'Для профессионалов', uk:'Для професіоналів', en:'For professionals' },
+    price: 24,
+    btc: '0.0018', ton: '27',
+    maxChannels: Infinity,
+    hasAI: true,
+    badge: null,
+    features: {
+      ru:['Неограниченно каналов','Самая быстрая отправка уведомлений','Персональный куратор','Ежедневная сводка рынка','VIP-приоритет сигналов'],
+      uk:['Необмежена кількість каналів','Найшвидша відправка сповіщень','Персональний куратор','Щоденний огляд ринку','VIP-пріоритет сигналів'],
+      en:['Unlimited channels','Fastest notification delivery','Personal curator','Daily market digest','VIP signal priority']
+    }
+  }
+};
+
+// текущий тариф пользователя: null | 'basic' | 'pro' | 'max'
+let currentPlan = null;
+
+function getPlan() { return currentPlan ? PLANS[currentPlan] : null; }
+function getMaxChannels() { const p=getPlan(); return p ? p.maxChannels : 0; }
+function hasAI() { const p=getPlan(); return p ? p.hasAI : false; }
+function hasPlan() { return !!currentPlan; }
+
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.expand(); tg.ready(); }
@@ -1365,8 +1463,7 @@ async function init() {
 
   if(!userData || userData.error) {
     hideLoading();
-    renderChannelList();
-    showView('vMain');
+    showSubscriptionScreen();
     return;
   }
 
@@ -1398,10 +1495,17 @@ async function init() {
 
   hideLoading();
 
+  // Восстановить тариф
+  currentPlan = userData.subscription_plan || null;
+
   if(userData.quiz_done) {
     renderChannelList();
     renderProfileScreen();
-    showView('vMain');
+    if (!hasPlan()) {
+      showSubscriptionScreen();
+    } else {
+      showView('vMain');
+    }
   } else {
     showView('vSplash');
   }
@@ -1996,6 +2100,9 @@ const prioConfig={
 };
 
 function renderChannelList() {
+  // Показать/скрыть AI FAB в зависимости от тарифа
+  const fab = document.getElementById('aiFab');
+  if (fab) fab.style.display = hasAI() ? 'flex' : 'none';
   const list=document.getElementById('channelList');
   if(!list) return;
   list.innerHTML='';
@@ -2235,6 +2342,7 @@ const prioEmojis={high:'🔥',mid:'⚡',low:'🌱'};
 async function confirmAddChannel() {
   const raw=document.getElementById('chUsername').value.trim();
   if(!raw||!addChPrio) return;
+  if (!checkChannelLimit()) return;
   const username=raw.startsWith('@')?raw:'@'+raw;
   const source = addChPlatform || 'telegram';
 
@@ -2613,6 +2721,31 @@ function renderProfileScreen() {
   const activeEl=document.getElementById('profileActivePacks');
   if(activeEl) {
     activeEl.innerHTML='';
+    // Показать текущий тариф в профиле
+    const planInfoEl = document.getElementById('profPlanInfo');
+    if (planInfoEl) {
+      if (currentPlan && PLANS[currentPlan]) {
+        const pl = PLANS[currentPlan];
+        const L2 = currentLang;
+        planInfoEl.innerHTML = `
+          <div style="background:#1a1a2e;border:.5px solid #6b6bff44;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💎</div>
+            <div style="flex:1;">
+              <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${pl.name[L2]||pl.name.en}</p>
+              <p style="font-size:11px;color:#6b6bff;margin:0;">$${pl.price}/${L2==='ru'?'мес':L2==='uk'?'міс':'mo'} · ${L2==='ru'?'Активна':L2==='uk'?'Активна':'Active'}</p>
+            </div>
+            <button onclick="openChangePlan()" style="background:#1e1e30;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;">${L2==='ru'?'Сменить':L2==='uk'?'Змінити':'Change'}</button>
+          </div>`;
+      } else {
+        planInfoEl.innerHTML = `
+          <div style="background:#2a1010;border:.5px solid #e0525244;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:24px;">🔐</div>
+            <div style="flex:1;"><p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${currentLang==='ru'?'Нет подписки':currentLang==='uk'?'Немає підписки':'No subscription'}</p><p style="font-size:11px;color:#e05252;margin:0;">${currentLang==='ru'?'Оформите тариф':'Get a plan'}</p></div>
+            <button onclick="openChangePlan()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);border:none;color:#fff;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;">${currentLang==='ru'?'Выбрать':currentLang==='uk'?'Обрати':'Choose'}</button>
+          </div>`;
+      }
+    }
+
     if(purchasedPacks.length===0){
       activeEl.innerHTML=`<div style="background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;"><p style="font-size:12px;color:#555;margin:0;">${t('profNoPlans')}</p></div>`;
     } else {
@@ -2920,6 +3053,7 @@ function renderCatalog() {
 
 async function addFromCatalog(username, prio, emoji, source) {
   source = source || 'telegram';
+  if (!checkChannelLimit()) return;
   let channelId = null;
   if (currentUserId) {
     const resp = await apiFetch('/api/channel', 'POST', {
@@ -3505,6 +3639,7 @@ const _quickHints = {
 })();
 
 function toggleAiChat() {
+  if (!hasAI()) { if (!checkAIAccess()) return; }
   const panel = document.getElementById('aiPanel');
   const fab   = document.getElementById('aiFab');
   const isOpen = panel.classList.toggle('open');
@@ -3559,6 +3694,7 @@ function _showTyping() {
 
 async function aiSend() {
   if(_aiTyping) return;
+  if (!checkAIAccess()) return;
   const inp = document.getElementById('aiInput');
   const text = (inp.value || '').trim();
   if(!text) return;
@@ -3639,6 +3775,154 @@ async function toggleFeedTranslate(btn) {
     btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : '🌐 Translate';
   }
 }
+
+// ══════════════════════════════════════════════════════
+//  SUBSCRIPTION SYSTEM
+// ══════════════════════════════════════════════════════
+
+function showSubscriptionScreen(highlightPlan) {
+  document.getElementById('vSubscription').style.display = 'flex';
+  renderSubscriptionPlans(highlightPlan || null);
+  // Скрыть все остальные экраны
+  ['vMain','vSplash','vWelcome','vQuiz','vPacks','vDone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity='0'; el.style.pointerEvents='none'; }
+  });
+}
+
+function hideSubscriptionScreen() {
+  document.getElementById('vSubscription').style.display = 'none';
+}
+
+function renderSubscriptionPlans(highlightId) {
+  const L = currentLang;
+  const container = document.getElementById('subPlans');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Локализация заголовка
+  const titles = { ru:'Выберите тариф', uk:'Оберіть тариф', en:'Choose your plan' };
+  const descs  = {
+    ru:'Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.',
+    uk:'Без підписки доступ до бота закрито.<br>Оберіть план який вам підходить.',
+    en:'Bot access requires a subscription.<br>Choose the plan that suits you.'
+  };
+  const el = document.getElementById('subTitle'); if(el) el.textContent = titles[L]||titles.en;
+  const el2 = document.getElementById('subDesc'); if(el2) el2.innerHTML = descs[L]||descs.en;
+
+  const btnLabels = {
+    ru: { current:'✓ Текущий тариф', choose:'Выбрать', choosePro:'Выбрать Про →', chooseMax:'Выбрать Максимум →', chooseBasic:'Начать →' },
+    uk: { current:'✓ Поточний тариф', choose:'Обрати', choosePro:'Обрати Про →', chooseMax:'Обрати Максимум →', chooseBasic:'Почати →' },
+    en: { current:'✓ Current plan', choose:'Choose', choosePro:'Choose Pro →', chooseMax:'Choose Maximum →', chooseBasic:'Start →' }
+  };
+  const lbl = btnLabels[L] || btnLabels.en;
+
+  ['basic','pro','max'].forEach(planId => {
+    const plan = PLANS[planId];
+    const isActive = currentPlan === planId;
+    const isHighlight = highlightId === planId || planId === 'pro';
+
+    const card = document.createElement('div');
+    card.className = 'sub-plan' + (isActive ? ' active-plan' : '') + (planId === 'pro' ? ' plan-pro' : '');
+
+    const badgeHTML = plan.badge ? `<div class="sub-plan-badge">${plan.badge[L]||plan.badge.en}</div>` : '';
+    const features = (plan.features[L]||plan.features.en).map(f =>
+      `<div class="sub-plan-feature"><span class="fcheck">✓</span><span>${f}</span></div>`
+    ).join('');
+
+    let btnClass, btnText, btnOnclick;
+    if (isActive) {
+      btnClass = 'btn-active'; btnText = lbl.current; btnOnclick = '';
+    } else if (planId === 'pro') {
+      btnClass = 'btn-gradient'; btnText = lbl.choosePro; btnOnclick = `onclick="selectPlan('pro')"`;
+    } else if (planId === 'max') {
+      btnClass = 'btn-gradient'; btnText = lbl.chooseMax; btnOnclick = `onclick="selectPlan('max')"`;
+    } else {
+      btnClass = 'btn-outline'; btnText = lbl.chooseBasic; btnOnclick = `onclick="selectPlan('basic')"`;
+    }
+
+    card.innerHTML = `
+      ${badgeHTML}
+      <p class="sub-plan-name">${plan.name[L]||plan.name.en}</p>
+      <p class="sub-plan-desc">${plan.desc[L]||plan.desc.en}</p>
+      <p class="sub-plan-price">$${plan.price}</p>
+      <p class="sub-plan-period">/ ${L==='ru'?'мес':L==='uk'?'міс':'mo'}</p>
+      <p class="sub-plan-crypto">≈ ${plan.btc} BTC · ${plan.ton} TON</p>
+      <div class="sub-plan-features">${features}</div>
+      <button class="sub-plan-btn ${btnClass}" ${btnOnclick}>${btnText}</button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+async function selectPlan(planId) {
+  const plan = PLANS[planId];
+  if (!plan) return;
+
+  // Имитация оплаты — в реальном приложении тут Telegram Payment / Stars
+  // Сразу активируем план (в продакшене — только после подтверждения оплаты с бэкенда)
+  currentPlan = planId;
+
+  if (currentUserId) {
+    await apiFetch('/api/subscription', 'POST', {
+      user_id: currentUserId,
+      plan: planId
+    });
+  }
+
+  const successMsgs = {
+    ru: `✅ Тариф «${plan.name.ru}» активирован!`,
+    uk: `✅ Тариф «${plan.name.uk}» активовано!`,
+    en: `✅ Plan «${plan.name.en}» activated!`
+  };
+
+  hideSubscriptionScreen();
+  renderChannelList();
+  renderProfileScreen();
+  showView('vMain');
+  setTimeout(() => showMainToast(successMsgs[currentLang]||successMsgs.en), 400);
+}
+
+// Проверка лимита каналов перед добавлением
+function checkChannelLimit() {
+  const max = getMaxChannels();
+  if (channels.length >= max) {
+    const msgs = {
+      ru: { basic:`Лимит ${max} каналов на тарифе Базовый. Перейдите на Про для 25 каналов.`, pro:`Лимит ${max} каналов на тарифе Про. Перейдите на Максимум.`, max:'Неограниченно каналов.' },
+      uk: { basic:`Ліміт ${max} каналів на тарифі Базовий. Перейдіть на Про.`, pro:`Ліміт ${max} каналів на тарифі Про. Перейдіть на Максимум.`, max:'Необмежено каналів.' },
+      en: { basic:`Limit of ${max} channels on Basic plan. Upgrade to Pro for 25 channels.`, pro:`Limit of ${max} channels on Pro plan. Upgrade to Maximum.`, max:'Unlimited channels.' }
+    };
+    const L = currentLang;
+    showMainToast((msgs[L]||msgs.en)[currentPlan]||'Upgrade your plan');
+    // Показать экран подписки с нужным апгрейдом
+    const upgrade = currentPlan === 'basic' ? 'pro' : 'max';
+    setTimeout(() => showSubscriptionScreen(upgrade), 1200);
+    return false;
+  }
+  return true;
+}
+
+// Блокировка AI чата для базового тарифа
+function checkAIAccess() {
+  if (!hasAI()) {
+    const msgs = {
+      ru:'🤖 AI ассистент доступен только на тарифах Про и Максимум.',
+      uk:'🤖 AI асистент доступний лише на тарифах Про та Максимум.',
+      en:'🤖 AI assistant is available on Pro and Maximum plans only.'
+    };
+    showMainToast(msgs[currentLang]||msgs.en);
+    setTimeout(() => showSubscriptionScreen('pro'), 1200);
+    return false;
+  }
+  return true;
+}
+
+// Открыть экран смены тарифа из профиля
+function openChangePlan() {
+  closeProfileScreen();
+  showSubscriptionScreen();
+}
+
 
 applyI18n();
 init();
