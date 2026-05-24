@@ -364,7 +364,7 @@
       <p class="sub-desc" id="subDesc">Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.</p>
     </div>
     <div class="sub-plans" id="subPlans"></div>
-    <div class="sub-footer">Оплата через Крипто Валюту или крипту.<br>Управление тарифом — в разделе Профиль.</div>
+    <div class="sub-footer">Оплата через Telegram Stars или крипту.<br>Управление тарифом — в разделе Профиль.</div>
   </div>
 
 
@@ -873,7 +873,7 @@ const i18n = {
     feedTitle:'🔔 Alerts',
     packsRecommendSub:'Based on your answers. You can also add a second pack for a fuller feed.',
     bestMatch:'Best match',
-    accessLabel:'Access',
+    accessLabel:'Access', oneTime:'one-time',
     packAdd:'Add', packRemove:'Remove',
     cryptoPayBadge:'💳 Crypto Payment',
     completePayment:'Complete payment',
@@ -975,7 +975,7 @@ const i18n = {
     skip:'Пропустити →',
     packsRecommendSub:'На основі ваших відповідей. Можна додати другий пакет для повнішої стрічки.',
     bestMatch:'Найкращий вибір',
-    accessLabel:'Доступ',
+    accessLabel:'Доступ', oneTime:'разово',
     packAdd:'Додати', packRemove:'Прибрати',
     cryptoPayBadge:'💳 Оплата криптовалютою',
     completePayment:'Оформити оплату',
@@ -1078,7 +1078,7 @@ const i18n = {
     skip:'Пропустить →',
     packsRecommendSub:'На основе ваших ответов. Можно добавить второй пакет для более полной ленты.',
     bestMatch:'Лучший выбор',
-    accessLabel:'Доступ',
+    accessLabel:'Доступ', oneTime:'разово',
     packAdd:'Добавить', packRemove:'Убрать',
     cryptoPayBadge:'💳 Оплата криптовалютой',
     completePayment:'Оформить оплату',
@@ -1426,6 +1426,8 @@ async function init() {
       }
       const nav = document.getElementById('mainBottomNav');
       if (nav) { nav.style.display = ''; nav.style.opacity = '1'; }
+      const fab = document.getElementById('aiFab');
+      if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
     }
   } else {
     showView('vSplash');
@@ -1443,8 +1445,6 @@ function hideLoading() {
   if(!l) return;
   l.style.display = 'none';
   l.style.pointerEvents = 'none';
-  const fab = document.getElementById('aiFab');
-  if(fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
 }
 
 function showView(id) {
@@ -1666,6 +1666,7 @@ function buildPackCard(pack,scores,bestId) {
         <div style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:5px 10px;display:inline-flex;align-items:center;gap:6px;">
           <span style="font-size:11px;color:#555;">${t('accessLabel')}</span>
           <span style="font-size:13px;font-weight:600;color:#e8e8f0;">$${pack.price.toFixed(2)}</span>
+          <span style="font-size:9px;color:#6b6bff;background:#1a1a30;border:.5px solid #6b6bff44;border-radius:5px;padding:1px 5px;">${t('oneTime')}</span>
         </div>
         <button onclick="togglePack('${pack.id}')" id="packBtn_${pack.id}"
           style="background:${isSelected?'#1c1c22':'linear-gradient(135deg,#6b6bff,#a78bfa)'};color:${isSelected?'#aaa':'#fff'};border:${isSelected?'.5px solid #2e2e38':'none'};border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;">
@@ -1971,6 +1972,8 @@ async function goToMain() {
   goTo('vDone','vMain');
   renderChannelList();
   renderProfileScreen();
+  const fab = document.getElementById('aiFab');
+  if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
 }
 
 let channels=[];
@@ -2632,7 +2635,7 @@ function renderProfileScreen() {
           <span style="background:#1a3a1a;border:.5px solid #3aaa6e44;color:#3aaa6e;border-radius:8px;padding:2px 8px;font-size:10px;">${t('profActiveLabel')}</span>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${chips}</div>
-        <p style="font-size:11px;color:#555;margin:0;">$${total} USDT / month</p>
+        <p style="font-size:11px;color:#555;margin:0;">$${total} USDT · единоразово</p>
       </div>`;
     }
   }
@@ -2646,7 +2649,7 @@ function renderProfileScreen() {
       row.id='profPack_'+pack.id;
       const th2=getTheme();
       row.style.cssText=`background:#1a1a20;border:.5px solid ${has?th2.accent+'55':'#272730'};border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;`;
-      row.innerHTML=`<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">${pack.emoji}</span><div><p style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0 0 2px;">${pack.title}</p><p style="font-size:11px;color:#555;margin:0;">${pack.subtitle} · $${pack.price.toFixed(2)}/mo</p></div></div>
+      row.innerHTML=`<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">${pack.emoji}</span><div><p style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0 0 2px;">${pack.title}</p><p style="font-size:11px;color:#555;margin:0;">${pack.subtitle} · $${pack.price.toFixed(2)}</p></div></div>
       <button onclick="toggleProfilePack('${pack.id}')" id="profPackBtn_${pack.id}" style="background:${has?'#1c3a1c':th2.gradient};color:${has?'#3aaa6e':'#fff'};border:${has?'.5px solid #3aaa6e55':'none'};border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${has?t('profActivBtn'):t('profAddBtn')}</button>`;
       listEl.appendChild(row);
     });
@@ -3731,6 +3734,9 @@ async function selectPlan(planId) {
 
   const nav = document.getElementById('mainBottomNav');
   if (nav) { nav.style.display = ''; nav.style.opacity = '1'; nav.style.pointerEvents = 'auto'; }
+
+  const fab = document.getElementById('aiFab');
+  if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
 
   renderChannelList();
   renderProfileScreen();
