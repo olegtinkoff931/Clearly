@@ -332,7 +332,7 @@
     .qbtn { font-size:11px; color:#a78bfa; background:#18182a; border:.5px solid #5b5bdc33; border-radius:8px; padding:5px 11px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
 
     /* ── Subscription Screen ── */
-    #vSubscription { position:fixed; inset:0; background:#0e0e10; z-index:500; display:flex; flex-direction:column; overflow-y:auto; }
+    #vSubscription { position:fixed; inset:0; background:#0e0e10; z-index:9990; display:flex; flex-direction:column; overflow-y:auto; }
     .sub-header { padding:20px 20px 10px; text-align:center; }
     .sub-lock-icon { font-size:40px; margin-bottom:12px; }
     .sub-title { font-size:22px; font-weight:700; color:#e8e8f0; margin:0 0 6px; }
@@ -1463,7 +1463,10 @@ async function init() {
 
   if(!userData || userData.error) {
     hideLoading();
-    showSubscriptionScreen();
+    // Показать основной экран — данные недоступны, пусть работает офлайн
+    const vm = document.getElementById('vMain');
+    if (vm) { vm.classList.remove('out-left','out-right','hidden'); vm.style.opacity='1'; vm.style.pointerEvents='auto'; vm.style.display='flex'; }
+    renderChannelList();
     return;
   }
 
@@ -1504,7 +1507,13 @@ async function init() {
     if (!hasPlan()) {
       showSubscriptionScreen();
     } else {
-      showView('vMain');
+      const vm = document.getElementById('vMain');
+      if (vm) {
+        vm.className = 'view';
+        vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
+      }
+      const nav = document.getElementById('mainBottomNav');
+      if (nav) { nav.style.display = ''; nav.style.opacity = '1'; }
     }
   } else {
     showView('vSplash');
@@ -3783,11 +3792,6 @@ async function toggleFeedTranslate(btn) {
 function showSubscriptionScreen(highlightPlan) {
   document.getElementById('vSubscription').style.display = 'flex';
   renderSubscriptionPlans(highlightPlan || null);
-  // Скрыть все остальные экраны
-  ['vMain','vSplash','vWelcome','vQuiz','vPacks','vDone'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.style.opacity='0'; el.style.pointerEvents='none'; }
-  });
 }
 
 function hideSubscriptionScreen() {
@@ -3877,9 +3881,24 @@ async function selectPlan(planId) {
   };
 
   hideSubscriptionScreen();
+
+  // Скрыть loading если вдруг ещё висит
+  const loadEl = document.getElementById('vLoading');
+  if (loadEl) { loadEl.style.display = 'none'; loadEl.style.opacity = '0'; }
+
+  // Полный сброс vMain
+  const vm = document.getElementById('vMain');
+  if (vm) {
+    vm.className = 'view';  // убрать out-right/out-left/hidden
+    vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
+  }
+
+  // Показать навбар
+  const nav = document.getElementById('mainBottomNav');
+  if (nav) { nav.style.display = ''; nav.style.opacity = '1'; nav.style.pointerEvents = 'auto'; }
+
   renderChannelList();
   renderProfileScreen();
-  showView('vMain');
   setTimeout(() => showMainToast(successMsgs[currentLang]||successMsgs.en), 400);
 }
 
