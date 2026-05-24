@@ -1898,7 +1898,7 @@ async function pollPaymentStatus() {
     return;
   }
 
-  // ── CryptoBot: проверяем через /api/payment/check + /api/user ──
+  // ── CryptoBot: проверяем через /api/payment/check ──────────────
   if(currentPaymentId) {
     const total=(selectedPacks.length*0.80).toFixed(2);
     const checkResp=await apiFetch('/api/payment/check','POST',{
@@ -1910,16 +1910,7 @@ async function pollPaymentStatus() {
     if(checkResp && checkResp.confirmed) {
       const user=await apiFetch(`/api/user/${currentUserId}`);
       paymentConfirmed(user ? (user.active_packs||selectedPacks) : selectedPacks);
-      return;
     }
-  }
-  // Fallback: check via user's active_packs
-  const resp=await apiFetch(`/api/user/${currentUserId}`);
-  if(!resp) return;
-  const packs=resp.active_packs||[];
-  const hasAllSelected=selectedPacks.every(p=>packs.includes(p));
-  if(hasAllSelected && packs.length>0) {
-    paymentConfirmed(packs);
   }
 }
 
@@ -2728,11 +2719,10 @@ function closeSettingsScreen() { document.getElementById('vSettings').classList.
 
 async function setLang(lang) {
   currentLang=lang;
-  // Update active class on pills
   document.getElementById('pill-en').classList.toggle('active',lang==='en');
   document.getElementById('pill-ru').classList.toggle('active',lang==='ru');
   document.getElementById('pill-uk').classList.toggle('active',lang==='uk');
-  // Fix highlight: clear inline styles from ALL pills first, then re-apply theme
+  // Fix highlight: clear inline styles from ALL pills, then re-apply theme to active one
   document.querySelectorAll('.lang-pill').forEach(pill=>{
     pill.style.borderColor='';
     pill.style.background='';
@@ -2741,40 +2731,31 @@ async function setLang(lang) {
     if(nm) nm.style.color='';
     if(tg2) tg2.style.color='';
   });
-  applyTheme(currentTheme); // re-paints only the now-active pill
+  applyTheme(currentTheme);
   applyI18n();
   renderChannelList();
   syncNotifScreen();
-  // Re-render profile if open
   if(document.getElementById('vProfile').style.transform==='translateX(0px)' ||
      document.getElementById('vProfile').style.transform==='translateX(0)') renderProfileScreen();
-  // Re-render catalog if open
   if(document.getElementById('addChannelModal').classList.contains('open')) { renderCatalog(); }
-  // Re-apply all data-i18n elements (including market error texts)
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key=el.getAttribute('data-i18n');
     const tr=t(key);
     if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder=tr;
     else if(tr!==key) el.innerHTML=tr;
   });
-  // Reset market so it reloads in new language
+  // Reset market — reload in new language
   _marketLoaded = false;
   _marketData = null;
-  if(document.getElementById('marketContent')) {
-    document.getElementById('marketContent').style.display='none';
-    document.getElementById('marketContent').innerHTML='';
-  }
-  if(document.getElementById('marketError')) document.getElementById('marketError').style.display='none';
-  // If market tab is currently visible — reload immediately
-  const vMarket = document.getElementById('vMarket');
-  if(vMarket && vMarket.style.display === 'flex') {
-    loadMarket(true);
-  }
+  const mc=document.getElementById('marketContent');
+  if(mc){mc.style.display='none';mc.innerHTML='';}
+  const me=document.getElementById('marketError');
+  if(me) me.style.display='none';
+  const vMarket=document.getElementById('vMarket');
+  if(vMarket && vMarket.style.display==='flex') loadMarket(true);
   showToast('settingsToast',t('langChanged'));
-  // Save to backend
   if(currentUserId) {
     await apiFetch('/api/lang','POST',{user_id:currentUserId,lang});
-    // Also send to bot
     if(tg?.sendData){
       try{tg.sendData(JSON.stringify({type:'lang_change',user_id:currentUserId,lang}));}catch(e){}
     }
@@ -3068,17 +3049,76 @@ async function loadMarket(forceRefresh) {
     const lang = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English';
     const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
 
-    const resp = await fetch(API_BASE + '/api/market', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
-      body: JSON.stringify({ lang, today })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `You are a professional crypto market analyst providing REAL, CURRENT data. Today is ${today}.
+
+CRITICAL: Use web_search to find REAL current data before answering:
+1. Search "crypto market sentiment today ${today}" for current sentiment
+2. Search "fear greed index crypto today" for F&G index
+3. Search "crypto news today most important" for top news
+4. Search "bitcoin price today trend" for BTC trend
+5. Search "upcoming crypto events this week" for events
+
+After searching, return ONLY a valid JSON object (no markdown, no backticks):
+{
+  "sentiment": "bullish" | "bearish" | "neutral",
+  "sentiment_score": 0-100,
+  "btc_trend": "up" | "down" | "sideways",
+  "btc_price": "current BTC price as string e.g. $103,400",
+  "btc_change_24h": "+2.3% (always include + or -)",
+  "eth_price": "current ETH price",
+  "eth_change_24h": "+1.1%",
+  "summary": "2-3 sentence real market summary in ${lang} based on actual current data",
+  "fear_greed": 0-100,
+  "fear_greed_label": "real label from index e.g. Greed",
+  "market_cap": "total crypto market cap as string",
+  "dominance_btc": "BTC dominance % as string",
+  "top_news": [
+    {"title": "REAL news headline in ${lang}", "impact": "high"|"medium"|"low", "direction": "up"|"down"|"neutral", "source": "source name"},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."},
+    {"title": "...", "impact": "...", "direction": "...", "source": "..."}
+  ],
+  "upcoming": [
+    {"event": "real upcoming event in ${lang}", "date": "specific date", "importance": "high"|"medium"},
+    {"event": "...", "date": "...", "importance": "..."},
+    {"event": "...", "date": "...", "importance": "..."}
+  ],
+  "sectors": [
+    {"name": "BTC", "status": "up"|"down"|"neutral", "note": "short note in ${lang} with real data"},
+    {"name": "ETH", "status": "up"|"down"|"neutral", "note": "..."},
+    {"name": "DeFi", "status": "up"|"down"|"neutral", "note": "..."},
+    {"name": "Altcoins", "status": "up"|"down"|"neutral", "note": "..."}
+  ],
+  "key_levels": [
+    {"coin": "BTC", "support": "price", "resistance": "price"},
+    {"coin": "ETH", "support": "price", "resistance": "price"}
+  ]
+}`,
+        messages: [{
+          role: 'user',
+          content: `Search for REAL current crypto market data as of ${today} and return JSON. Language: ${lang}.`
+        }]
+      })
     });
 
     clearInterval(msgInterval);
 
-    if (!resp.ok) throw new Error('Server error ' + resp.status);
-    const m = await resp.json();
-    if (m.error) throw new Error(m.error);
+    const data = await resp.json();
+    // Handle multi-block response (web_search returns tool use blocks + text)
+    const textBlocks = (data.content || []).filter(b => b.type === 'text');
+    const raw = textBlocks.map(b => b.text).join('');
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const clean = jsonMatch ? jsonMatch[0] : raw.replace(/```json|```/g, '').trim();
+    const m = JSON.parse(clean);
 
     _marketData = m;
     if (loadingEl) loadingEl.style.display = 'none';
