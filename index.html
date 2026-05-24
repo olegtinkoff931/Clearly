@@ -2521,7 +2521,7 @@ async function loadFeed() {
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
       <p class="feed-text" id="feedtext_${msg.id}">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
-      ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" data-msgid="${msg.id}" onclick="toggleFeedTranslate(this)">🌐 ${currentLang==='ru'?'Перевести':'Translate'}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
+      ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" data-msgid="${msg.id}" onclick="toggleFeedTranslate(this)">🌐 ${currentLang==='ru'?'Перевести':currentLang==='uk'?'Перекласти':'Translate'}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
       ${twitterLink}
       <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
         ${hasServerAI
@@ -2728,9 +2728,20 @@ function closeSettingsScreen() { document.getElementById('vSettings').classList.
 
 async function setLang(lang) {
   currentLang=lang;
+  // Update active class on pills
   document.getElementById('pill-en').classList.toggle('active',lang==='en');
   document.getElementById('pill-ru').classList.toggle('active',lang==='ru');
   document.getElementById('pill-uk').classList.toggle('active',lang==='uk');
+  // Fix highlight: clear inline styles from ALL pills first, then re-apply theme
+  document.querySelectorAll('.lang-pill').forEach(pill=>{
+    pill.style.borderColor='';
+    pill.style.background='';
+    const nm=pill.querySelector('.lang-pill-name');
+    const tg2=pill.querySelector('.lang-pill-tag');
+    if(nm) nm.style.color='';
+    if(tg2) tg2.style.color='';
+  });
+  applyTheme(currentTheme); // re-paints only the now-active pill
   applyI18n();
   renderChannelList();
   syncNotifScreen();
@@ -2746,9 +2757,18 @@ async function setLang(lang) {
     if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder=tr;
     else if(tr!==key) el.innerHTML=tr;
   });
-  // Re-render market with new language if data is cached
-  if(_marketData) {
-    _renderMarket(_marketData, getTheme());
+  // Reset market so it reloads in new language
+  _marketLoaded = false;
+  _marketData = null;
+  if(document.getElementById('marketContent')) {
+    document.getElementById('marketContent').style.display='none';
+    document.getElementById('marketContent').innerHTML='';
+  }
+  if(document.getElementById('marketError')) document.getElementById('marketError').style.display='none';
+  // If market tab is currently visible — reload immediately
+  const vMarket = document.getElementById('vMarket');
+  if(vMarket && vMarket.style.display === 'flex') {
+    loadMarket(true);
   }
   showToast('settingsToast',t('langChanged'));
   // Save to backend
