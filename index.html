@@ -2729,7 +2729,13 @@ function toggleAll(globalCb) {
     cb.checked=globalCb.checked;
     const row=document.getElementById('row'+i);
     if(row) row.classList.toggle('muted',!globalCb.checked);
-    if(channels[i]) channels[i].notifOn=globalCb.checked;
+    if(channels[i]) {
+      channels[i].notifOn=globalCb.checked;
+      // Save each channel state to server
+      if(channels[i].id && currentUserId) {
+        apiFetch('/api/notif','POST',{user_id:currentUserId,channel_id:channels[i].id,notif_on:globalCb.checked});
+      }
+    }
   });
   updateCount();
 }
@@ -3121,19 +3127,15 @@ REAL NEWS HEADLINES (translate/summarize for the user, assign impact and directi
 ${newsItems.map((n,i) => `${i+1}. "${n.title}" — ${n.source}`).join('\n') || 'No news available'}
 `;
 
-    const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + GROQ_API_KEY
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 2000,
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: `You are a professional crypto market analyst. You will receive REAL live market data and news headlines. Use the exact prices and numbers provided. Return ONLY a valid JSON object with no markdown or extra text.` },
-          { role: 'user', content: `${realDataContext}
+    // Retry Groq up to 3 times (handles 429 rate limit)
+    let groqResp = null;
+    const groqBody = JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      max_tokens: 2000,
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: `You are a professional crypto market analyst. You will receive REAL live market data and news headlines. Use the exact prices and numbers provided. Return ONLY a valid JSON object with no markdown or extra text.` },
+        { role: 'user', content: `${realDataContext}
 
 Based on the real data above, return ONLY this JSON (fill all fields, translate text to ${lang}):
 {
@@ -3168,17 +3170,36 @@ Based on the real data above, return ONLY this JSON (fill all fields, translate 
     {"coin": "ETH", "support": "realistic support level", "resistance": "realistic resistance level"}
   ]
 }` }
-        ]
-      })
+      ]
     });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 4000)); // 4s, 8s backoff
+      groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_API_KEY },
+        body: groqBody
+      });
+      if (groqResp.ok) break; // success
+      if (groqResp.status !== 429) break; // non-retryable error
+    }
 
     clearInterval(msgInterval);
 
+    if (!groqResp.ok) {
+      const errBody = await groqResp.text();
+      throw new Error('Groq API error ' + groqResp.status + ': ' + errBody.slice(0,200));
+    }
     const groqData = await groqResp.json();
+    if (groqData.error) throw new Error('Groq error: ' + (groqData.error.message || JSON.stringify(groqData.error)));
     const raw = groqData.choices?.[0]?.message?.content || '{}';
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     const clean = jsonMatch ? jsonMatch[0] : raw.replace(/```json|```/g, '').trim();
-    const m = JSON.parse(clean);
+    let m;
+    try { m = JSON.parse(clean); } catch(pe) { throw new Error('JSON parse failed: ' + clean.slice(0,100)); }
+    // Ensure required fields have defaults to avoid "undefined" display
+    if (!m.sentiment || m.sentiment === 'undefined') m.sentiment = btcTrend === 'up' ? 'bullish' : btcTrend === 'down' ? 'bearish' : 'neutral';
+    if (!m.sentiment_score) m.sentiment_score = fearGreed != null ? fearGreed : 50;
+    if (!m.summary) m.summary = '';
 
     if (btcPrice)  m.btc_price      = btcPrice;
     if (btcChange) m.btc_change_24h = btcChange;
@@ -3608,27 +3629,36 @@ async function toggleFeedTranslate(btn) {
   }
   btn.classList.add('loading');
   btn.innerHTML = '⏳';
-  try {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 20000);
-    const resp = await fetch(API_BASE + '/api/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
-      signal: controller.signal,
-      body: JSON.stringify({ text: origText, target: tgt })
-    });
-    clearTimeout(tid);
-    const r = resp.ok ? await resp.json() : null;
-    const translated = r?.translated || origText;
-    _txc[key] = translated;
-    textEl.textContent = translated;
-    btn.dataset.translated = '1';
-    btn.classList.remove('loading');
-    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
-    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
-  } catch(e) {
+  let translateOk = false;
+  for (let attempt = 0; attempt < 3 && !translateOk; attempt++) {
+    try {
+      if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 2000));
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 45000);
+      const resp = await fetch(API_BASE + '/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
+        signal: controller.signal,
+        body: JSON.stringify({ text: origText, target: tgt })
+      });
+      clearTimeout(tid);
+      if (!resp.ok) continue;
+      const r = await resp.json();
+      if (!r?.translated) continue;
+      _txc[key] = r.translated;
+      textEl.textContent = r.translated;
+      btn.dataset.translated = '1';
+      btn.classList.remove('loading');
+      btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
+      if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
+      translateOk = true;
+    } catch(e) { /* retry */ }
+  }
+  if (!translateOk) {
     btn.classList.remove('loading');
     btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : '🌐 Translate';
+    const errHint = currentLang === 'ru' ? '⚠️ Не удалось перевести' : currentLang === 'uk' ? '⚠️ Не вдалося перекласти' : '⚠️ Translation failed';
+    if(badge) { badge.textContent = errHint; badge.style.display='block'; setTimeout(()=>{ badge.style.display='none'; }, 3000); }
   }
 }
 
