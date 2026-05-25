@@ -2329,18 +2329,8 @@ function formatMsgTime(ts) {
 async function analyzeImpact(msgId, text) {
   if(_impactCache[msgId]) return _impactCache[msgId];
   try {
-    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + GROQ_API_KEY
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 100,
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: `You are a crypto market analyst. Analyze the given message and return ONLY a JSON object with two fields:
+    const msgs = [
+      { role: 'system', content: `You are a crypto market analyst. Analyze the given message and return ONLY a JSON object with two fields:
 - "score": integer 0-100 representing market impact probability (0=no impact, 100=extreme impact)
 - "reason": 3-5 word explanation in Russian
 
@@ -2352,12 +2342,10 @@ Scoring guide:
 81-100: critical event, near-certain significant market move
 
 Return ONLY valid JSON, nothing else.` },
-          { role: 'user', content: `Analyze this crypto message: "${text}"` }
-        ]
-      })
-    });
-    const data = await resp.json();
-    const raw = data.choices?.[0]?.message?.content || '{}';
+      { role: 'user', content: `Analyze this crypto message: "${text}"` }
+    ];
+    // Use fast 8b model for impact analysis — fast & cheap, good enough for scoring
+    const raw = await groqCallFE(msgs, GROQ_CHAT_MODELS_FE, 100, 0.1, { type: 'json_object' });
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     const result = { score: Math.max(0, Math.min(100, parseInt(parsed.score) || 0)), reason: parsed.reason || '' };
@@ -2729,13 +2717,7 @@ function toggleAll(globalCb) {
     cb.checked=globalCb.checked;
     const row=document.getElementById('row'+i);
     if(row) row.classList.toggle('muted',!globalCb.checked);
-    if(channels[i]) {
-      channels[i].notifOn=globalCb.checked;
-      // Save each channel state to server
-      if(channels[i].id && currentUserId) {
-        apiFetch('/api/notif','POST',{user_id:currentUserId,channel_id:channels[i].id,notif_on:globalCb.checked});
-      }
-    }
+    if(channels[i]) channels[i].notifOn=globalCb.checked;
   });
   updateCount();
 }
@@ -3032,6 +3014,60 @@ let _marketLoaded = false;
 let _marketLoading = false;
 let _marketData = null;
 
+// ── Groq model waterfall for frontend calls ───────────────────────
+const GROQ_CHAT_MODELS_FE = [
+  'llama-3.1-8b-instant',
+  'gemma2-9b-it',
+  'llama3-8b-8192',
+  'llama-3.3-70b-versatile',
+];
+const GROQ_ANALYSIS_MODELS_FE = [
+  'llama-3.3-70b-versatile',
+  'llama-3.1-8b-instant',
+  'gemma2-9b-it',
+  'llama3-8b-8192',
+];
+
+async function groqCallFE(messages, modelList, maxTokens=500, temperature=0.7, responseFormat=null) {
+  if (!modelList) modelList = GROQ_CHAT_MODELS_FE;
+  let lastErr = null;
+  for (const model of modelList) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const body = { model, max_tokens: maxTokens, temperature, messages };
+        if (responseFormat) body.response_format = responseFormat;
+        const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_API_KEY },
+          body: JSON.stringify(body)
+        });
+        if (resp.status === 429) {
+          console.warn('groqCallFE: 429 on', model, '— trying next model');
+          lastErr = new Error('429 rate limit on ' + model);
+          break; // skip to next model immediately
+        }
+        if (!resp.ok) {
+          const txt = await resp.text();
+          lastErr = new Error('HTTP ' + resp.status + ': ' + txt.slice(0, 100));
+          if (attempt === 0) { await new Promise(r => setTimeout(r, 2000)); continue; }
+          break;
+        }
+        const data = await resp.json();
+        if (data.error) throw new Error(JSON.stringify(data.error));
+        const text = data.choices?.[0]?.message?.content || '';
+        if (!text) { lastErr = new Error('Empty response from ' + model); break; }
+        if (model !== modelList[0]) console.info('groqCallFE: fallback succeeded on', model);
+        return text;
+      } catch(e) {
+        lastErr = e;
+        if (e.message?.includes('429')) break; // skip to next model
+        if (attempt === 0) await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+  }
+  throw lastErr || new Error('All Groq models failed');
+}
+
 async function loadMarket(forceRefresh) {
   if (_marketLoading) return;
   if (_marketLoaded && !forceRefresh) return;
@@ -3127,15 +3163,9 @@ REAL NEWS HEADLINES (translate/summarize for the user, assign impact and directi
 ${newsItems.map((n,i) => `${i+1}. "${n.title}" — ${n.source}`).join('\n') || 'No news available'}
 `;
 
-    // Retry Groq up to 3 times (handles 429 rate limit)
-    let groqResp = null;
-    const groqBody = JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      max_tokens: 2000,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: `You are a professional crypto market analyst. You will receive REAL live market data and news headlines. Use the exact prices and numbers provided. Return ONLY a valid JSON object with no markdown or extra text.` },
-        { role: 'user', content: `${realDataContext}
+    const marketMsgs = [
+      { role: 'system', content: 'You are a professional crypto market analyst. You will receive REAL live market data and news headlines. Use the exact prices and numbers provided. Return ONLY a valid JSON object with no markdown or extra text.' },
+      { role: 'user', content: `${realDataContext}
 
 Based on the real data above, return ONLY this JSON (fill all fields, translate text to ${lang}):
 {
@@ -3170,35 +3200,20 @@ Based on the real data above, return ONLY this JSON (fill all fields, translate 
     {"coin": "ETH", "support": "realistic support level", "resistance": "realistic resistance level"}
   ]
 }` }
-      ]
-    });
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 4000)); // 4s, 8s backoff
-      groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_API_KEY },
-        body: groqBody
-      });
-      if (groqResp.ok) break; // success
-      if (groqResp.status !== 429) break; // non-retryable error
-    }
+    ];
+
+    // Use model waterfall — tries 4 models before giving up
+    const rawText = await groqCallFE(marketMsgs, GROQ_ANALYSIS_MODELS_FE, 2000, 0.3, { type: 'json_object' });
 
     clearInterval(msgInterval);
 
-    if (!groqResp.ok) {
-      const errBody = await groqResp.text();
-      throw new Error('Groq API error ' + groqResp.status + ': ' + errBody.slice(0,200));
-    }
-    const groqData = await groqResp.json();
-    if (groqData.error) throw new Error('Groq error: ' + (groqData.error.message || JSON.stringify(groqData.error)));
-    const raw = groqData.choices?.[0]?.message?.content || '{}';
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    const clean = jsonMatch ? jsonMatch[0] : raw.replace(/```json|```/g, '').trim();
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    const clean = jsonMatch ? jsonMatch[0] : rawText.replace(/```json|```/g, '').trim();
     let m;
-    try { m = JSON.parse(clean); } catch(pe) { throw new Error('JSON parse failed: ' + clean.slice(0,100)); }
-    // Ensure required fields have defaults to avoid "undefined" display
+    try { m = JSON.parse(clean); } catch(pe) { throw new Error('JSON parse failed: ' + clean.slice(0, 100)); }
+    // Safe defaults to prevent "Undefined" being displayed
     if (!m.sentiment || m.sentiment === 'undefined') m.sentiment = btcTrend === 'up' ? 'bullish' : btcTrend === 'down' ? 'bearish' : 'neutral';
-    if (!m.sentiment_score) m.sentiment_score = fearGreed != null ? fearGreed : 50;
+    if (m.sentiment_score == null) m.sentiment_score = fearGreed != null ? fearGreed : 50;
     if (!m.summary) m.summary = '';
 
     if (btcPrice)  m.btc_price      = btcPrice;
@@ -3629,36 +3644,27 @@ async function toggleFeedTranslate(btn) {
   }
   btn.classList.add('loading');
   btn.innerHTML = '⏳';
-  let translateOk = false;
-  for (let attempt = 0; attempt < 3 && !translateOk; attempt++) {
-    try {
-      if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 2000));
-      const controller = new AbortController();
-      const tid = setTimeout(() => controller.abort(), 45000);
-      const resp = await fetch(API_BASE + '/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
-        signal: controller.signal,
-        body: JSON.stringify({ text: origText, target: tgt })
-      });
-      clearTimeout(tid);
-      if (!resp.ok) continue;
-      const r = await resp.json();
-      if (!r?.translated) continue;
-      _txc[key] = r.translated;
-      textEl.textContent = r.translated;
-      btn.dataset.translated = '1';
-      btn.classList.remove('loading');
-      btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
-      if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
-      translateOk = true;
-    } catch(e) { /* retry */ }
-  }
-  if (!translateOk) {
+  try {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 20000);
+    const resp = await fetch(API_BASE + '/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
+      signal: controller.signal,
+      body: JSON.stringify({ text: origText, target: tgt })
+    });
+    clearTimeout(tid);
+    const r = resp.ok ? await resp.json() : null;
+    const translated = r?.translated || origText;
+    _txc[key] = translated;
+    textEl.textContent = translated;
+    btn.dataset.translated = '1';
+    btn.classList.remove('loading');
+    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
+    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
+  } catch(e) {
     btn.classList.remove('loading');
     btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : '🌐 Translate';
-    const errHint = currentLang === 'ru' ? '⚠️ Не удалось перевести' : currentLang === 'uk' ? '⚠️ Не вдалося перекласти' : '⚠️ Translation failed';
-    if(badge) { badge.textContent = errHint; badge.style.display='block'; setTimeout(()=>{ badge.style.display='none'; }, 3000); }
   }
 }
 
