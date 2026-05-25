@@ -364,7 +364,7 @@
       <p class="sub-desc" id="subDesc">Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.</p>
     </div>
     <div class="sub-plans" id="subPlans"></div>
-    <div class="sub-footer">Оплата через Telegram Stars или крипту.<br>Управление тарифом — в разделе Профиль.</div>
+    <div class="sub-footer">Оплата через крипту.<br>Управление тарифом — в разделе Профиль.</div>
   </div>
 
 
@@ -1910,12 +1910,8 @@ async function submitPayment() {
     currentPaymentMethod=pm.id;
     currentPaymentCreatedAt=createdAt;
     closeCryptoPayModal();
-    if (window._planPayMode && window._planPayId) {
-      planPaymentConfirmed(window._planPayId);
-    } else {
-      const isBlockchain=(pm.id==='ETH'||pm.id==='BTC');
-      showPayPendingScreen(isBlockchain);
-    }
+    // Always show pending screen - access granted only after backend confirms payment
+    showPayPendingScreen(false);
   } else {
     showMainToast(t('errorGeneric'));
   }
@@ -1937,31 +1933,32 @@ function showPayPendingScreen(isAuto) {
 async function pollPaymentStatus() {
   if(!currentPaymentId) return;
 
-  if(currentPaymentMethod==='ETH' || currentPaymentMethod==='BTC') {
-    const total=(selectedPacks.length*0.80).toFixed(2);
-    const resp=await apiFetch('/api/payment/check','POST',{
-      payment_id: currentPaymentId,
-      method: currentPaymentMethod,
-      amount: parseFloat(total),
-      created_at: currentPaymentCreatedAt||new Date().toISOString()
-    });
-    if(resp && resp.confirmed) {
-      const user=await apiFetch(`/api/user/${currentUserId}`);
-      paymentConfirmed(user ? (user.active_packs||[]) : selectedPacks);
-    }
-    return;
-  }
+  const total = (window._planPayMode && window._planPayId)
+    ? PLANS[window._planPayId].price.toFixed(2)
+    : (selectedPacks.length*0.80).toFixed(2);
+  const methodToCheck = (currentPaymentMethod || 'cryptobot');
 
-  if(currentPaymentId) {
-    const total=(selectedPacks.length*0.80).toFixed(2);
-    const checkResp=await apiFetch('/api/payment/check','POST',{
-      payment_id: currentPaymentId,
-      method: 'cryptobot',
-      amount: parseFloat(total),
-      created_at: currentPaymentCreatedAt||new Date().toISOString()
-    });
-    if(checkResp && checkResp.confirmed) {
-      const user=await apiFetch(`/api/user/${currentUserId}`);
+  const resp = await apiFetch('/api/payment/check','POST',{
+    payment_id: currentPaymentId,
+    method: methodToCheck,
+    amount: parseFloat(total),
+    created_at: currentPaymentCreatedAt||new Date().toISOString()
+  });
+
+  if(resp && resp.confirmed) {
+    clearInterval(payPollInterval);
+    payPollInterval = null;
+    currentPaymentId = null;
+    if (window._planPayMode && window._planPayId) {
+      // Plan payment confirmed - grant access and go to main screen
+      const planId = window._planPayId;
+      window._planPayMode = false;
+      window._planPayId = null;
+      const screen = document.getElementById('payPendingScreen');
+      if (screen) screen.classList.remove('open');
+      planPaymentConfirmed(planId);
+    } else {
+      const user = await apiFetch(`/api/user/${currentUserId}`);
       paymentConfirmed(user ? (user.active_packs||selectedPacks) : selectedPacks);
     }
   }
