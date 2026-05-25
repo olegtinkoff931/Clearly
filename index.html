@@ -771,7 +771,15 @@
 <script>
 
 const API_BASE = 'https://166.1.227.170.sslip.io';
-const GROQ_API_KEY = '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';
+const GROQ_API_KEYS = [
+  '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',
+  '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',
+  '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',
+  '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',
+];
+let _groqKeyIndex = 0;
+// для обратной совместимости
+const GROQ_API_KEY = GROQ_API_KEYS[0];
 
 const PLANS = {
   basic: {
@@ -3030,42 +3038,50 @@ const GROQ_ANALYSIS_MODELS_FE = [
 
 async function groqCallFE(messages, modelList, maxTokens=500, temperature=0.7, responseFormat=null) {
   if (!modelList) modelList = GROQ_CHAT_MODELS_FE;
+  const numKeys = GROQ_API_KEYS.length;
   let lastErr = null;
   for (const model of modelList) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const body = { model, max_tokens: maxTokens, temperature, messages };
-        if (responseFormat) body.response_format = responseFormat;
-        const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_API_KEY },
-          body: JSON.stringify(body)
-        });
-        if (resp.status === 429) {
-          console.warn('groqCallFE: 429 on', model, '— trying next model');
-          lastErr = new Error('429 rate limit on ' + model);
-          break; // skip to next model immediately
+    for (let keyOffset = 0; keyOffset < numKeys; keyOffset++) {
+      const keyIdx = (_groqKeyIndex + keyOffset) % numKeys;
+      const apiKey = GROQ_API_KEYS[keyIdx];
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const body = { model, max_tokens: maxTokens, temperature, messages };
+          if (responseFormat) body.response_format = responseFormat;
+          const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+            body: JSON.stringify(body)
+          });
+          if (resp.status === 429) {
+            console.warn('groqCallFE: 429 key=' + keyIdx + ' model=' + model + ' — next key');
+            lastErr = new Error('429 on key ' + keyIdx + ' model ' + model);
+            _groqKeyIndex = (keyIdx + 1) % numKeys;
+            break; // try next key
+          }
+          if (!resp.ok) {
+            const txt = await resp.text();
+            lastErr = new Error('HTTP ' + resp.status + ': ' + txt.slice(0, 100));
+            if (attempt === 0) { await new Promise(r => setTimeout(r, 2000)); continue; }
+            break;
+          }
+          const data = await resp.json();
+          if (data.error) throw new Error(JSON.stringify(data.error));
+          const text = data.choices?.[0]?.message?.content || '';
+          if (!text) { lastErr = new Error('Empty response from ' + model); break; }
+          _groqKeyIndex = keyIdx;
+          if (keyOffset !== 0 || model !== modelList[0])
+            console.info('groqCallFE: ok key=' + keyIdx + ' model=' + model);
+          return text;
+        } catch(e) {
+          lastErr = e;
+          if (e.message?.includes('429')) { _groqKeyIndex = (keyIdx + 1) % numKeys; break; }
+          if (attempt === 0) await new Promise(r => setTimeout(r, 1000));
         }
-        if (!resp.ok) {
-          const txt = await resp.text();
-          lastErr = new Error('HTTP ' + resp.status + ': ' + txt.slice(0, 100));
-          if (attempt === 0) { await new Promise(r => setTimeout(r, 2000)); continue; }
-          break;
-        }
-        const data = await resp.json();
-        if (data.error) throw new Error(JSON.stringify(data.error));
-        const text = data.choices?.[0]?.message?.content || '';
-        if (!text) { lastErr = new Error('Empty response from ' + model); break; }
-        if (model !== modelList[0]) console.info('groqCallFE: fallback succeeded on', model);
-        return text;
-      } catch(e) {
-        lastErr = e;
-        if (e.message?.includes('429')) break; // skip to next model
-        if (attempt === 0) await new Promise(r => setTimeout(r, 1000));
       }
     }
   }
-  throw lastErr || new Error('All Groq models failed');
+  throw lastErr || new Error('All Groq keys and models failed');
 }
 
 async function loadMarket(forceRefresh) {
