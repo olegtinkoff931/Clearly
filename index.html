@@ -364,7 +364,7 @@
       <p class="sub-desc" id="subDesc">Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.</p>
     </div>
     <div class="sub-plans" id="subPlans"></div>
-    <div class="sub-footer">Оплата через крипту.<br>Управление тарифом — в разделе Профиль.</div>
+    <div class="sub-footer">Оплата через Telegram Stars или крипту.<br>Управление тарифом — в разделе Профиль.</div>
   </div>
 
 
@@ -1910,8 +1910,12 @@ async function submitPayment() {
     currentPaymentMethod=pm.id;
     currentPaymentCreatedAt=createdAt;
     closeCryptoPayModal();
-    // Always show pending screen - access granted only after backend confirms payment
-    showPayPendingScreen(false);
+    if (window._planPayMode && window._planPayId) {
+      planPaymentConfirmed(window._planPayId);
+    } else {
+      const isBlockchain=(pm.id==='ETH'||pm.id==='BTC');
+      showPayPendingScreen(isBlockchain);
+    }
   } else {
     showMainToast(t('errorGeneric'));
   }
@@ -1933,32 +1937,31 @@ function showPayPendingScreen(isAuto) {
 async function pollPaymentStatus() {
   if(!currentPaymentId) return;
 
-  const total = (window._planPayMode && window._planPayId)
-    ? PLANS[window._planPayId].price.toFixed(2)
-    : (selectedPacks.length*0.80).toFixed(2);
-  const methodToCheck = (currentPaymentMethod || 'cryptobot');
+  if(currentPaymentMethod==='ETH' || currentPaymentMethod==='BTC') {
+    const total=(selectedPacks.length*0.80).toFixed(2);
+    const resp=await apiFetch('/api/payment/check','POST',{
+      payment_id: currentPaymentId,
+      method: currentPaymentMethod,
+      amount: parseFloat(total),
+      created_at: currentPaymentCreatedAt||new Date().toISOString()
+    });
+    if(resp && resp.confirmed) {
+      const user=await apiFetch(`/api/user/${currentUserId}`);
+      paymentConfirmed(user ? (user.active_packs||[]) : selectedPacks);
+    }
+    return;
+  }
 
-  const resp = await apiFetch('/api/payment/check','POST',{
-    payment_id: currentPaymentId,
-    method: methodToCheck,
-    amount: parseFloat(total),
-    created_at: currentPaymentCreatedAt||new Date().toISOString()
-  });
-
-  if(resp && resp.confirmed) {
-    clearInterval(payPollInterval);
-    payPollInterval = null;
-    currentPaymentId = null;
-    if (window._planPayMode && window._planPayId) {
-      // Plan payment confirmed - grant access and go to main screen
-      const planId = window._planPayId;
-      window._planPayMode = false;
-      window._planPayId = null;
-      const screen = document.getElementById('payPendingScreen');
-      if (screen) screen.classList.remove('open');
-      planPaymentConfirmed(planId);
-    } else {
-      const user = await apiFetch(`/api/user/${currentUserId}`);
+  if(currentPaymentId) {
+    const total=(selectedPacks.length*0.80).toFixed(2);
+    const checkResp=await apiFetch('/api/payment/check','POST',{
+      payment_id: currentPaymentId,
+      method: 'cryptobot',
+      amount: parseFloat(total),
+      created_at: currentPaymentCreatedAt||new Date().toISOString()
+    });
+    if(checkResp && checkResp.confirmed) {
+      const user=await apiFetch(`/api/user/${currentUserId}`);
       paymentConfirmed(user ? (user.active_packs||selectedPacks) : selectedPacks);
     }
   }
@@ -2629,26 +2632,35 @@ function renderProfileScreen() {
             }
           } catch(e) {}
         }
-        if (purchasedPacks.length > 0) {
+        const planNames = { basic: {ru:'Базовый',uk:'Базовий',en:'Basic'}, pro: {ru:'Про',uk:'Про',en:'Pro'}, max: {ru:'Максимум',uk:'Максимум',en:'Maximum'} };
+        const planEmojis = { basic:'🔑', pro:'⭐', max:'👑' };
+        if (subActive || purchasedPacks.length > 0) {
           const daysLeft = subEnd ? Math.max(0, Math.ceil((new Date(subEnd) - new Date()) / 86400000)) : null;
-          const daysColor = daysLeft !== null ? (daysLeft <= 3 ? '#e05252' : daysLeft <= 7 ? '#f59e0b' : '#3aaa6e') : '#3aaa6e';
-          const daysLabel = daysLeft !== null
-            ? (L2==='ru' ? `${daysLeft} дн. осталось` : L2==='uk' ? `${daysLeft} дн. залишилось` : `${daysLeft} days left`)
-            : (L2==='ru' ? 'Активна' : L2==='uk' ? 'Активна' : 'Active');
+          const isLifetime = subEnd && subEnd >= '2099-01-01';
+          const daysColor = isLifetime ? '#a78bfa' : (daysLeft !== null ? (daysLeft <= 3 ? '#e05252' : daysLeft <= 7 ? '#f59e0b' : '#3aaa6e') : '#3aaa6e');
+          const daysLabel = isLifetime
+            ? (L2==='ru' ? '♾ Навсегда' : L2==='uk' ? '♾ Назавжди' : '♾ Lifetime')
+            : (daysLeft !== null
+              ? (L2==='ru' ? `${daysLeft} дн. осталось` : L2==='uk' ? `${daysLeft} дн. залишилось` : `${daysLeft} days left`)
+              : (L2==='ru' ? 'Активна' : L2==='uk' ? 'Активна' : 'Active'));
+          const planKey = currentPlan || 'basic';
+          const planLabel = (planNames[planKey]||planNames.basic)[L2] || planKey;
+          const planEmoji = planEmojis[planKey] || '💳';
+          const priceLabel = subAmount > 0 ? `$${subAmount.toFixed(2)}/${L2==='ru'?'мес':L2==='uk'?'міс':'mo'}` : '';
           planInfoEl.innerHTML = `
             <div style="background:#1a1a2e;border:.5px solid #6b6bff44;border-radius:14px;padding:14px 16px;">
-              <div style="display:flex;align-items:center;gap:12px;margin-bottom:${subEnd?'10':'0'}px;">
-                <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:justify-content;font-size:18px;flex-shrink:0;">💳</div>
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${planEmoji}</div>
                 <div style="flex:1;">
-                  <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${L2==='ru'?'Smart News Packs':L2==='uk'?'Smart News Пакети':'Smart News Packs'}</p>
-                  <p style="font-size:11px;color:#6b6bff;margin:0;">$${subAmount.toFixed(2)}/${L2==='ru'?'мес':L2==='uk'?'міс':'mo'} · <span style="color:${daysColor};">${daysLabel}</span></p>
+                  <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${L2==='ru'?'Тариф':'Тариф'}: ${planLabel}</p>
+                  <p style="font-size:11px;color:#6b6bff;margin:0;">${priceLabel}${priceLabel?' · ':''}<span style="color:${daysColor};">${daysLabel}</span></p>
                 </div>
-                <button onclick="openChangePlan()" style="background:#1e1e30;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${L2==='ru'?'Продлить':L2==='uk'?'Продовжити':'Renew'}</button>
+                <button onclick="openChangePlan()" style="background:#1e1e30;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${L2==='ru'?'Изменить':L2==='uk'?'Змінити':'Change'}</button>
               </div>
-              ${subEnd ? `<div style="background:#111;border:.5px solid #2e2e38;border-radius:8px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;">
+              <div style="background:#111;border:.5px solid #2e2e38;border-radius:8px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;">
                 <span style="font-size:11px;color:#555;">${L2==='ru'?'Действует до':L2==='uk'?'Діє до':'Valid until'}</span>
-                <span style="font-size:11px;font-weight:600;color:${daysColor};">${subEnd}</span>
-              </div>` : ''}
+                <span style="font-size:11px;font-weight:600;color:${daysColor};">${isLifetime ? (L2==='ru'?'Навсегда':L2==='uk'?'Назавжди':'Lifetime') : (subEnd || '—')}</span>
+              </div>
             </div>`;
         } else {
           planInfoEl.innerHTML = `
@@ -4017,13 +4029,8 @@ function checkAIAccess() {
 
 function openChangePlan() {
   closeProfileScreen();
-  if (purchasedPacks.length > 0) {
-    selectedPacks = [...purchasedPacks];
-    openRenewPayModal();
-  } else {
-    renderPacks();
-    goTo('vMain', 'vPacks');
-  }
+  // Always show subscription plan selection screen
+  showSubscriptionScreen(currentPlan || null);
 }
 
 function openRenewPayModal() {
