@@ -1803,7 +1803,9 @@ function selectCryptoMethod(idx) {
   });
 
   const pm=paymentsData[idx];
-  const total=(selectedPacks.length*0.80).toFixed(2);
+  const total = (window._planPayMode && window._planPayId)
+    ? PLANS[window._planPayId].price.toFixed(2)
+    : (selectedPacks.length*0.80).toFixed(2);
 
   if(pm.id==='cryptobot') {
     document.getElementById('payWalletSection').style.display='none';
@@ -1884,12 +1886,22 @@ async function submitPayment() {
 
   const createdAt=new Date().toISOString();
 
-  const resp=await apiFetch('/api/payment','POST',{
-    user_id: currentUserId,
-    packs: selectedPacks,
-    method: pm.id,
-    amount: parseFloat(total)
-  });
+  let resp;
+  if (window._planPayMode && window._planPayId) {
+    resp = await apiFetch('/api/plan/buy','POST',{
+      user_id: currentUserId,
+      plan: window._planPayId,
+      method: pm.id,
+      amount: parseFloat(total)
+    });
+  } else {
+    resp = await apiFetch('/api/payment','POST',{
+      user_id: currentUserId,
+      packs: selectedPacks,
+      method: pm.id,
+      amount: parseFloat(total)
+    });
+  }
 
   btn.textContent=t('iPaidBtn');
 
@@ -1898,8 +1910,12 @@ async function submitPayment() {
     currentPaymentMethod=pm.id;
     currentPaymentCreatedAt=createdAt;
     closeCryptoPayModal();
-    const isBlockchain=(pm.id==='ETH'||pm.id==='BTC');
-    showPayPendingScreen(isBlockchain);
+    if (window._planPayMode && window._planPayId) {
+      planPaymentConfirmed(window._planPayId);
+    } else {
+      const isBlockchain=(pm.id==='ETH'||pm.id==='BTC');
+      showPayPendingScreen(isBlockchain);
+    }
   } else {
     showMainToast(t('errorGeneric'));
   }
