@@ -1789,6 +1789,8 @@ function openCryptoPayModal() {
 
 function closeCryptoPayModal() {
   document.getElementById('cryptoPayModal').classList.remove('open');
+  window._planPayMode = false;
+  window._planPayId = null;
 }
 function closeCryptoPayModalOutside(e) {
   if(e.target===document.getElementById('cryptoPayModal')) closeCryptoPayModal();
@@ -1831,17 +1833,28 @@ function copyPayAddress() {
 async function openCryptoBotInvoice() {
   if(cryptoPaySelectedIdx===null) return;
   const pm=paymentsData[cryptoPaySelectedIdx];
-  const total=(selectedPacks.length*0.80).toFixed(2);
 
   document.getElementById('cryptoBotPayBtn').textContent=t('creatingInvoice');
   document.getElementById('cryptoBotPayBtn').style.opacity='0.7';
 
-  const resp=await apiFetch('/api/payment','POST',{
-    user_id: currentUserId,
-    packs: selectedPacks,
-    method: 'cryptobot',
-    amount: parseFloat(total)
-  });
+  let resp;
+  if (window._planPayMode && window._planPayId) {
+    const plan = PLANS[window._planPayId];
+    resp = await apiFetch('/api/plan/buy','POST',{
+      user_id: currentUserId,
+      plan: window._planPayId,
+      method: 'cryptobot',
+      amount: plan.price
+    });
+  } else {
+    const total=(selectedPacks.length*0.80).toFixed(2);
+    resp=await apiFetch('/api/payment','POST',{
+      user_id: currentUserId,
+      packs: selectedPacks,
+      method: 'cryptobot',
+      amount: parseFloat(total)
+    });
+  }
 
   document.getElementById('cryptoBotPayBtn').textContent=t('cryptobotPayBtn');
   document.getElementById('cryptoBotPayBtn').style.opacity='1';
@@ -1862,7 +1875,9 @@ async function openCryptoBotInvoice() {
 async function submitPayment() {
   if(cryptoPaySelectedIdx===null) return;
   const pm=paymentsData[cryptoPaySelectedIdx];
-  const total=(selectedPacks.length*0.80).toFixed(2);
+  const total = (window._planPayMode && window._planPayId)
+    ? PLANS[window._planPayId].price.toFixed(2)
+    : (selectedPacks.length*0.80).toFixed(2);
 
   const btn=document.getElementById('payBtnText');
   btn.textContent=t('submittingBtn');
@@ -3778,7 +3793,48 @@ function selectPlan(planId) {
   const plan = PLANS[planId];
   if (!plan) return;
   _pendingPlanId = planId;
-  openPlanPayModal(planId);
+  openCryptoPayModalForPlan(planId);
+}
+
+function openCryptoPayModalForPlan(planId) {
+  const plan = PLANS[planId];
+  if (!plan) return;
+  const L = currentLang;
+  const amount = plan.price.toFixed(2);
+
+  // Mark modal as plan-mode
+  window._planPayMode = true;
+  window._planPayId = planId;
+
+  // Fill modal fields (reuse cryptoPayModal)
+  document.getElementById('payTotalDisplay').textContent = '$' + amount + ' USDT';
+  document.getElementById('payPackCountBadge').textContent = plan.name[L] || plan.name.en;
+
+  // Show plan row instead of packs list
+  const listEl = document.getElementById('payPackListDisplay');
+  listEl.innerHTML = '';
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:7px 12px;';
+  row.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span>🔐</span><span style="font-size:13px;color:#c0c0d0;">${plan.name[L] || plan.name.en} — 1 ${L==='ru'?'месяц':L==='uk'?'місяць':'month'}</span></div><span style="font-size:11px;color:#555;">$${amount}</span>`;
+  listEl.appendChild(row);
+
+  // Render payment methods
+  cryptoPaySelectedIdx = null;
+  const methodEl = document.getElementById('payMethodList');
+  methodEl.innerHTML = '';
+  paymentsData.forEach((p, idx) => {
+    if (p.disabled) return;
+    const r = document.createElement('div');
+    r.className = 'method-row';
+    r.id = 'cpPayRow_' + idx;
+    r.innerHTML = `<div class="method-row-left"><span>${p.emoji}</span><span style="font-size:13px;color:#c0c0d0;">${p.name}</span></div><span class="method-tag">${p.tag}</span>`;
+    r.onclick = () => selectCryptoMethod(idx);
+    methodEl.appendChild(r);
+  });
+
+  document.getElementById('payWalletSection').style.display = 'none';
+  document.getElementById('payCryptobotSection').style.display = 'none';
+  document.getElementById('cryptoPayModal').classList.add('open');
 }
 
 function openPlanPayModal(planId) {
