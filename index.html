@@ -347,6 +347,32 @@
     .sub-plan-btn.btn-gradient:hover { opacity:.88; }
     .sub-plan-btn.btn-active { background:#1e3a1e; border:.5px solid #3aaa6e55; color:#3aaa6e; cursor:default; }
     .sub-footer { padding:12px 20px 40px; text-align:center; font-size:11px; color:#444; line-height:1.6; }
+
+    /* VIP styles */
+    .vip-avatar-ring {
+      position:absolute; inset:-3px; border-radius:19px;
+      background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b, #d97706);
+      background-size: 300% 300%;
+      animation: vipGlow 2.5s ease infinite;
+      z-index:0;
+    }
+    @keyframes vipGlow {
+      0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}
+    }
+    .vip-badge {
+      display:inline-flex; align-items:center; gap:4px;
+      background: linear-gradient(135deg, #92400e, #d97706);
+      border:.5px solid #f59e0b88;
+      color:#fbbf24; font-size:10px; font-weight:700;
+      padding:3px 8px; border-radius:20px;
+      letter-spacing:.5px; text-transform:uppercase;
+      box-shadow: 0 0 8px #f59e0b44;
+      animation: vipPulse 2s ease-in-out infinite;
+    }
+    @keyframes vipPulse {
+      0%,100%{box-shadow:0 0 6px #f59e0b44} 50%{box-shadow:0 0 14px #f59e0b88}
+    }
+    .vip-name { background:linear-gradient(135deg,#fbbf24,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
   </style>
 </head>
 <body>
@@ -566,7 +592,7 @@
           </div>
           <div>
             <p id="profileName" style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">User</p>
-            <p style="font-size:12px;color:#555;margin:0;">Clearly</p>
+            <p class="profile-sub" style="font-size:12px;color:#555;margin:0;">Clearly</p>
           </div>
         </div>
         <div id="profileActivePacks"></div>
@@ -835,6 +861,10 @@ function getPlan() { return currentPlan ? PLANS[currentPlan] : null; }
 function getMaxChannels() { const p=getPlan(); return p ? p.maxChannels : 0; }
 function hasAI() { const p=getPlan(); return p ? p.hasAI : false; }
 function hasPlan() { return !!currentPlan; }
+
+const VIP_USERNAMES_FE = new Set(['rvelikiy','slavik222567']);
+function isVipUser() { const u = tg?.initDataUnsafe?.user?.username; return u && VIP_USERNAMES_FE.has(u.toLowerCase()); }
+
 
 
 const tg = window.Telegram?.WebApp;
@@ -2598,10 +2628,51 @@ function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.
 function renderProfileScreen() {
   profileSelectedPacks=[...purchasedPacks];
   const tgUser=tg?.initDataUnsafe?.user;
-  if(tgUser) document.getElementById('profileName').textContent=tgUser.first_name||'User';
+  const vip = isVipUser();
+
+  // Name + VIP badge
+  const nameEl = document.getElementById('profileName');
+  if(tgUser && nameEl) {
+    nameEl.className = vip ? 'vip-name' : '';
+    nameEl.textContent = tgUser.first_name||'User';
+  }
+
+  // VIP badge under name
+  const nameParent = nameEl?.parentElement;
+  if(nameParent) {
+    const oldBadge = nameParent.querySelector('.vip-badge');
+    if(oldBadge) oldBadge.remove();
+    if(vip) {
+      const badge = document.createElement('span');
+      badge.className = 'vip-badge';
+      badge.innerHTML = '👑 VIP';
+      nameParent.appendChild(badge);
+    } else {
+      // restore subtitle if not vip
+      if(!nameParent.querySelector('.profile-sub')) {
+        const sub = document.createElement('p');
+        sub.className = 'profile-sub';
+        sub.style.cssText = 'font-size:12px;color:#555;margin:0;';
+        sub.textContent = 'Clearly';
+        nameParent.appendChild(sub);
+      }
+    }
+  }
+
   const thAvatar=getTheme();
   const avatarEl=document.getElementById('profileAvatar');
-  if(avatarEl) avatarEl.style.background=thAvatar.gradient;
+  if(avatarEl) {
+    avatarEl.style.background = thAvatar.gradient;
+    // VIP gold ring around avatar
+    const oldRing = avatarEl.parentElement?.querySelector('.vip-avatar-ring');
+    if(oldRing) oldRing.remove();
+    if(vip) {
+      const ring = document.createElement('div');
+      ring.className = 'vip-avatar-ring';
+      avatarEl.parentElement.style.position = 'relative';
+      avatarEl.parentElement.insertBefore(ring, avatarEl);
+    }
+  }
   if(currentUserId) {
     const img=document.getElementById('profileAvatarImg');
     if(img) {
