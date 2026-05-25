@@ -3801,11 +3801,15 @@ function openPlanPayModal(planId) {
   document.getElementById('planPayBtn').style.opacity = '0.35';
   document.getElementById('planPayBtn').style.pointerEvents = 'none';
 
-  document.getElementById('planPayModal').classList.add('open');
+  const pm = document.getElementById('planPayModal');
+  pm.style.display = 'flex';
+  pm.classList.add('open');
 }
 
 function closePlanPayModal() {
-  document.getElementById('planPayModal').classList.remove('open');
+  const pm2 = document.getElementById('planPayModal');
+  pm2.style.display = 'none';
+  pm2.classList.remove('open');
   _pendingPlanId = null;
   _pendingPlanPaymentId = null;
   _planPaymentMethod = null;
@@ -3964,14 +3968,7 @@ init();
 
 
 <!-- ── Plan Payment Modal ──────────────────────────────────────── -->
-<div id="planPayModal" onclick="closePlanPayModalOutside(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:600;align-items:flex-end;">
-  <style>
-    #planPayModal.open { display:flex !important; }
-    .plan-pay-method { display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#1a1a20;border:.5px solid #272730;border-radius:14px;cursor:pointer;transition:border-color .15s; }
-    .plan-pay-method.sel { border-color:#6b6bff; background:#1a1a2e; }
-    .plan-pay-method-left { display:flex;align-items:center;gap:12px;font-size:14px;color:#e0e0f0;font-weight:500; }
-    .plan-pay-method-tag { font-size:11px;color:#666; }
-  </style>
+<div id="planPayModal" onclick="closePlanPayModalOutside(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:600;align-items:flex-end;display:none;">
   <div onclick="event.stopPropagation()" style="background:#14141a;border-radius:24px 24px 0 0;padding:20px 16px 40px;width:100%;max-height:90vh;overflow-y:auto;animation:sheetUp .3s cubic-bezier(.4,0,.2,1);">
     <div style="width:36px;height:4px;background:#272730;border-radius:2px;margin:0 auto 20px;"></div>
 
