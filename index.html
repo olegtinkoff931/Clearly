@@ -1419,7 +1419,21 @@ async function init() {
 
   hideLoading();
 
-  currentPlan = userData.subscription_plan || null;
+  // Load plan from subscription API (authoritative source)
+  try {
+    const subData = await apiFetch('/api/subscription/' + currentUserId, 'GET');
+    if (subData && subData.active) {
+      currentPlan = subData.plan || null;
+      // Also restore purchasedPacks from subscription if available
+      if (subData.packs && subData.packs.length > 0) {
+        purchasedPacks = subData.packs;
+      }
+    } else {
+      currentPlan = userData.subscription_plan || null;
+    }
+  } catch(e) {
+    currentPlan = userData.subscription_plan || null;
+  }
 
   if(userData.quiz_done) {
     renderChannelList();
@@ -3754,39 +3768,141 @@ function renderSubscriptionPlans(highlightId) {
   });
 }
 
-async function selectPlan(planId) {
+// ── Plan payment state ──────────────────────────────────────────
+let _pendingPlanId = null;
+let _pendingPlanPaymentId = null;
+let _planPaymentMethod = null;
+let _planPayCheckInterval = null;
+
+function selectPlan(planId) {
   const plan = PLANS[planId];
   if (!plan) return;
+  _pendingPlanId = planId;
+  openPlanPayModal(planId);
+}
 
-  currentPlan = planId;
+function openPlanPayModal(planId) {
+  const plan = PLANS[planId];
+  if (!plan) return;
+  const L = currentLang;
+  const amount = plan.price.toFixed(2);
 
-  if (currentUserId) {
-    await apiFetch('/api/subscription/renew', 'POST', {
+  // Populate modal fields
+  document.getElementById('planPayAmount').textContent = '$' + amount + ' USDT';
+  document.getElementById('planPayBadge').textContent = plan.name[L] || plan.name.en;
+  document.getElementById('planPayTitle').textContent =
+    L==='ru' ? 'Оформить тариф' : L==='uk' ? 'Оформити тариф' : 'Subscribe';
+  document.getElementById('planPaySubtitle').textContent =
+    L==='ru' ? 'Выберите способ оплаты' : L==='uk' ? 'Оберіть спосіб оплати' : 'Choose payment method';
+
+  // Reset payment method selection
+  _planPaymentMethod = null;
+  document.querySelectorAll('.plan-pay-method').forEach(el => el.classList.remove('sel'));
+  document.getElementById('planPayBtn').style.opacity = '0.35';
+  document.getElementById('planPayBtn').style.pointerEvents = 'none';
+
+  document.getElementById('planPayModal').classList.add('open');
+}
+
+function closePlanPayModal() {
+  document.getElementById('planPayModal').classList.remove('open');
+  _pendingPlanId = null;
+  _pendingPlanPaymentId = null;
+  _planPaymentMethod = null;
+  if (_planPayCheckInterval) { clearInterval(_planPayCheckInterval); _planPayCheckInterval = null; }
+}
+
+function closePlanPayModalOutside(e) {
+  if (e.target === document.getElementById('planPayModal')) closePlanPayModal();
+}
+
+function selectPlanPayMethod(method, el) {
+  _planPaymentMethod = method;
+  document.querySelectorAll('.plan-pay-method').forEach(x => x.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('planPayBtn').style.opacity = '1';
+  document.getElementById('planPayBtn').style.pointerEvents = 'auto';
+}
+
+async function confirmPlanPayment() {
+  if (!_pendingPlanId || !_planPaymentMethod || !currentUserId) return;
+  const plan = PLANS[_pendingPlanId];
+  const btn = document.getElementById('planPayBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ ...';
+
+  try {
+    const resp = await apiFetch('/api/plan/buy', 'POST', {
       user_id: currentUserId,
-      plan: planId
+      plan: _pendingPlanId,
+      method: _planPaymentMethod,
+      amount: plan.price
     });
+
+    if (resp.pay_url) {
+      // Open CryptoBot payment link
+      _pendingPlanPaymentId = resp.payment_id;
+      if (window.Telegram?.WebApp?.openLink) {
+        window.Telegram.WebApp.openLink(resp.pay_url);
+      } else {
+        window.open(resp.pay_url, '_blank');
+      }
+      // Start polling for confirmation
+      btn.textContent = '⏳ Жду оплату...';
+      _planPayCheckInterval = setInterval(() => checkPlanPayment(), 4000);
+    } else if (resp.payment_id) {
+      // Manual payment — show waiting state
+      _pendingPlanPaymentId = resp.payment_id;
+      btn.textContent = '⏳ Ожидаем подтверждение...';
+      _planPayCheckInterval = setInterval(() => checkPlanPayment(), 5000);
+    } else {
+      throw new Error(resp.error || 'Unknown error');
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = currentLang==='ru' ? 'Оплатить' : 'Pay now';
+    showMainToast('❌ ' + (e.message || 'Ошибка оплаты'));
   }
+}
+
+async function checkPlanPayment() {
+  if (!_pendingPlanPaymentId) return;
+  try {
+    const resp = await apiFetch('/api/payment/check', 'POST', {
+      payment_id: _pendingPlanPaymentId,
+      method: _planPaymentMethod,
+      amount: PLANS[_pendingPlanId]?.price || 0,
+      created_at: new Date().toISOString()
+    });
+    if (resp.confirmed) {
+      clearInterval(_planPayCheckInterval);
+      _planPayCheckInterval = null;
+      planPaymentConfirmed(_pendingPlanId);
+    }
+  } catch(e) { /* keep polling */ }
+}
+
+function planPaymentConfirmed(planId) {
+  const plan = PLANS[planId];
+  currentPlan = planId;
+  closePlanPayModal();
 
   const successMsgs = {
     ru: `✅ Тариф «${plan.name.ru}» активирован!`,
     uk: `✅ Тариф «${plan.name.uk}» активовано!`,
     en: `✅ Plan «${plan.name.en}» activated!`
   };
-
   hideSubscriptionScreen();
 
   const loadEl = document.getElementById('vLoading');
   if (loadEl) { loadEl.style.display = 'none'; loadEl.style.opacity = '0'; }
-
   const vm = document.getElementById('vMain');
   if (vm) {
     vm.className = 'view';
     vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
   }
-
   const nav = document.getElementById('mainBottomNav');
   if (nav) { nav.style.display = ''; nav.style.opacity = '1'; nav.style.pointerEvents = 'auto'; }
-
   const fab = document.getElementById('aiFab');
   if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
 
@@ -3845,6 +3961,60 @@ function openRenewPayModal() {
 applyI18n();
 init();
 </script>
+
+
+<!-- ── Plan Payment Modal ──────────────────────────────────────── -->
+<div id="planPayModal" onclick="closePlanPayModalOutside(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:600;align-items:flex-end;">
+  <style>
+    #planPayModal.open { display:flex !important; }
+    .plan-pay-method { display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#1a1a20;border:.5px solid #272730;border-radius:14px;cursor:pointer;transition:border-color .15s; }
+    .plan-pay-method.sel { border-color:#6b6bff; background:#1a1a2e; }
+    .plan-pay-method-left { display:flex;align-items:center;gap:12px;font-size:14px;color:#e0e0f0;font-weight:500; }
+    .plan-pay-method-tag { font-size:11px;color:#666; }
+  </style>
+  <div onclick="event.stopPropagation()" style="background:#14141a;border-radius:24px 24px 0 0;padding:20px 16px 40px;width:100%;max-height:90vh;overflow-y:auto;animation:sheetUp .3s cubic-bezier(.4,0,.2,1);">
+    <div style="width:36px;height:4px;background:#272730;border-radius:2px;margin:0 auto 20px;"></div>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <span style="font-size:14px;color:#7c7cdc;font-weight:600;">💳</span>
+      <span id="planPayTitle" style="font-size:14px;color:#7c7cdc;font-weight:600;">Оформить тариф</span>
+    </div>
+    <p id="planPaySubtitle" style="font-size:12px;color:#555;margin:0 0 18px;">Выберите способ оплаты</p>
+
+    <!-- Amount -->
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:16px;margin-bottom:18px;">
+      <p style="font-size:11px;color:#555;margin:0 0 4px;letter-spacing:.5px;text-transform:uppercase;">Сумма</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span id="planPayAmount" style="font-size:24px;font-weight:800;color:#e8e8f0;">$0.00 USDT</span>
+        <span id="planPayBadge" style="background:#1e1e30;border:.5px solid #6b6bff44;color:#a78bfa;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;">Тариф</span>
+      </div>
+      <p style="font-size:11px;color:#444;margin:6px 0 0;">1 месяц доступа</p>
+    </div>
+
+    <!-- Payment methods -->
+    <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;">СПОСОБ ОПЛАТЫ</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+      <div class="plan-pay-method" onclick="selectPlanPayMethod('cryptobot', this)">
+        <div class="plan-pay-method-left"><span style="font-size:20px;">🤖</span> CryptoBot (Telegram)</div>
+        <span class="plan-pay-method-tag">Fast</span>
+      </div>
+      <div class="plan-pay-method" onclick="selectPlanPayMethod('USDT_TRC20', this)">
+        <div class="plan-pay-method-left"><span style="font-size:20px;">💚</span> USDT (TRC-20)</div>
+        <span class="plan-pay-method-tag">TRC-20</span>
+      </div>
+      <div class="plan-pay-method" onclick="selectPlanPayMethod('USDT_POLYGON', this)">
+        <div class="plan-pay-method-left"><span style="font-size:20px;">🟣</span> USDT (Polygon)</div>
+        <span class="plan-pay-method-tag">Polygon</span>
+      </div>
+    </div>
+
+    <button id="planPayBtn" onclick="confirmPlanPayment()" style="width:100%;padding:14px;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;opacity:.35;pointer-events:none;transition:opacity .2s;margin-bottom:10px;">
+      Оплатить
+    </button>
+    <button onclick="closePlanPayModal()" style="width:100%;background:none;border:none;color:#555;font-size:14px;cursor:pointer;padding:8px 0;">Отмена</button>
+  </div>
+</div>
 
 <div id="confirmDeleteModal" onclick="closeConfirmDelete()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;align-items:flex-end;">
   <div onclick="event.stopPropagation()" style="background:#1a1a20;border-radius:24px 24px 0 0;padding:20px 16px 44px;width:100%;animation:sheetUp .3s cubic-bezier(.4,0,.2,1);">
