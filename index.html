@@ -4343,9 +4343,16 @@ function openReferralScreen() {
   el.style.display = 'flex';
   applyTheme();
   updateI18n();
+  // Resolve user ID from multiple sources
+  const uid = currentUserId
+    || window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
+    || tg?.initDataUnsafe?.user?.id
+    || null;
   const linkInput = document.getElementById('refLinkInput');
-  if (linkInput && currentUserId) {
-    linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${currentUserId}`;
+  if (linkInput && uid) {
+    linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${uid}`;
+  } else if (linkInput) {
+    linkInput.placeholder = 'Загрузка...';
   }
   loadReferralData();
 }
@@ -4354,11 +4361,20 @@ function closeReferralScreen() {
   if (el) el.style.display = 'none';
 }
 async function loadReferralData() {
-  if (!currentUserId) return;
+  const uid = currentUserId
+    || window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
+    || tg?.initDataUnsafe?.user?.id
+    || null;
+  if (!uid) return;
   const L = currentLang;
   const th = getTheme();
+  // Always ensure link is visible
+  const linkInput = document.getElementById('refLinkInput');
+  if (linkInput && !linkInput.value) {
+    linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${uid}`;
+  }
   try {
-    const data = await apiFetch('/api/referral/' + currentUserId);
+    const data = await apiFetch('/api/referral/' + uid);
     if (!data || data.error) return;
     const balance = data.balance || 0;
     const minW = data.min_withdraw || 5;
