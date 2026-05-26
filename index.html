@@ -4326,7 +4326,14 @@ init();
 // ══ REFERRAL SCREEN ═══════════════════════════════════════════
 function openReferralScreen() {
   const el = document.getElementById('vReferral');
-  if (el) { el.style.display = 'flex'; loadReferralData(); }
+  if (!el) return;
+  el.style.display = 'flex';
+  // Set link immediately from currentUserId — no API needed
+  const linkInput = document.getElementById('refLinkInput');
+  if (linkInput && currentUserId) {
+    linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${currentUserId}`;
+  }
+  loadReferralData();
 }
 
 function closeReferralScreen() {
