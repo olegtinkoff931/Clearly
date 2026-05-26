@@ -1470,6 +1470,7 @@ async function init() {
   try {
   const tgUser = tg?.initDataUnsafe?.user;
   currentUserId = tgUser?.id || null;
+  if (currentUserId) { try { sessionStorage.setItem("_cuid", currentUserId); } catch(e){} }
 
   if(!currentUserId) {
     hideLoading();
@@ -4347,6 +4348,7 @@ function openReferralScreen() {
   const uid = currentUserId
     || window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
     || tg?.initDataUnsafe?.user?.id
+    || (() => { try { return sessionStorage.getItem('_cuid'); } catch(e){ return null; } })()
     || null;
   const linkInput = document.getElementById('refLinkInput');
   if (linkInput && uid) {
@@ -4364,6 +4366,7 @@ async function loadReferralData() {
   const uid = currentUserId
     || window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
     || tg?.initDataUnsafe?.user?.id
+    || (() => { try { return sessionStorage.getItem('_cuid'); } catch(e){ return null; } })()
     || null;
   if (!uid) return;
   const L = currentLang;
