@@ -4344,17 +4344,33 @@ function openReferralScreen() {
   el.style.display = 'flex';
   applyTheme();
   updateI18n();
-  // Resolve user ID from multiple sources
-  const uid = currentUserId
-    || window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
-    || tg?.initDataUnsafe?.user?.id
-    || (() => { try { return sessionStorage.getItem('_cuid'); } catch(e){ return null; } })()
-    || null;
+  // Resolve user ID from multiple sources (uid can be numeric 0, so use != null check)
+  function resolveUid() {
+    if (currentUserId != null && currentUserId !== '') return String(currentUserId);
+    const tgUid = window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
+      || tg?.initDataUnsafe?.user?.id;
+    if (tgUid != null && tgUid !== '') return String(tgUid);
+    try { const s = sessionStorage.getItem('_cuid'); if (s) return s; } catch(e) {}
+    return null;
+  }
+  const uid = resolveUid();
   const linkInput = document.getElementById('refLinkInput');
-  if (linkInput && uid) {
-    linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${uid}`;
-  } else if (linkInput) {
-    linkInput.placeholder = 'Загрузка...';
+  if (linkInput) {
+    if (uid) {
+      linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${uid}`;
+      linkInput.placeholder = '';
+    } else {
+      linkInput.value = '';
+      linkInput.placeholder = 'Загрузка...';
+      // Retry after short delay in case Telegram SDK hasn't initialized yet
+      setTimeout(() => {
+        const retryUid = resolveUid();
+        if (retryUid && !linkInput.value) {
+          linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${retryUid}`;
+          linkInput.placeholder = '';
+        }
+      }, 800);
+    }
   }
   loadReferralData();
 }
@@ -4363,17 +4379,21 @@ function closeReferralScreen() {
   if (el) el.style.display = 'none';
 }
 async function loadReferralData() {
-  const uid = currentUserId
-    || window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
-    || tg?.initDataUnsafe?.user?.id
-    || (() => { try { return sessionStorage.getItem('_cuid'); } catch(e){ return null; } })()
-    || null;
+  function resolveUid() {
+    if (currentUserId != null && currentUserId !== '') return String(currentUserId);
+    const tgUid = window?.Telegram?.WebApp?.initDataUnsafe?.user?.id
+      || tg?.initDataUnsafe?.user?.id;
+    if (tgUid != null && tgUid !== '') return String(tgUid);
+    try { const s = sessionStorage.getItem('_cuid'); if (s) return s; } catch(e) {}
+    return null;
+  }
+  const uid = resolveUid();
   if (!uid) return;
   const L = currentLang;
   const th = getTheme();
   // Always ensure link is visible
   const linkInput = document.getElementById('refLinkInput');
-  if (linkInput && !linkInput.value) {
+  if (linkInput && !linkInput.value && uid) {
     linkInput.value = `https://t.me/crypto_clearly_bot?start=ref_${uid}`;
   }
   try {
