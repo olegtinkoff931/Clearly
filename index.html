@@ -323,7 +323,9 @@
     .qbtn { font-size:11px; color:#a78bfa; background:#18182a; border:.5px solid #5b5bdc33; border-radius:8px; padding:5px 11px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
 
     #vSubscription { position:fixed; inset:0; background:#0e0e10; z-index:9990; display:flex; flex-direction:column; overflow-y:auto; }
-    .sub-header { padding:20px 20px 10px; text-align:center; }
+    .sub-header { padding:20px 20px 10px; text-align:center; position:relative; }
+    .sub-back-btn { position:absolute; top:16px; left:16px; display:flex; align-items:center; gap:5px; background:none; border:none; color:#7878cc; font-size:14px; font-weight:500; cursor:pointer; padding:6px 8px; border-radius:10px; transition:background .15s,color .15s; }
+    .sub-back-btn:active { background:#1a1a2a; color:#a78bfa; }
     .sub-lock-icon { font-size:40px; margin-bottom:12px; }
     .sub-title { font-size:22px; font-weight:700; color:#e8e8f0; margin:0 0 6px; }
     .sub-desc { font-size:13px; color:#666; line-height:1.5; margin:0; }
@@ -410,6 +412,9 @@
 
   <div id="vSubscription" style="display:none;">
     <div class="sub-header">
+      <button class="sub-back-btn" id="subBackBtn" onclick="hideSubscriptionScreen()" style="display:none;">
+        ‹ Назад
+      </button>
       <div class="sub-lock-icon">🔐</div>
       <p class="sub-title" id="subTitle">Выберите тариф</p>
       <p class="sub-desc" id="subDesc">Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.</p>
@@ -3825,6 +3830,9 @@ async function toggleFeedTranslate(btn) {
 
 function showSubscriptionScreen(highlightPlan) {
   document.getElementById('vSubscription').style.display = 'flex';
+  // Show back button only if user already has an active plan (came from "Change plan")
+  const backBtn = document.getElementById('subBackBtn');
+  if (backBtn) backBtn.style.display = currentPlan ? 'flex' : 'none';
   renderSubscriptionPlans(highlightPlan || null);
 }
 
