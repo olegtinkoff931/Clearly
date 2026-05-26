@@ -642,6 +642,13 @@
           <div style="text-align:center;"><p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p><p style="font-size:10px;color:#555;margin:0;" data-i18n="profPerMonth">Per month</p></div>
         </div>
       </div>
+      <!-- Partner Program Button -->
+      <div style="margin:0 16px 16px;">
+        <button onclick="openReferralScreen()" style="width:100%;background:#1a1a20;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:14px;padding:13px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <i class="ti ti-users" style="font-size:16px;"></i>
+          <span data-i18n="profPartnerBtn">🤝 Партнёрская программа</span>
+        </button>
+      </div>
       <div class="toast" id="profileToast"></div>
     </div>
 
@@ -919,7 +926,12 @@ const i18n = {
     profMyProfile:'👤 MY PROFILE', profMyPlans:'📦 MY PLANS', profStats:'📊 STATS',
     profChannelsLabel:'Channels', profPlansLabel:'Plans', profPerMonth:'Per month',
     profActivePlan:'Active Plan', profActiveLabel:'● Active', profNoPlans:'No active plans. Choose a pack below.',
-    profActivBtn:'✓ Active', profAddBtn:'+ Add', profUpToDate:'Plan is up to date', profChangePlan:'Change plan',
+    profActivBtn:'✓ Active', profAddBtn:'+ Add', profUpToDate:'Plan is up to date', profChangePlan:'Change plan', profPartnerBtn:'🤝 Partner Program',
+    refTitle:'Partner Program', refHeadline:'Invite friends and earn', refSubDesc:'Earn 5% from every referral who pays for a plan.',
+    refAvailable:'Available to withdraw', refActiveRefs:'Active referrals', refCommission:'Commission rate', refMinWithdraw:'Min. withdrawal',
+    refYourLink:'YOUR LINK', refCopy:'Copy', refRule1:'You earn 5% only from referrals who bought a plan.', refRule2:'Earnings credited after successful payment.', refRule3:'Minimum withdrawal amount — $5.', refRule4:'Admin contact appears only after reaching the minimum.',
+    refWithdrawTitle:'Withdrawal', refWithdrawDesc:'Accumulate at least $5 to withdraw.', refContactBtn:'Contact administrator @rvelikiy',
+    refListTitle:'MY REFERRALS', refNoRefs:'No referrals yet. Share your link!', refEarningsTitle:'EARNINGS HISTORY', refNoEarnings:'No earnings yet.', refCopied:'Link copied!',
     themeTitle:'🎨 Appearance', themeSub:'Choose your interface style', applyTheme:'Apply Theme',
     themeApplied:'Theme "{name}" applied', notifTitle:'🔔 Notifications', notifSub:'Manage alerts',
     notifOn:'{n} on', allNotif:'All notifications', allNotifSub:'Enable or disable all',
@@ -1023,7 +1035,12 @@ const i18n = {
     noChannelsTitle:'Каналів поки немає', noChannelsSub:'Натисніть «Новий канал» щоб додати',
     profMyProfile:'👤 МІЙ ПРОФІЛЬ', profMyPlans:'📦 МОЇ ПЛАНИ', profStats:'📊 СТАТИСТИКА',
     profChannelsLabel:'Канали', profPlansLabel:'Плани', profPerMonth:'На місяць',
-    profActivePlan:'Активний план', profActiveLabel:'● Активний', profNoPlans:'Немає активних планів. Оберіть пакет нижче.',
+    profActivePlan:'Активний план', profActiveLabel:'● Активний', profNoPlans:'Немає активних планів. Оберіть пакет нижче.', profPartnerBtn:'🤝 Партнерська програма',
+    refTitle:'Партнерська програма', refHeadline:'Запрошуй друзів та отримуй', refSubDesc:'Отримуй 5% від кожного реферала, який оплатив тариф.',
+    refAvailable:'Доступно для виведення', refActiveRefs:'Активних рефералів', refCommission:'Комісія з тарифу', refMinWithdraw:'Мін. виведення',
+    refYourLink:'ТВОЄ ПОСИЛАННЯ', refCopy:'Скопіювати', refRule1:'Ти отримуєш 5% тільки з активного реферала, який купив тариф.', refRule2:'Нарахування відбувається після успішної оплати тарифу рефералом.', refRule3:'Мінімальна сума для виведення — $5.', refRule4:'Контакт адміна зʼявляється тільки після досягнення мінімуму.',
+    refWithdrawTitle:'Виведення коштів', refWithdrawDesc:'Накопичіть щонайменше $5 для виведення.', refContactBtn:'Звʼязатися з адміном @rvelikiy',
+    refListTitle:'МОЇ РЕФЕРАЛИ', refNoRefs:'Поки немає рефералів. Поділіться посиланням!', refEarningsTitle:'ІСТОРІЯ НАРАХУВАНЬ', refNoEarnings:'Нарахувань поки немає.', refCopied:'Посилання скопійовано!',
     profActivBtn:'✓ Активний', profAddBtn:'+ Додати', profUpToDate:'План актуальний', profChangePlan:'Змінити план',
     themeTitle:'🎨 Тема', themeSub:'Оберіть стиль', applyTheme:'Застосувати тему',
     themeApplied:'Тему «{name}» застосовано', notifTitle:'🔔 Сповіщення', notifSub:'Управління',
@@ -1126,7 +1143,12 @@ const i18n = {
     noChannelsTitle:'Каналов пока нет', noChannelsSub:'Нажми «Новый канал» чтобы добавить',
     profMyProfile:'👤 МОЙ ПРОФИЛЬ', profMyPlans:'📦 МОИ ПЛАНЫ', profStats:'📊 СТАТИСТИКА',
     profChannelsLabel:'Каналы', profPlansLabel:'Планы', profPerMonth:'В месяц',
-    profActivePlan:'Активный план', profActiveLabel:'● Активен', profNoPlans:'Нет активных планов. Выберите пакет ниже.',
+    profActivePlan:'Активный план', profActiveLabel:'● Активен', profNoPlans:'Нет активных планов. Выберите пакет ниже.', profPartnerBtn:'🤝 Партнёрская программа',
+    refTitle:'Партнёрская программа', refHeadline:'Приглашай друзей и получай', refSubDesc:'Получай 5% от каждого реферала, который оплатил тариф.',
+    refAvailable:'Доступно к выводу', refActiveRefs:'Активных рефералов', refCommission:'Комиссия с тарифа', refMinWithdraw:'Минимальный вывод',
+    refYourLink:'ТВОЯ ССЫЛКА', refCopy:'Скопировать', refRule1:'Ты получаешь 5% только с активного реферала, который купил тариф.', refRule2:'Начисление происходит после успешной оплаты тарифа рефералом.', refRule3:'Минимальная сумма для вывода — $5.', refRule4:'Связь с админом открывается только после достижения минимальной суммы вывода.',
+    refWithdrawTitle:'Вывод средств', refWithdrawDesc:'Накопите минимум $5 для вывода.', refContactBtn:'Связаться с администратором @rvelikiy',
+    refListTitle:'МОИ РЕФЕРАЛЫ', refNoRefs:'Пока нет рефералов. Поделитесь ссылкой!', refEarningsTitle:'ИСТОРИЯ НАЧИСЛЕНИЙ', refNoEarnings:'Начислений пока нет.', refCopied:'Ссылка скопирована!',
     profActivBtn:'✓ Активен', profAddBtn:'+ Добавить', profUpToDate:'План актуален', profChangePlan:'Изменить план',
     themeTitle:'🎨 Тема', themeSub:'Выберите стиль', applyTheme:'Применить тему',
     themeApplied:'Тема «{name}» применена', notifTitle:'🔔 Уведомления', notifSub:'Управление',
@@ -4217,5 +4239,202 @@ init();
   </div>
 </div>
 
+
+  <!-- ══ REFERRAL SCREEN ══════════════════════════════════════ -->
+  <div id="vReferral" style="position:fixed;inset:0;background:#0e0e10;z-index:9995;display:none;flex-direction:column;overflow-y:auto;">
+    <div style="flex-shrink:0;padding:16px 16px 0;display:flex;align-items:center;gap:10px;border-bottom:.5px solid #1e1e26;padding-bottom:14px;">
+      <button onclick="closeReferralScreen()" style="background:none;border:none;color:#7878cc;font-size:22px;cursor:pointer;padding:2px 8px 2px 0;line-height:1;">‹</button>
+      <p style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0;" data-i18n="refTitle">Партнёрская программа</p>
+    </div>
+    <div id="refContent" style="padding:16px;display:flex;flex-direction:column;gap:14px;">
+      <div style="text-align:center;padding:10px 0 4px;">
+        <p style="font-size:22px;font-weight:800;color:#e8e8f0;margin:0 0 4px;">
+          <span data-i18n="refHeadline">Приглашай друзей и получай</span>
+          <span style="color:#a78bfa;"> 5%</span>
+        </p>
+        <p id="refSubDesc" style="font-size:13px;color:#666;margin:0;" data-i18n="refSubDesc">Получай 5% от каждого реферала, который оплатил тариф.</p>
+      </div>
+
+      <!-- Stats grid -->
+      <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#111118;border-radius:12px;padding:12px;">
+          <p id="refBalance" style="font-size:22px;font-weight:800;color:#e8e8f0;margin:0 0 2px;">$0.00</p>
+          <p style="font-size:11px;color:#666;margin:0;" data-i18n="refAvailable">Доступно к выводу</p>
+        </div>
+        <div style="background:#111118;border-radius:12px;padding:12px;">
+          <p id="refActiveCount" style="font-size:22px;font-weight:800;color:#e8e8f0;margin:0 0 2px;">0</p>
+          <p style="font-size:11px;color:#666;margin:0;" data-i18n="refActiveRefs">Активных рефералов</p>
+        </div>
+        <div style="background:#111118;border-radius:12px;padding:12px;">
+          <p style="font-size:22px;font-weight:800;color:#e8e8f0;margin:0 0 2px;">5%</p>
+          <p style="font-size:11px;color:#666;margin:0;" data-i18n="refCommission">Комиссия с тарифа</p>
+        </div>
+        <div style="background:#111118;border-radius:12px;padding:12px;">
+          <p style="font-size:22px;font-weight:800;color:#e8e8f0;margin:0 0 2px;">$5</p>
+          <p style="font-size:11px;color:#666;margin:0;" data-i18n="refMinWithdraw">Минимальный вывод</p>
+        </div>
+      </div>
+
+      <!-- Referral link -->
+      <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+        <p style="font-size:10px;color:#6b6bff;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;" data-i18n="refYourLink">ТВОЯ ССЫЛКА</p>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+          <input id="refLinkInput" readonly style="flex:1;background:#111;border:.5px solid #2e2e38;color:#b0b0c8;border-radius:10px;padding:10px 12px;font-size:12px;outline:none;min-width:0;">
+          <button onclick="copyRefLink()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" data-i18n="refCopy">Скопировать</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <p style="font-size:12px;color:#3aaa6e;margin:0;">✓ <span data-i18n="refRule1">Ты получаешь 5% только с активного реферала, который купил тариф.</span></p>
+          <p style="font-size:12px;color:#3aaa6e;margin:0;">✓ <span data-i18n="refRule2">Начисление происходит после успешной оплаты тарифом рефералом.</span></p>
+          <p style="font-size:12px;color:#3aaa6e;margin:0;">✓ <span data-i18n="refRule3">Минимальная сумма для вывода — $5.</span></p>
+          <p style="font-size:12px;color:#3aaa6e;margin:0;">✓ <span data-i18n="refRule4">Связь с админом открывается только после достижения минимальной суммы вывода.</span></p>
+        </div>
+      </div>
+
+      <!-- Withdrawal block -->
+      <div id="refWithdrawBlock" style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <p style="font-size:14px;font-weight:700;color:#e8e8f0;margin:0;" data-i18n="refWithdrawTitle">Вывод средств</p>
+          <span id="refWithdrawBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#2a1010;color:#e05252;">Недоступно</span>
+        </div>
+        <div style="background:#111;border-radius:8px;height:6px;margin-bottom:10px;overflow:hidden;">
+          <div id="refProgressBar" style="height:100%;background:linear-gradient(90deg,#6b6bff,#06b6d4);border-radius:8px;transition:width .4s;width:0%;"></div>
+        </div>
+        <p id="refWithdrawDesc" style="font-size:12px;color:#666;margin:0 0 10px;" data-i18n="refWithdrawDesc">Накопите минимум $5 для вывода.</p>
+        <button id="refContactBtn" onclick="openRefContact()" style="display:none;width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;" data-i18n="refContactBtn">Связаться с администратором</button>
+      </div>
+
+      <!-- Referral list -->
+      <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
+        <p style="font-size:10px;color:#6b6bff;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;" data-i18n="refListTitle">МОИ РЕФЕРАЛЫ</p>
+        <div id="refList" style="display:flex;flex-direction:column;gap:8px;">
+          <p style="font-size:12px;color:#555;margin:0;" data-i18n="refNoRefs">Пока нет рефералов. Поделитесь ссылкой!</p>
+        </div>
+      </div>
+
+      <!-- Earnings history -->
+      <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;margin-bottom:8px;">
+        <p style="font-size:10px;color:#6b6bff;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;" data-i18n="refEarningsTitle">ИСТОРИЯ НАЧИСЛЕНИЙ</p>
+        <div id="refEarnings" style="display:flex;flex-direction:column;gap:8px;">
+          <p style="font-size:12px;color:#555;margin:0;" data-i18n="refNoEarnings">Начислений пока нет.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+
+// ══ REFERRAL SCREEN ═══════════════════════════════════════════
+function openReferralScreen() {
+  const el = document.getElementById('vReferral');
+  if (el) { el.style.display = 'flex'; loadReferralData(); }
+}
+
+function closeReferralScreen() {
+  const el = document.getElementById('vReferral');
+  if (el) el.style.display = 'none';
+}
+
+async function loadReferralData() {
+  if (!currentUserId) return;
+  const L = currentLang;
+  try {
+    const data = await apiFetch('/api/referral/' + currentUserId);
+    if (!data) return;
+
+    // Stats
+    const balance = data.balance || 0;
+    const minW = data.min_withdraw || 5;
+    document.getElementById('refBalance').textContent = '$' + balance.toFixed(2);
+    document.getElementById('refActiveCount').textContent = data.active_refs || 0;
+
+    // Link
+    const linkInput = document.getElementById('refLinkInput');
+    if (linkInput) linkInput.value = data.ref_link || '';
+
+    // Withdrawal block
+    const pct = Math.min(100, Math.round((balance / minW) * 100));
+    document.getElementById('refProgressBar').style.width = pct + '%';
+    const badge = document.getElementById('refWithdrawBadge');
+    const desc = document.getElementById('refWithdrawDesc');
+    const btn = document.getElementById('refContactBtn');
+    if (balance >= minW) {
+      badge.textContent = L==='ru'?'Доступно':L==='uk'?'Доступно':'Available';
+      badge.style.background = '#1a3a1a'; badge.style.color = '#3aaa6e';
+      desc.textContent = L==='ru'?'Минимальная сумма вывода достигнута. Свяжитесь с администратором для получения выплаты.':
+                         L==='uk'?'Мінімальна сума виведення досягнута. Зверніться до адміна для отримання виплати.':
+                         'Minimum withdrawal reached. Contact the administrator to receive your payout.';
+      btn.style.display = 'block';
+    } else {
+      badge.textContent = L==='ru'?'Недоступно':L==='uk'?'Недоступно':'Unavailable';
+      badge.style.background = '#2a1010'; badge.style.color = '#e05252';
+      const need = (minW - balance).toFixed(2);
+      desc.textContent = (L==='ru'
+        ? `Сейчас доступно: $${balance.toFixed(2)} из минимальных $${minW}. Для вывода нужно накопить ещё $${need}.`
+        : L==='uk'
+        ? `Зараз доступно: $${balance.toFixed(2)} з мінімальних $${minW}. Для виведення потрібно накопити ще $${need}.`
+        : `Available: $${balance.toFixed(2)} of $${minW} minimum. Need $${need} more to withdraw.`);
+      btn.style.display = 'none';
+    }
+
+    // Referral list
+    const listEl = document.getElementById('refList');
+    if (data.referrals && data.referrals.length > 0) {
+      listEl.innerHTML = data.referrals.map(r => {
+        const name = r.first_name || r.username || ('ID ' + r.referred_id);
+        const isPaid = r.paid === 1;
+        const date = r.joined_at ? r.joined_at.split('T')[0] : '—';
+        return `<div style="background:#111118;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${name}</p>
+            <p style="font-size:11px;color:#555;margin:0;">${date}</p>
+          </div>
+          <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;${isPaid?'background:#1a3a1a;color:#3aaa6e;':'background:#1a1a2a;color:#666;'}">
+            ${isPaid?(L==='ru'?'Активен':L==='uk'?'Активний':'Active'):(L==='ru'?'Не оплатил':L==='uk'?'Не оплатив':'Not paid')}
+          </span>
+        </div>`;
+      }).join('');
+    } else {
+      listEl.innerHTML = `<p style="font-size:12px;color:#555;margin:0;">${t('refNoRefs')}</p>`;
+    }
+
+    // Earnings history
+    const earnEl = document.getElementById('refEarnings');
+    if (data.earnings && data.earnings.length > 0) {
+      earnEl.innerHTML = data.earnings.map(e => {
+        const name = e.first_name || e.username || '—';
+        const date = e.created_at ? e.created_at.split('T')[0] : '—';
+        return `<div style="background:#111118;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">+$${parseFloat(e.amount).toFixed(2)}</p>
+            <p style="font-size:11px;color:#555;margin:0;">${name} · ${date}</p>
+          </div>
+          <span style="font-size:11px;color:#6b6bff;font-weight:600;">${e.plan || '—'}</span>
+        </div>`;
+      }).join('');
+    } else {
+      earnEl.innerHTML = `<p style="font-size:12px;color:#555;margin:0;">${t('refNoEarnings')}</p>`;
+    }
+  } catch(e) {
+    console.error('loadReferralData error', e);
+  }
+}
+
+function copyRefLink() {
+  const inp = document.getElementById('refLinkInput');
+  if (!inp) return;
+  navigator.clipboard.writeText(inp.value).then(() => {
+    const btn = document.querySelector('#vReferral button[onclick="copyRefLink()"]');
+    if (btn) { const orig = btn.textContent; btn.textContent = t('refCopied'); setTimeout(()=>btn.textContent=orig, 2000); }
+  }).catch(() => {
+    inp.select(); document.execCommand('copy');
+  });
+}
+
+function openRefContact() {
+  window.open('https://t.me/rvelikiy', '_blank');
+}
+// ══ END REFERRAL ═══════════════════════════════════════════════
+
+</script>
 </body>
 </html>
