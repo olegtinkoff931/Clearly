@@ -609,6 +609,11 @@
         <span class="lang-pill-name">Українська</span>
         <span class="lang-pill-tag">UK</span>
       </div>
+      <div class="lang-pill" id="pill-cs" onclick="setLang('cs')">
+        <span class="lang-pill-flag">🇨🇿</span>
+        <span class="lang-pill-name">Cestina</span>
+        <span class="lang-pill-tag">CS</span>
+      </div>
     </div>
     <p class="settings-section" data-i18n="supportSection">SUPPORT</p>
     <div class="settings-card" style="margin:0 12px 8px;">
@@ -1272,6 +1277,8 @@ const i18n = {
     subFooterPay:'Оплата через Криптовалюту. Управление тарифом — в разделе Профиль.',
   }
 };
+// Czech locale: start from English defaults, override key copy where needed.
+i18n.cs = { ...i18n.en, langChanged:'🌐 Jazyk zmenen na cestinu' };
 
 function t(key, vars={}) {
   let str = (i18n[currentLang]||i18n.en)[key] || key;
@@ -1531,6 +1538,7 @@ async function init() {
   document.getElementById('pill-en').classList.toggle('active', currentLang==='en');
   document.getElementById('pill-ru').classList.toggle('active', currentLang==='ru');
   document.getElementById('pill-uk').classList.toggle('active', currentLang==='uk');
+  document.getElementById('pill-cs').classList.toggle('active', currentLang==='cs');
   applyI18n();
 
   channels = (userData.channels||[]).map(c=>({
@@ -2997,6 +3005,7 @@ async function setLang(lang) {
   document.getElementById('pill-en').classList.toggle('active',lang==='en');
   document.getElementById('pill-ru').classList.toggle('active',lang==='ru');
   document.getElementById('pill-uk').classList.toggle('active',lang==='uk');
+  document.getElementById('pill-cs').classList.toggle('active',lang==='cs');
   document.querySelectorAll('.lang-pill').forEach(pill=>{
     pill.style.borderColor='';
     pill.style.background='';
@@ -3879,18 +3888,18 @@ async function toggleFeedTranslate(btn) {
   if(btn.dataset.translated === '1') {
     textEl.textContent = origText;
     btn.dataset.translated = '0';
-    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : '🌐 Translate';
+    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : currentLang === 'cs' ? '🌐 Prelozit' : '🌐 Translate';
     if(badge) badge.style.display = 'none';
     return;
   }
-  const tgt = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English';
-  const tgtShort = currentLang === 'ru' ? 'ru' : currentLang === 'uk' ? 'uk' : 'en';
+  const tgt = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : currentLang === 'cs' ? 'Czech' : 'English';
+  const tgtShort = currentLang === 'ru' ? 'ru' : currentLang === 'uk' ? 'uk' : currentLang === 'cs' ? 'cs' : 'en';
   const key = msgId + '_' + tgtShort;
   if(_txc[key]) {
     textEl.textContent = _txc[key];
     btn.dataset.translated = '1';
-    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
-    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
+    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : currentLang === 'cs' ? '↩ Original' : '↩ Original';
+    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : currentLang === 'cs' ? '🌐 Prelozeno do cestiny' : '🌐 Translated to English'; badge.style.display='block'; }
     return;
   }
   btn.classList.add('loading');
@@ -3911,11 +3920,11 @@ async function toggleFeedTranslate(btn) {
     textEl.textContent = translated;
     btn.dataset.translated = '1';
     btn.classList.remove('loading');
-    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : '↩ Original';
-    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : '🌐 Translated to English'; badge.style.display='block'; }
+    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : currentLang === 'cs' ? '↩ Original' : '↩ Original';
+    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : currentLang === 'cs' ? '🌐 Prelozeno do cestiny' : '🌐 Translated to English'; badge.style.display='block'; }
   } catch(e) {
     btn.classList.remove('loading');
-    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : '🌐 Translate';
+    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : currentLang === 'cs' ? '🌐 Prelozit' : '🌐 Translate';
   }
 }
 
