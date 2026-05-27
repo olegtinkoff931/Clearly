@@ -466,8 +466,39 @@
       </div>
       <p class="splash-title">Clearly</p>
       <p class="splash-tagline" data-i18n="tagline">All info in one message</p>
-      <button class="splash-btn" onclick="goTo('vSplash','vWelcome')" data-i18n="splashBtn">Get Started</button>
+      <button class="splash-btn" onclick="startOnboarding()" data-i18n="splashBtn">Get Started</button>
       <p class="splash-sub" data-i18n="splashSub">Setup takes 1 minute</p>
+    </div>
+  </div>
+
+  <div class="view out-right" id="vLangSelect">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 22px;text-align:center;">
+      <div class="w-emoji">🌐</div>
+      <p class="w-title" data-i18n="initialLangTitle">Choose language</p>
+      <p class="w-desc" data-i18n="initialLangDesc">Select your language before setup.</p>
+      <div class="lang-pills" style="width:100%;margin:18px 0 14px;">
+        <div class="lang-pill active" id="init-pill-en" onclick="selectInitialLang('en')">
+          <span class="lang-pill-flag">🇬🇧</span>
+          <span class="lang-pill-name">English</span>
+          <span class="lang-pill-tag">EN</span>
+        </div>
+        <div class="lang-pill" id="init-pill-ru" onclick="selectInitialLang('ru')">
+          <span class="lang-pill-flag">🇷🇺</span>
+          <span class="lang-pill-name">Русский</span>
+          <span class="lang-pill-tag">RU</span>
+        </div>
+        <div class="lang-pill" id="init-pill-uk" onclick="selectInitialLang('uk')">
+          <span class="lang-pill-flag">🇺🇦</span>
+          <span class="lang-pill-name">Українська</span>
+          <span class="lang-pill-tag">UK</span>
+        </div>
+        <div class="lang-pill" id="init-pill-cs" onclick="selectInitialLang('cs')">
+          <span class="lang-pill-flag">🇨🇿</span>
+          <span class="lang-pill-name">Čeština</span>
+          <span class="lang-pill-tag">CS</span>
+        </div>
+      </div>
+      <button class="w-btn" onclick="continueAfterInitialLang()" data-i18n="initialLangContinue">Continue</button>
     </div>
   </div>
 
@@ -963,6 +994,8 @@ if (tg) { tg.expand(); tg.ready(); }
 
 let currentUserId = null;
 let currentLang   = 'en';
+let needsInitialLangChoice = false;
+let onboardingLangChoice = null;
 
 const i18n = {
   en: {
@@ -998,6 +1031,9 @@ const i18n = {
     settingsTitle:'⚙️ Settings', settingsSub:'Customize your experience',
     settingsLangSection:'LANGUAGE', settingsLangTitle:'Interface Language',
     settingsLangSub:'Choose the language for the app', langChanged:'🌐 Language changed to English',
+    initialLangTitle:'Choose your language',
+    initialLangDesc:'Before the questionnaire, select your interface language.',
+    initialLangContinue:'Continue →',
     quizStep:'Question {n} of {total}', quizNext:'Next →', quizDone:'Done ✅',
     loading:'Loading Clearly…',
     aiComplete:'🤖 AI Analysis Complete',
@@ -1180,6 +1216,9 @@ const i18n = {
     settingsTitle:'⚙️ Налаштування', settingsSub:'Персоналізація',
     settingsLangSection:'МОВА', settingsLangTitle:'Мова інтерфейсу',
     settingsLangSub:'Оберіть мову застосунку', langChanged:'🌐 Мову змінено на Українську',
+    initialLangTitle:'Оберіть мову',
+    initialLangDesc:'Перед опитуванням виберіть мову інтерфейсу.',
+    initialLangContinue:'Продовжити →',
     quizStep:'Питання {n} з {total}', quizNext:'Далі →', quizDone:'Готово ✅',
     loading:'Завантаження Clearly…',
     aiComplete:'🤖 AI-аналіз завершено',
@@ -1414,6 +1453,9 @@ const i18n = {
     settingsLangTitle:'Jazyk rozhraní',
     settingsLangSub:'Zvolte jazyk aplikace',
     langChanged:'🌐 Jazyk změněn na češtinu',
+    initialLangTitle:'Vyberte jazyk',
+    initialLangDesc:'Před dotazníkem vyberte jazyk rozhraní.',
+    initialLangContinue:'Pokračovat →',
     quizStep:'Otázka {n} z {total}',
     quizNext:'Další →',
     quizDone:'Hotovo ✅',
@@ -1606,6 +1648,9 @@ const i18n = {
     settingsTitle:'⚙️ Настройки', settingsSub:'Персонализация',
     settingsLangSection:'ЯЗЫК', settingsLangTitle:'Язык интерфейса',
     settingsLangSub:'Выберите язык приложения', langChanged:'🌐 Язык изменён на Русский',
+    initialLangTitle:'Выберите язык',
+    initialLangDesc:'Перед опросом выберите язык интерфейса.',
+    initialLangContinue:'Продолжить →',
     quizStep:'Вопрос {n} из {total}', quizNext:'Далее →', quizDone:'Готово ✅',
     loading:'Загрузка Clearly…',
     aiComplete:'🤖 AI-анализ завершён',
@@ -1773,6 +1818,22 @@ function applyI18n() {
   });
   if (document.getElementById('vTheme')?.classList.contains('visible')) renderThemes();
   updateCount();
+}
+
+function syncSettingsLangPills(lang = currentLang) {
+  const langs = ['en','ru','uk','cs'];
+  langs.forEach(l => {
+    const el = document.getElementById('pill-' + l);
+    if (el) el.classList.toggle('active', lang === l);
+  });
+}
+
+function syncInitialLangPills(lang = onboardingLangChoice || currentLang) {
+  const langs = ['en','ru','uk','cs'];
+  langs.forEach(l => {
+    const el = document.getElementById('init-pill-' + l);
+    if (el) el.classList.toggle('active', lang === l);
+  });
 }
 
 const themes=[
@@ -2024,10 +2085,9 @@ async function init() {
   }
 
   currentLang = userData.lang || 'en';
-  document.getElementById('pill-en').classList.toggle('active', currentLang==='en');
-  document.getElementById('pill-ru').classList.toggle('active', currentLang==='ru');
-  document.getElementById('pill-uk').classList.toggle('active', currentLang==='uk');
-  document.getElementById('pill-cs').classList.toggle('active', currentLang==='cs');
+  onboardingLangChoice = currentLang;
+  syncSettingsLangPills(currentLang);
+  syncInitialLangPills(currentLang);
   applyI18n();
 
   channels = (userData.channels||[]).map(c=>({
@@ -2065,6 +2125,7 @@ async function init() {
   }
 
   if(userData.quiz_done) {
+    needsInitialLangChoice = false;
     renderChannelList();
     renderProfileScreen();
     if (!hasPlan()) {
@@ -2081,6 +2142,8 @@ async function init() {
       if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
     }
   } else {
+    needsInitialLangChoice = true;
+    onboardingLangChoice = currentLang;
     showView('vSplash');
   }
 
@@ -2182,6 +2245,40 @@ function goTo(fromId, toId) {
   document.getElementById(fromId).classList.add('out-left');
   const to=document.getElementById(toId);
   to.classList.remove('out-right','out-left','hidden');
+}
+
+function startOnboarding() {
+  if (needsInitialLangChoice) {
+    onboardingLangChoice = onboardingLangChoice || currentLang || 'en';
+    syncInitialLangPills(onboardingLangChoice);
+    goTo('vSplash','vLangSelect');
+    return;
+  }
+  goTo('vSplash','vWelcome');
+}
+
+function selectInitialLang(lang) {
+  onboardingLangChoice = lang;
+  currentLang = lang;
+  syncInitialLangPills(lang);
+  syncSettingsLangPills(lang);
+  applyI18n();
+}
+
+async function continueAfterInitialLang() {
+  const lang = onboardingLangChoice || currentLang || 'en';
+  currentLang = lang;
+  syncInitialLangPills(lang);
+  syncSettingsLangPills(lang);
+  applyI18n();
+  if (currentUserId) {
+    try { await apiFetch('/api/lang','POST',{user_id:currentUserId,lang}); } catch(e) {}
+    if (tg?.sendData) {
+      try { tg.sendData(JSON.stringify({type:'lang_change',user_id:currentUserId,lang})); } catch(e) {}
+    }
+  }
+  needsInitialLangChoice = false;
+  goTo('vLangSelect','vWelcome');
 }
 
 function startQuiz() {
@@ -3495,10 +3592,9 @@ function closeSettingsScreen() { document.getElementById('vSettings').classList.
 
 async function setLang(lang) {
   currentLang=lang;
-  document.getElementById('pill-en').classList.toggle('active',lang==='en');
-  document.getElementById('pill-ru').classList.toggle('active',lang==='ru');
-  document.getElementById('pill-uk').classList.toggle('active',lang==='uk');
-  document.getElementById('pill-cs').classList.toggle('active',lang==='cs');
+  onboardingLangChoice = lang;
+  syncSettingsLangPills(lang);
+  syncInitialLangPills(lang);
   document.querySelectorAll('.lang-pill').forEach(pill=>{
     pill.style.borderColor='';
     pill.style.background='';
