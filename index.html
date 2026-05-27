@@ -2282,6 +2282,8 @@ function startOnboarding() {
   if (needsInitialLangChoice) {
     onboardingLangChoice = onboardingLangChoice || currentLang || 'en';
     syncInitialLangPills(onboardingLangChoice);
+    // Ensure main UI stays hidden during language choice
+    document.getElementById('vMain')?.classList.add('hidden');
     goTo('vSplash','vLangSelect');
     return;
   }
@@ -2291,6 +2293,8 @@ function startOnboarding() {
 function selectInitialLang(lang) {
   onboardingLangChoice = lang;
   currentLang = lang;
+  // Do not let main UI bleed through while choosing language
+  document.getElementById('vMain')?.classList.add('hidden');
   // Theme applies inline styles to `.lang-pill.active`; clear old ones first
   _resetLangPillInlineStyles('#vLangSelect .lang-pill');
   syncInitialLangPills(lang);
@@ -3640,7 +3644,13 @@ async function setLang(lang) {
   applyTheme(currentTheme);
   applyI18n();
   if (document.getElementById('vTheme')?.classList.contains('visible')) renderThemes();
-  renderChannelList();
+  // If user is currently on the initial language selection screen,
+  // don't touch main UI to avoid it "popping in" behind the overlay.
+  if (!document.getElementById('vLangSelect')?.classList.contains('hidden')) {
+    // keep current screen stable
+  } else {
+    renderChannelList();
+  }
   syncNotifScreen();
   if(document.getElementById('vProfile').style.transform==='translateX(0px)' ||
      document.getElementById('vProfile').style.transform==='translateX(0)') renderProfileScreen();
