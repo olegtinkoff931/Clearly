@@ -121,9 +121,9 @@
     .av-red{background:#2a1010;color:#e05252} .av-amber{background:#221a08;color:#d49a2e} .av-green{background:#0c1f16;color:#3aaa6e}
     .nr-emoji { position:absolute; bottom:-4px; right:-4px; font-size:12px; animation:float 2.5s ease-in-out infinite; }
     @keyframes float { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-3px) rotate(5deg)} }
-    .nr-info { flex:1; min-width:0; }
-    .nr-name { font-size:13px; font-weight:500; color:#e8e8f0; margin:0 0 2px; }
-    .nr-meta { font-size:11px; color:#555; display:flex; align-items:center; gap:6px; }
+    .nr-info { flex:1; min-width:0; overflow:hidden; }
+    .nr-name { font-size:13px; font-weight:500; color:#e8e8f0; margin:0 0 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+    .nr-meta { font-size:11px; color:#555; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
     .nr-badge { font-size:9px; padding:2px 7px; border-radius:6px; font-weight:500; }
     .badge-high{background:#2a1010;color:#e05252;border:.5px solid #e0525244}
     .badge-mid {background:#221a08;color:#d49a2e;border:.5px solid #d49a2e44}
@@ -2908,7 +2908,13 @@ function toggleAll(globalCb) {
     cb.checked=globalCb.checked;
     const row=document.getElementById('row'+i);
     if(row) row.classList.toggle('muted',!globalCb.checked);
-    if(channels[i]) channels[i].notifOn=globalCb.checked;
+    if(channels[i]) {
+      channels[i].notifOn=globalCb.checked;
+      // Save each channel to DB (same as individual toggleRow)
+      if(channels[i].id && currentUserId) {
+        apiFetch('/api/notif','POST',{user_id:currentUserId,channel_id:channels[i].id,notif_on:globalCb.checked});
+      }
+    }
   });
   updateCount();
 }
@@ -2982,9 +2988,6 @@ const channelCatalog = [
   { source: 'telegram', username: '@financialjuice_news', name: 'Financial Juice',
     desc: { en: 'Fast macro & FED news feed', ru: 'Быстрые макро и новости ФРС', uk: 'Швидкі макро та новини ФРС' },
     emoji: '🍊', category: 'Macro', prio: 'high', featured: false },
-  { source: 'telegram', username: '@ReutersWorld', name: 'Reuters World',
-    desc: { en: 'Global breaking news by Reuters', ru: 'Мировые новости от Reuters', uk: 'Світові новини від Reuters' },
-    emoji: '📡', category: 'Macro', prio: 'high', featured: false },
   { source: 'telegram', username: '@Bloomberg', name: 'Bloomberg',
     desc: { en: 'Bloomberg markets and economy', ru: 'Bloomberg: рынки и экономика', uk: 'Bloomberg: ринки та економіка' },
     emoji: '📊', category: 'Macro', prio: 'high', featured: false },
@@ -3000,9 +3003,6 @@ const channelCatalog = [
   { source: 'telegram', username: '@dbnews', name: 'DB News',
     desc: { en: 'Breaking news for traders', ru: 'Срочные новости для трейдеров', uk: 'Термінові новини для трейдерів' },
     emoji: '📰', category: 'News', prio: 'high', featured: false },
-  { source: 'telegram', username: '@tier10k', name: 'Tier10k',
-    desc: { en: 'High-signal news and alpha', ru: 'Новости с высоким сигналом и альфа', uk: 'Новини з високим сигналом та альфа' },
-    emoji: '⚡', category: 'News', prio: 'high', featured: false },
   { source: 'telegram', username: '@WuBlockchain', name: 'Wu Blockchain',
     desc: { en: 'Crypto industry news from Asia', ru: 'Крипто-новости из Азии', uk: 'Крипто-новини з Азії' },
     emoji: '⛓️', category: 'Crypto', prio: 'high', featured: false },
@@ -3020,9 +3020,6 @@ const channelCatalog = [
   { source: 'twitter', username: '@financialjuice', name: 'Financial Juice',
     desc: { en: 'Macro & FED news on X', ru: 'Макро и ФРС в X', uk: 'Макро та ФРС в X' },
     emoji: '🍊', category: 'Macro', prio: 'high', featured: false },
-  { source: 'twitter', username: '@Reuters', name: 'Reuters',
-    desc: { en: 'Reuters breaking news on X', ru: 'Срочные новости Reuters в X', uk: 'Термінові новини Reuters в X' },
-    emoji: '📡', category: 'Macro', prio: 'high', featured: false },
   { source: 'twitter', username: '@unusual_whales', name: 'Unusual Whales',
     desc: { en: 'Options flow and smart money on X', ru: 'Опционный поток и умные деньги в X', uk: 'Опційний потік і розумні гроші в X' },
     emoji: '🐋', category: 'Macro', prio: 'mid', featured: false },
@@ -3041,9 +3038,6 @@ const channelCatalog = [
   { source: 'twitter', username: '@Dexscreener', name: 'Dexscreener',
     desc: { en: 'DEX token trends and screener', ru: 'Тренды токенов DEX и скринер', uk: 'Тренди токенів DEX і скрінер' },
     emoji: '📈', category: 'Memecoin', prio: 'mid', featured: false },
-  { source: 'twitter', username: '@tier10k', name: 'Tier10k',
-    desc: { en: 'Breaking crypto news on X', ru: 'Срочные крипто-новости в X', uk: 'Термінові крипто-новини в X' },
-    emoji: '⚡', category: 'News', prio: 'high', featured: false },
   { source: 'twitter', username: '@Deltaone', name: 'Delta One',
     desc: { en: 'Market intelligence and news on X', ru: 'Рыночная аналитика и новости в X', uk: 'Ринкова аналітика та новини в X' },
     emoji: '🎯', category: 'News', prio: 'mid', featured: false },
@@ -3053,9 +3047,6 @@ const channelCatalog = [
   { source: 'twitter', username: '@WuBlockchain', name: 'Wu Blockchain',
     desc: { en: 'Asian crypto news on X', ru: 'Азиатские крипто-новости в X', uk: 'Азіатські крипто-новини в X' },
     emoji: '⛓️', category: 'Crypto', prio: 'high', featured: false },
-  { source: 'twitter', username: '@CoinDesk', name: 'CoinDesk',
-    desc: { en: 'Crypto market news on X', ru: 'Новости крипторынка в X', uk: 'Новини крипторинку в X' },
-    emoji: '📰', category: 'Crypto', prio: 'mid', featured: false },
 ];
 
 function renderCatalog() {
