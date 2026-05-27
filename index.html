@@ -1967,7 +1967,14 @@ async function openCryptoBotInvoice() {
     if(tg) tg.openLink(resp.pay_url);
     else window.open(resp.pay_url,'_blank');
     closeCryptoPayModal();
-    showPayPendingScreen(true);
+    if (window._planPayMode && window._planPayId) {
+      _pendingPlanId = window._planPayId;
+      _pendingPlanPaymentId = resp.payment_id;
+      _planPaymentMethod = 'cryptobot';
+      showPlanPayPendingScreen(true);
+    } else {
+      showPayPendingScreen(true);
+    }
   } else {
     showMainToast(t('errorInvoice'));
   }
@@ -2010,7 +2017,12 @@ async function submitPayment() {
     currentPaymentCreatedAt=createdAt;
     closeCryptoPayModal();
     if (window._planPayMode && window._planPayId) {
-      planPaymentConfirmed(window._planPayId);
+      // Store payment id for plan polling
+      _pendingPlanId = window._planPayId;
+      _pendingPlanPaymentId = resp.payment_id;
+      _planPaymentMethod = pm.id;
+      const isBlockchain=(pm.id==='ETH'||pm.id==='BTC');
+      showPlanPayPendingScreen(isBlockchain);
     } else {
       const isBlockchain=(pm.id==='ETH'||pm.id==='BTC');
       showPayPendingScreen(isBlockchain);
