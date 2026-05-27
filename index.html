@@ -2268,6 +2268,12 @@ function syncNotifScreen() {
   });
   loadChannelAvatars();
   updateCount();
+  // Sync global toggle: checked only if at least one channel has notif on
+  const globalToggle = document.getElementById('globalToggle');
+  if (globalToggle) {
+    const anyOn = channels.some(ch => ch.notifOn !== false);
+    globalToggle.checked = anyOn;
+  }
 }
 
 let addChPrio=null;
