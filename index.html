@@ -2253,9 +2253,29 @@ function computeScores() {
 }
 
 function goTo(fromId, toId) {
-  document.getElementById(fromId).classList.add('out-left');
-  const to=document.getElementById(toId);
+  const from = document.getElementById(fromId);
+  const to = document.getElementById(toId);
+  if (!to) return;
+
+  // Ensure only one main "view" is interactable/visible at a time.
+  document.querySelectorAll('.view').forEach(v => {
+    if (v.id !== toId && v.id !== fromId) {
+      v.classList.add('hidden');
+      v.classList.add('out-right');
+      v.classList.remove('out-left');
+    }
+  });
+
+  if (from) from.classList.add('out-left');
   to.classList.remove('out-right','out-left','hidden');
+
+  // After transition completes, fully hide previous view to avoid "stuck" edges.
+  if (from) {
+    setTimeout(() => {
+      from.classList.add('hidden');
+      from.classList.remove('out-left');
+    }, 520);
+  }
 }
 
 function startOnboarding() {
