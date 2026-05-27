@@ -641,8 +641,8 @@
       <div style="padding:14px 16px 8px;">
         <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="profMyPlans">📦 MY PLANS</p>
         <div id="profilePacksList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
-        <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn" class="profile-buy-btn">
-          <i class="ti ti-credit-card"></i> <span data-i18n="profChangePlan">Change plan</span> 💳
+        <button onclick="openProfileChangePay()" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;display:none;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;" id="profileBuyBtn" class="profile-buy-btn">
+          <i class="ti ti-credit-card"></i> <span data-i18n="profChangePlan">Оплатить</span> 💳
         </button>
       </div>
       <div style="margin:0 16px 24px;background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
@@ -933,10 +933,10 @@ const i18n = {
     labelUsername:'CHANNEL USERNAME', labelPriority:'PRIORITY', addChannelBtn:'Add Channel',
     cancel:'Cancel', channelAdded:'✅ Channel added!', channelDeleted:'🗑 Channel removed',
     noChannelsTitle:'No channels yet', noChannelsSub:'Tap "New Channel" to add one',
-    profMyProfile:'👤 MY PROFILE', profMyPlans:'📦 MY PLANS', profStats:'📊 STATS',
-    profChannelsLabel:'Channels', profPlansLabel:'Plans', profPerMonth:'Per month',
-    profActivePlan:'Active Plan', profActiveLabel:'● Active', profNoPlans:'No active plans. Choose a pack below.',
-    profActivBtn:'✓ Active', profAddBtn:'+ Add', profUpToDate:'Plan is up to date', profChangePlan:'Change plan', profPartnerBtn:'🤝 Partner Program',
+    profMyProfile:'👤 MY PROFILE', profMyPlans:'📦 BUNDLES', profStats:'📊 STATS',
+    profChannelsLabel:'Channels', profPlansLabel:'Bundles', profPerMonth:'Per month',
+    profActivePlan:'Active Plan', profActiveLabel:'● Active', profNoPlans:'',
+    profActivBtn:'✓ Purchased', profAddBtn:'+ Add', profUpToDate:'Plan is up to date', profChangePlan:'Pay now', profPartnerBtn:'🤝 Partner Program',
     refTitle:'Partner Program', refHeadline:'Invite friends and earn', refSubDesc:'Earn 5% from every referral who pays for a plan.',
     refAvailable:'Available to withdraw', refActiveRefs:'Active referrals', refCommission:'Commission rate', refMinWithdraw:'Min. withdrawal',
     refYourLink:'YOUR LINK', refCopy:'Copy',
@@ -1048,16 +1048,16 @@ const i18n = {
     labelUsername:'USERNAME КАНАЛУ', labelPriority:'ВАЖЛИВІСТЬ', addChannelBtn:'Додати канал',
     cancel:'Скасувати', channelAdded:'✅ Канал додано!', channelDeleted:'🗑 Канал видалено',
     noChannelsTitle:'Каналів поки немає', noChannelsSub:'Натисніть «Новий канал» щоб додати',
-    profMyProfile:'👤 МІЙ ПРОФІЛЬ', profMyPlans:'📦 МОЇ ПЛАНИ', profStats:'📊 СТАТИСТИКА',
-    profChannelsLabel:'Канали', profPlansLabel:'Плани', profPerMonth:'На місяць',
-    profActivePlan:'Активний план', profActiveLabel:'● Активний', profNoPlans:'Немає активних планів. Оберіть пакет нижче.', profPartnerBtn:'🤝 Партнерська програма',
+    profMyProfile:'👤 МІЙ ПРОФІЛЬ', profMyPlans:'📦 НАБОРИ', profStats:'📊 СТАТИСТИКА',
+    profChannelsLabel:'Канали', profPlansLabel:'Набори', profPerMonth:'На місяць',
+    profActivePlan:'Активний план', profActiveLabel:'● Активний', profNoPlans:'', profPartnerBtn:'🤝 Партнерська програма',
     refTitle:'Партнерська програма', refHeadline:'Запрошуй друзів та отримуй', refSubDesc:'Отримуй 5% від кожного реферала, який оплатив тариф.',
     refAvailable:'Доступно для виведення', refActiveRefs:'Активних рефералів', refCommission:'Комісія з тарифу', refMinWithdraw:'Мін. виведення',
     refYourLink:'ТВОЄ ПОСИЛАННЯ', refCopy:'Скопіювати',
     refRule1:'Ти отримуєш 5% тільки з активного реферала, який купив тариф.', refRule2:'Нарахування відбувається після успішної оплати.', refRule3:'Мінімальна сума — $5.', refRule4:'Контакт адміна зʼявляється після досягнення мінімуму.',
     refUnavailable:'Недоступно', refWithdrawTitle:'Виведення', refWithdrawDesc:'Накопичіть $5 для виведення.', refContactBtn:'Звʼязатися з адміном @rvelikiy',
     refListTitle:'МОЇ РЕФЕРАЛИ', refNoRefs:'Поки немає рефералів. Поділіться посиланням!', refEarningsTitle:'НАРАХУВАННЯ', refNoEarnings:'Нарахувань поки немає.', refCopied:'Скопійовано!',
-    profActivBtn:'✓ Активний', profAddBtn:'+ Додати', profUpToDate:'План актуальний', profChangePlan:'Змінити план',
+    profActivBtn:'✓ Куплено', profAddBtn:'+ Додати', profUpToDate:'План актуальний', profChangePlan:'Оплатити',
     themeTitle:'🎨 Тема', themeSub:'Оберіть стиль', applyTheme:'Застосувати тему',
     themeApplied:'Тему «{name}» застосовано', notifTitle:'🔔 Сповіщення', notifSub:'Управління',
     notifOn:'{n} увімк', allNotif:'Всі сповіщення', allNotifSub:'Увімкнути або вимкнути все',
@@ -1161,16 +1161,16 @@ const i18n = {
     labelUsername:'USERNAME КАНАЛА', labelPriority:'ВАЖНОСТЬ', addChannelBtn:'Добавить канал',
     cancel:'Отмена', channelAdded:'✅ Канал добавлен!', channelDeleted:'🗑 Канал удалён',
     noChannelsTitle:'Каналов пока нет', noChannelsSub:'Нажми «Новый канал» чтобы добавить',
-    profMyProfile:'👤 МОЙ ПРОФИЛЬ', profMyPlans:'📦 МОИ ПЛАНЫ', profStats:'📊 СТАТИСТИКА',
-    profChannelsLabel:'Каналы', profPlansLabel:'Планы', profPerMonth:'В месяц',
-    profActivePlan:'Активный план', profActiveLabel:'● Активен', profNoPlans:'Нет активных планов. Выберите пакет ниже.', profPartnerBtn:'🤝 Партнёрская программа',
+    profMyProfile:'👤 МОЙ ПРОФИЛЬ', profMyPlans:'📦 НАБОРЫ', profStats:'📊 СТАТИСТИКА',
+    profChannelsLabel:'Каналы', profPlansLabel:'Наборы', profPerMonth:'В месяц',
+    profActivePlan:'Активный план', profActiveLabel:'● Активен', profNoPlans:'', profPartnerBtn:'🤝 Партнёрская программа',
     refTitle:'Партнёрская программа', refHeadline:'Приглашай друзей и получай', refSubDesc:'Получай 5% от каждого реферала, который оплатил тариф.',
     refAvailable:'Доступно к выводу', refActiveRefs:'Активных рефералов', refCommission:'Комиссия с тарифа', refMinWithdraw:'Минимальный вывод',
     refYourLink:'ТВОЯ ССЫЛКА', refCopy:'Скопировать',
     refRule1:'Ты получаешь 5% только с активного реферала, который купил тариф.', refRule2:'Начисление происходит после успешной оплаты.', refRule3:'Минимальная сумма для вывода — $5.', refRule4:'Связь с админом открывается только после достижения минимума.',
     refUnavailable:'Недоступно', refWithdrawTitle:'Вывод средств', refWithdrawDesc:'Накопите минимум $5 для вывода.', refContactBtn:'Связаться с администратором @rvelikiy',
     refListTitle:'МОИ РЕФЕРАЛЫ', refNoRefs:'Пока нет рефералов. Поделитесь ссылкой!', refEarningsTitle:'ИСТОРИЯ НАЧИСЛЕНИЙ', refNoEarnings:'Начислений пока нет.', refCopied:'Ссылка скопирована!',
-    profActivBtn:'✓ Активен', profAddBtn:'+ Добавить', profUpToDate:'План актуален', profChangePlan:'Изменить план',
+    profActivBtn:'✓ Куплено', profAddBtn:'+ Добавить', profUpToDate:'План актуален', profChangePlan:'Оплатить',
     themeTitle:'🎨 Тема', themeSub:'Выберите стиль', applyTheme:'Применить тему',
     themeApplied:'Тема «{name}» применена', notifTitle:'🔔 Уведомления', notifSub:'Управление',
     notifOn:'{n} вкл', allNotif:'Все уведомления', allNotifSub:'Включить или выключить всё',
@@ -2817,6 +2817,9 @@ function renderProfileScreen() {
           const planLabel = (planNames[planKey]||planNames.basic)[L2] || planKey;
           const planEmoji = planEmojis[planKey] || '💳';
           const priceLabel = subAmount > 0 ? `$${subAmount.toFixed(2)}/${L2==='ru'?'мес':L2==='uk'?'міс':'mo'}` : '';
+          // Update stats spend
+          const spEl2 = document.getElementById('profileSpend');
+          if(spEl2) spEl2.textContent = subAmount > 0 ? `$${subAmount.toFixed(2)}` : (purchasedPacks.length > 0 ? `$${(purchasedPacks.length*0.8).toFixed(2)}` : '$0.00');
           planInfoEl.innerHTML = `
             <div style="background:#1a1a2e;border:.5px solid #6b6bff44;border-radius:14px;padding:14px 16px;">
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
@@ -2844,7 +2847,7 @@ function renderProfileScreen() {
     }
 
     if(purchasedPacks.length===0){
-      activeEl.innerHTML=`<div style="background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;"><p style="font-size:12px;color:#555;margin:0;">${t('profNoPlans')}</p></div>`;
+      activeEl.innerHTML='';
     } else {
       const th=getTheme();
       const chips=purchasedPacks.map(id=>{const p=packsData.find(x=>x.id===id);return p?`<span style="background:${th.accent}22;border:.5px solid ${th.accent}44;border-radius:8px;padding:4px 10px;font-size:12px;color:${th.accent};">${p.emoji} ${p.title}</span>`:''}).join('');
@@ -2864,13 +2867,19 @@ function renderProfileScreen() {
   if(listEl){
     listEl.innerHTML='';
     packsData.forEach(pack=>{
-      const has=profileSelectedPacks.includes(pack.id);
+      const isPurchased=purchasedPacks.includes(pack.id);
+      const isSelected=profileSelectedPacks.includes(pack.id);
       const row=document.createElement('div');
       row.id='profPack_'+pack.id;
       const th2=getTheme();
-      row.style.cssText=`background:#1a1a20;border:.5px solid ${has?th2.accent+'55':'#272730'};border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;`;
+      row.style.cssText=`background:#1a1a20;border:.5px solid ${isPurchased?th2.accent+'55':isSelected?th2.accent+'33':'#272730'};border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;`;
+      const btnStyle = isPurchased
+        ? `background:#1c3a1c;color:#3aaa6e;border:.5px solid #3aaa6e55;border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:default;white-space:nowrap;pointer-events:none;`
+        : `background:${isSelected?'#1e1e30':th2.gradient};color:${isSelected?th2.accent:'#fff'};border:${isSelected?`.5px solid ${th2.accent}55`:'none'};border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;`;
+      const btnText = isPurchased ? t('profActivBtn') : (isSelected ? '✓ Выбрано' : t('profAddBtn'));
+      const btnOnclick = isPurchased ? '' : `onclick="toggleProfilePack('${pack.id}')"`;
       row.innerHTML=`<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">${pack.emoji}</span><div><p style="font-size:13px;font-weight:500;color:#e8e8f0;margin:0 0 2px;">${pack.title}</p><p style="font-size:11px;color:#555;margin:0;">${pack.subtitle} · $${pack.price.toFixed(2)}</p></div></div>
-      <button onclick="toggleProfilePack('${pack.id}')" id="profPackBtn_${pack.id}" style="background:${has?'#1c3a1c':th2.gradient};color:${has?'#3aaa6e':'#fff'};border:${has?'.5px solid #3aaa6e55':'none'};border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${has?t('profActivBtn'):t('profAddBtn')}</button>`;
+      <button ${btnOnclick} id="profPackBtn_${pack.id}" style="${btnStyle}">${btnText}</button>`;
       listEl.appendChild(row);
     });
   }
@@ -2878,54 +2887,52 @@ function renderProfileScreen() {
   const pcEl=document.getElementById('profilePackCount');
   const spEl=document.getElementById('profileSpend');
   if(pcEl) pcEl.textContent=purchasedPacks.length;
-  if(spEl) spEl.textContent='$'+(purchasedPacks.length*0.8).toFixed(2);
+  // profileSpend will be updated after subscription API call (see profPlanInfo block above)
+  if(spEl && purchasedPacks.length===0) spEl.textContent='$0.00';
 
   updateProfileBuyBtn();
 }
 
 function toggleProfilePack(id) {
+  if(purchasedPacks.includes(id)) return; // already purchased, can't toggle
   if(profileSelectedPacks.includes(id)) profileSelectedPacks=profileSelectedPacks.filter(x=>x!==id);
   else profileSelectedPacks.push(id);
-  const has=profileSelectedPacks.includes(id);
+  const isSelected=profileSelectedPacks.includes(id);
   const th=getTheme();
   const row=document.getElementById('profPack_'+id);
-  row.style.borderColor=has?th.accent+'55':'#272730';
+  row.style.borderColor=isSelected?th.accent+'33':'#272730';
   const btn=document.getElementById('profPackBtn_'+id);
-  btn.style.background=has?'#1c3a1c':th.gradient;
-  btn.style.color=has?'#3aaa6e':'#fff';
-  btn.style.border=has?'.5px solid #3aaa6e55':'none';
-  btn.textContent=has?t('profActivBtn'):t('profAddBtn');
+  btn.style.background=isSelected?'#1e1e30':th.gradient;
+  btn.style.color=isSelected?th.accent:'#fff';
+  btn.style.border=isSelected?`.5px solid ${th.accent}55`:'none';
+  btn.textContent=isSelected?'✓ Выбрано':t('profAddBtn');
   updateProfileBuyBtn();
 }
 
 function updateProfileBuyBtn() {
   const btn=document.getElementById('profileBuyBtn');
+  if(!btn) return;
   const th=getTheme();
   btn.style.background=th.gradient;
-  btn.style.opacity='1';
-  btn.style.pointerEvents='auto';
-  const packs = profileSelectedPacks.length > 0 ? profileSelectedPacks : purchasedPacks;
-  const newCost=(packs.length*0.8).toFixed(2);
+  // Find packs selected but NOT yet purchased
+  const newPacks=profileSelectedPacks.filter(id=>!purchasedPacks.includes(id));
+  const newCost=(newPacks.length*0.8).toFixed(2);
   const L2=currentLang;
-  const isSame=JSON.stringify([...profileSelectedPacks].sort())===JSON.stringify([...purchasedPacks].sort());
-  if(packs.length===0){
-    btn.style.opacity='0.35';btn.style.pointerEvents='none';
-    btn.innerHTML=`<i class="ti ti-credit-card"></i> ${t('profChangePlan')} 💳`;
-  } else if(isSame && purchasedPacks.length>0){
-    btn.innerHTML=`<i class="ti ti-refresh"></i> ${L2==='ru'?'Продлить план':L2==='uk'?'Продовжити план':'Renew plan'} — $${newCost} 💳`;
+  if(newPacks.length===0){
+    // Hide the button completely when nothing new to buy
+    btn.style.display='none';
   } else {
+    btn.style.display='flex';
+    btn.style.opacity='1';
+    btn.style.pointerEvents='auto';
     btn.innerHTML=`<i class="ti ti-credit-card"></i> ${t('profChangePlan')} — $${newCost} 💳`;
   }
 }
 
 function openProfileChangePay() {
-  selectedPacks = profileSelectedPacks.length > 0 ? [...profileSelectedPacks] : [...purchasedPacks];
-  if (selectedPacks.length === 0) {
-    renderPacks();
-    closeProfileScreen();
-    goTo('vMain', 'vPacks');
-    return;
-  }
+  const newPacks=profileSelectedPacks.filter(id=>!purchasedPacks.includes(id));
+  if (newPacks.length === 0) return;
+  selectedPacks = [...newPacks];
   openCryptoPayModal();
 }
 
