@@ -990,7 +990,9 @@ const i18n = {
     refUnavailable:'Unavailable', refWithdrawTitle:'Withdrawal', refWithdrawDesc:'Accumulate at least $5 to withdraw.', refContactBtn:'Contact admin @rvelikiy',
     refListTitle:'MY REFERRALS', refNoRefs:'No referrals yet. Share your link!', refEarningsTitle:'EARNINGS HISTORY', refNoEarnings:'No earnings yet.', refCopied:'Copied!',
     themeTitle:'🎨 Appearance', themeSub:'Choose your interface style', applyTheme:'Apply Theme',
-    themeApplied:'Theme "{name}" applied', notifTitle:'🔔 Notifications', notifSub:'Manage alerts',
+    themeApplied:'Theme "{name}" applied',
+    themeMidnight:'Midnight', themeAurora:'Aurora', themeSunset:'Sunset', themeRose:'Rose', themeOcean:'Ocean', themeGolden:'Golden', themeSummer:'Summer',
+    notifTitle:'🔔 Notifications', notifSub:'Manage alerts',
     notifOn:'{n} on', allNotif:'All notifications', allNotifSub:'Enable or disable all',
     userChannels:'USER CHANNELS', saveSettings:'Save Settings', settingsSaved:'✅ Settings saved!',
     settingsTitle:'⚙️ Settings', settingsSub:'Customize your experience',
@@ -1170,7 +1172,9 @@ const i18n = {
     refListTitle:'МОЇ РЕФЕРАЛИ', refNoRefs:'Поки немає рефералів. Поділіться посиланням!', refEarningsTitle:'НАРАХУВАННЯ', refNoEarnings:'Нарахувань поки немає.', refCopied:'Скопійовано!',
     profActivBtn:'✓ Куплено', profAddBtn:'+ Додати', profUpToDate:'План актуальний', profChangePlan:'Оплатити',
     themeTitle:'🎨 Тема', themeSub:'Оберіть стиль', applyTheme:'Застосувати тему',
-    themeApplied:'Тему «{name}» застосовано', notifTitle:'🔔 Сповіщення', notifSub:'Управління',
+    themeApplied:'Тему «{name}» застосовано',
+    themeMidnight:'Північ', themeAurora:'Аврора', themeSunset:'Захід', themeRose:'Троянда', themeOcean:'Океан', themeGolden:'Золото', themeSummer:'Літо',
+    notifTitle:'🔔 Сповіщення', notifSub:'Управління',
     notifOn:'{n} увімк', allNotif:'Всі сповіщення', allNotifSub:'Увімкнути або вимкнути все',
     userChannels:'КАНАЛИ', saveSettings:'Зберегти', settingsSaved:'✅ Налаштування збережено!',
     settingsTitle:'⚙️ Налаштування', settingsSub:'Персоналізація',
@@ -1395,6 +1399,7 @@ const i18n = {
     themeSub:'Zvolte styl rozhraní',
     applyTheme:'Použít motiv',
     themeApplied:'Motiv „{name}“ použit',
+    themeMidnight:'Půlnoc', themeAurora:'Aurora', themeSunset:'Západ', themeRose:'Růže', themeOcean:'Oceán', themeGolden:'Zlatá', themeSummer:'Léto',
     notifTitle:'🔔 Upozornění',
     notifSub:'Správa upozornění',
     notifOn:'{n} zap.',
@@ -1593,7 +1598,9 @@ const i18n = {
     refListTitle:'МОИ РЕФЕРАЛЫ', refNoRefs:'Пока нет рефералов. Поделитесь ссылкой!', refEarningsTitle:'ИСТОРИЯ НАЧИСЛЕНИЙ', refNoEarnings:'Начислений пока нет.', refCopied:'Ссылка скопирована!',
     profActivBtn:'✓ Куплено', profAddBtn:'+ Добавить', profUpToDate:'План актуален', profChangePlan:'Оплатить',
     themeTitle:'🎨 Тема', themeSub:'Выберите стиль', applyTheme:'Применить тему',
-    themeApplied:'Тема «{name}» применена', notifTitle:'🔔 Уведомления', notifSub:'Управление',
+    themeApplied:'Тема «{name}» применена',
+    themeMidnight:'Полночь', themeAurora:'Аврора', themeSunset:'Закат', themeRose:'Роза', themeOcean:'Океан', themeGolden:'Золото', themeSummer:'Лето',
+    notifTitle:'🔔 Уведомления', notifSub:'Управление',
     notifOn:'{n} вкл', allNotif:'Все уведомления', allNotifSub:'Включить или выключить всё',
     userChannels:'КАНАЛЫ', saveSettings:'Сохранить', settingsSaved:'✅ Настройки сохранены!',
     settingsTitle:'⚙️ Настройки', settingsSub:'Персонализация',
@@ -1764,6 +1771,7 @@ function applyI18n() {
     if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder=tr;
     else el.innerHTML=tr;
   });
+  if (document.getElementById('vTheme')?.classList.contains('visible')) renderThemes();
   updateCount();
 }
 
@@ -1774,9 +1782,18 @@ const themes=[
   {id:'rose',    name:'Rose',    accent:'#d4537e',gradient:'linear-gradient(135deg,#d4537e,#993556)',preview:'linear-gradient(135deg,#2b0f1a 0%,#4b1528 50%,#d4537e 100%)',appBg:'#1a1117'},
   {id:'ocean',   name:'Ocean',   accent:'#378add',gradient:'linear-gradient(135deg,#378add,#185fa5)',preview:'linear-gradient(135deg,#04152d 0%,#0c447c 50%,#378add 100%)',appBg:'#0c1a29'},
   {id:'golden',  name:'Golden',  accent:'#ef9f27',gradient:'linear-gradient(135deg,#ef9f27,#ba7517)',preview:'linear-gradient(135deg,#1a0e02 0%,#412402 50%,#ef9f27 100%)',appBg:'#1a1208'},
-  {id:'summer',  name:'Лето',    accent:'#ffb347',gradient:'linear-gradient(135deg,#ff9f43,#ffd166)',preview:'linear-gradient(135deg,#0f3d5a 0%,#1b6b83 48%,#ff9f43 100%)',appBg:'#10293a'},
+  {id:'summer',  name:'Summer',  accent:'#ffb347',gradient:'linear-gradient(135deg,#ff9f43,#ffd166)',preview:'linear-gradient(135deg,#0f3d5a 0%,#1b6b83 48%,#ff9f43 100%)',appBg:'#10293a'},
 ];
 let currentTheme='midnight', tempTheme='midnight';
+
+const THEME_I18N_KEYS = {
+  midnight:'themeMidnight', aurora:'themeAurora', sunset:'themeSunset',
+  rose:'themeRose', ocean:'themeOcean', golden:'themeGolden', summer:'themeSummer'
+};
+function themeDisplayName(th) {
+  const key = THEME_I18N_KEYS[th?.id];
+  return key ? t(key) : (th?.name || th?.id || '');
+}
 
 function getTheme() {
   return themes.find(x=>x.id===currentTheme) || themes[0];
@@ -1936,7 +1953,7 @@ function renderThemes() {
   themes.forEach(th=>{
     const card=document.createElement('div');
     card.className='t-card'+(th.id===tempTheme?' active':'');
-    card.innerHTML=`<div class="t-preview" style="background:${th.preview}"></div><div class="t-name">${th.name}</div>`;
+    card.innerHTML=`<div class="t-preview" style="background:${th.preview}"></div><div class="t-name">${themeDisplayName(th)}</div>`;
     card.onclick=()=>{tempTheme=th.id;renderThemes();};
     grid.appendChild(card);
   });
@@ -1950,7 +1967,7 @@ function applyTheme() {
     _renderMarket(_marketData, themes.find(x=>x.id===currentTheme)||themes[0]);
   }
   const th=themes.find(x=>x.id===currentTheme);
-  showToast('themeToast',t('themeApplied',{name:th.name}));
+  showToast('themeToast',t('themeApplied',{name:themeDisplayName(th)}));
   if(currentUserId) apiFetch('/api/theme','POST',{user_id:currentUserId,theme:currentTheme});
   closeThemeScreen();
 }
@@ -3492,6 +3509,7 @@ async function setLang(lang) {
   });
   applyTheme(currentTheme);
   applyI18n();
+  if (document.getElementById('vTheme')?.classList.contains('visible')) renderThemes();
   renderChannelList();
   syncNotifScreen();
   if(document.getElementById('vProfile').style.transform==='translateX(0px)' ||
