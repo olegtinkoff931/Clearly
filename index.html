@@ -322,37 +322,67 @@
     .aisend:disabled { opacity:.3; pointer-events:none; }
     .qbtn { font-size:11px; color:#a78bfa; background:#18182a; border:.5px solid #5b5bdc33; border-radius:8px; padding:5px 11px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
 
-    #vSubscription { position:fixed; inset:0; background:#0e0e10; z-index:9990; display:flex; flex-direction:column; overflow-y:auto; }
-    .sub-header { padding:20px 20px 10px; text-align:center; position:relative; }
-    .sub-back-btn { position:absolute; top:16px; left:16px; display:flex; align-items:center; gap:5px; background:none; border:none; color:#7878cc; font-size:14px; font-weight:500; cursor:pointer; padding:6px 8px; border-radius:10px; transition:background .15s,color .15s; }
-    .sub-back-btn:active { background:#1a1a2a; color:#a78bfa; }
-    .sub-lock-icon { font-size:40px; margin-bottom:12px; }
-    .sub-title { font-size:22px; font-weight:700; color:#e8e8f0; margin:0 0 6px; }
-    .sub-desc { font-size:13px; color:#666; line-height:1.5; margin:0; }
-    .sub-plans { padding:16px 14px; display:flex; flex-direction:column; gap:12px; }
-    .sub-plan { background:#1a1a20; border-radius:18px; padding:18px; border:1.5px solid #272730; position:relative; cursor:pointer; transition:border-color .2s; }
-    .sub-plan.active-plan { border-color:#6b6bff; background:#1a1a2e; }
-    .sub-plan.plan-pro { border-color:#6b6bff88; }
-    .sub-plan-badge { position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#6b6bff,#a78bfa); color:#fff; font-size:10px; font-weight:700; padding:3px 12px; border-radius:20px; white-space:nowrap; letter-spacing:.5px; }
-    .sub-plan-name { font-size:17px; font-weight:700; color:#e8e8f0; margin:0 0 2px; }
-    .sub-plan-desc { font-size:11px; color:#666; margin:0 0 12px; }
-    .sub-plan-price { font-size:32px; font-weight:800; color:#e8e8f0; margin:0 0 2px; line-height:1; }
-    .sub-plan-old-price { font-size:14px; color:#666; text-decoration:line-through; margin:0 0 0 6px; font-weight:400; display:inline; }
+    #vSubscription {
+      position:fixed; inset:0; z-index:9990; display:flex; flex-direction:column; overflow-y:auto;
+      background: linear-gradient(180deg, #0c2238 0%, #134e6f 38%, #ff9f43 115%);
+    }
+    #vSubscription::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(ellipse 70% 45% at 50% -5%, rgba(255,220,120,.45), transparent 55%),
+        radial-gradient(ellipse 35% 25% at 92% 12%, rgba(255,160,80,.25), transparent 50%);
+    }
+    #vSubscription > * { position:relative; z-index:1; }
+    .sub-header { padding:22px 20px 12px; text-align:center; position:relative; }
+    .sub-back-btn { position:absolute; top:16px; left:16px; display:flex; align-items:center; gap:5px; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.12); color:#ffe8b0; font-size:14px; font-weight:600; cursor:pointer; padding:7px 10px; border-radius:12px; transition:background .15s,transform .1s; backdrop-filter:blur(6px); }
+    .sub-back-btn:active { background:rgba(0,0,0,.4); transform:scale(.97); }
+    .sub-lock-icon { font-size:48px; margin-bottom:10px; filter:drop-shadow(0 4px 12px rgba(255,180,0,.5)); animation:subSunPulse 3s ease-in-out infinite; }
+    @keyframes subSunPulse { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(8deg)} }
+    .sub-title { font-size:24px; font-weight:800; color:#fff8e7; margin:0 0 6px; text-shadow:0 2px 12px rgba(0,0,0,.25); }
+    .sub-desc { font-size:13px; color:rgba(255,248,220,.85); line-height:1.55; margin:0; }
+    .sub-plans { padding:12px 14px 16px; display:flex; flex-direction:column; gap:14px; }
+    .sub-plan {
+      background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+      border-radius:20px; padding:18px; border:1.5px solid rgba(255,220,150,.22);
+      position:relative; cursor:pointer; transition:transform .2s,border-color .2s,box-shadow .2s;
+      backdrop-filter:blur(10px); box-shadow:0 8px 24px rgba(0,0,0,.18);
+    }
+    .sub-plan:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.22); }
+    .sub-plan.active-plan { border-color:#7ee081; background:linear-gradient(145deg,rgba(30,80,50,.55),rgba(20,40,30,.4)); box-shadow:0 0 0 1px #7ee08155, 0 10px 28px rgba(0,0,0,.2); }
+    .sub-plan.plan-pro { border-color:#ffb347; box-shadow:0 0 28px rgba(255,160,60,.25), 0 10px 28px rgba(0,0,0,.2); }
+    .sub-plan-badge { position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#ff6b35,#ffb347); color:#1a0a00; font-size:10px; font-weight:800; padding:4px 14px; border-radius:20px; white-space:nowrap; letter-spacing:.6px; box-shadow:0 4px 14px rgba(255,120,40,.45); }
+    .sub-plan-name { font-size:18px; font-weight:800; color:#fff8e7; margin:0 0 2px; }
+    .sub-plan-desc { font-size:11px; color:rgba(255,240,210,.75); margin:0 0 12px; }
+    .sub-plan-price { font-size:34px; font-weight:800; color:#fff; margin:0 0 2px; line-height:1; text-shadow:0 2px 8px rgba(0,0,0,.2); }
+    .sub-plan-old-price { font-size:14px; color:rgba(255,220,180,.55); text-decoration:line-through; margin:0 0 0 6px; font-weight:500; display:inline; }
     .sub-plan-price-row { display:flex; align-items:baseline; gap:0; flex-wrap:nowrap; }
-    .sub-summer-banner { margin:0 14px 0; padding:9px 14px; background:linear-gradient(135deg,#ff8c00,#ffcc00); border-radius:12px; display:flex; align-items:center; gap:8px; }
-    .sub-summer-banner-icon { font-size:18px; flex-shrink:0; }
-    .sub-summer-banner-text { font-size:12px; font-weight:700; color:#1a0a00; line-height:1.3; }
-    .sub-plan-crypto { font-size:10px; color:#444; margin:0 0 14px; }
+    .sub-summer-banner {
+      margin:0 0 4px; padding:12px 14px;
+      background:linear-gradient(135deg,#ff7b00,#ffd54a 55%,#ff9f68);
+      border-radius:16px; display:flex; align-items:center; gap:10px;
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow:0 8px 22px rgba(255,120,0,.35);
+      animation:summerBannerGlow 2.5s ease-in-out infinite;
+    }
+    @keyframes summerBannerGlow { 0%,100%{box-shadow:0 8px 22px rgba(255,120,0,.35)} 50%{box-shadow:0 10px 30px rgba(255,180,60,.55)} }
+    .sub-summer-banner-icon { font-size:22px; flex-shrink:0; animation:subSunPulse 2.5s ease-in-out infinite; }
+    .sub-summer-banner-body { flex:1; display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .sub-summer-banner-tag { font-size:10px; font-weight:800; letter-spacing:.8px; color:#5a2800; background:rgba(255,255,255,.45); align-self:flex-start; padding:2px 8px; border-radius:8px; }
+    .sub-summer-banner-text { font-size:12px; font-weight:700; color:#2a1200; line-height:1.35; }
+    .sub-summer-deco { font-size:20px; flex-shrink:0; opacity:.9; }
+    .sub-plan-period { font-size:12px; color:rgba(255,240,210,.7); margin:0 0 8px; }
+    .sub-plan-crypto { font-size:10px; color:rgba(255,240,210,.55); margin:0 0 14px; }
     .sub-plan-features { display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
-    .sub-plan-feature { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:#b0b0c8; line-height:1.4; }
-    .sub-plan-feature .fcheck { color:#6b6bff; font-size:13px; flex-shrink:0; margin-top:1px; }
-    .sub-plan-btn { width:100%; padding:13px; border:none; border-radius:13px; font-size:14px; font-weight:700; cursor:pointer; transition:opacity .15s; }
-    .sub-plan-btn.btn-outline { background:transparent; border:1.5px solid #2e2e38; color:#888; }
-    .sub-plan-btn.btn-outline:hover { border-color:#6b6bff55; color:#b0a8ff; }
-    .sub-plan-btn.btn-gradient { background:linear-gradient(135deg,#6b6bff,#a78bfa); color:#fff; }
-    .sub-plan-btn.btn-gradient:hover { opacity:.88; }
-    .sub-plan-btn.btn-active { background:#1e3a1e; border:.5px solid #3aaa6e55; color:#3aaa6e; cursor:default; }
-    .sub-footer { padding:12px 20px 40px; text-align:center; font-size:11px; color:#444; line-height:1.6; }
+    .sub-plan-feature { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:rgba(255,248,230,.9); line-height:1.4; }
+    .sub-plan-feature .fcheck { color:#7ee081; font-size:13px; flex-shrink:0; margin-top:1px; }
+    .sub-plan-btn { width:100%; padding:13px; border:none; border-radius:14px; font-size:14px; font-weight:800; cursor:pointer; transition:transform .15s,opacity .15s,box-shadow .15s; }
+    .sub-plan-btn:active { transform:scale(.98); }
+    .sub-plan-btn.btn-outline { background:rgba(0,0,0,.2); border:1.5px solid rgba(255,220,150,.35); color:#ffe8b0; }
+    .sub-plan-btn.btn-outline:hover { border-color:#ffd54a; color:#fff; background:rgba(0,0,0,.3); }
+    .sub-plan-btn.btn-gradient { background:linear-gradient(135deg,#ff6b35,#ffb347); color:#1a0a00; box-shadow:0 6px 18px rgba(255,120,40,.4); }
+    .sub-plan-btn.btn-gradient:hover { opacity:.92; box-shadow:0 8px 22px rgba(255,140,50,.5); }
+    .sub-plan-btn.btn-active { background:rgba(30,90,50,.65); border:1.5px solid #7ee08188; color:#9ef0a8; cursor:default; box-shadow:none; }
+    .sub-footer { padding:12px 20px 40px; text-align:center; font-size:11px; color:rgba(255,248,220,.65); line-height:1.6; }
 
     /* VIP */
     .vip-card {
@@ -419,7 +449,7 @@
       <button class="sub-back-btn" id="subBackBtn" onclick="hideSubscriptionScreen()" style="display:none;">
         ‹ Назад
       </button>
-      <div class="sub-lock-icon">🔐</div>
+      <div class="sub-lock-icon">☀️</div>
       <p class="sub-title" id="subTitle">Выберите тариф</p>
       <p class="sub-desc" id="subDesc">Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.</p>
     </div>
@@ -611,7 +641,7 @@
       </div>
       <div class="lang-pill" id="pill-cs" onclick="setLang('cs')">
         <span class="lang-pill-flag">🇨🇿</span>
-        <span class="lang-pill-name">Cestina</span>
+        <span class="lang-pill-name">Čeština</span>
         <span class="lang-pill-tag">CS</span>
       </div>
     </div>
@@ -866,8 +896,8 @@ const GROQ_API_KEY = GROQ_API_KEYS[0];
 const PLANS = {
   basic: {
     id: 'basic',
-    name: { ru:'Базовый', uk:'Базовий', en:'Basic' },
-    desc: { ru:'Для начинающих трейдеров', uk:'Для початківців', en:'For beginner traders' },
+    name: { ru:'Базовый', uk:'Базовий', cs:'Základní', en:'Basic' },
+    desc: { ru:'Для начинающих трейдеров', uk:'Для початківців', cs:'Pro začínající tradery', en:'For beginner traders' },
     price: 8,
     oldPrice: 12,
     btc: '0.0003', ton: '4',
@@ -877,29 +907,31 @@ const PLANS = {
     features: {
       ru:['До 10 каналов','Мгновенные уведомления','Настройка приоритетов'],
       uk:['До 10 каналів','Миттєві сповіщення','Налаштування пріоритетів'],
+      cs:['Až 10 kanálů','Okamžitá upozornění','Nastavení priorit'],
       en:['Up to 10 channels','Instant notifications','Priority settings']
     }
   },
   pro: {
     id: 'pro',
-    name: { ru:'Про', uk:'Про', en:'Pro' },
-    desc: { ru:'Для активных трейдеров', uk:'Для активних трейдерів', en:'For active traders' },
+    name: { ru:'Про', uk:'Про', cs:'Pro', en:'Pro' },
+    desc: { ru:'Для активных трейдеров', uk:'Для активних трейдерів', cs:'Pro aktivní tradery', en:'For active traders' },
     price: 12,
     oldPrice: 18,
     btc: '0.0007', ton: '11',
     maxChannels: 25,
     hasAI: true,
-    badge: { ru:'⭐ ПОПУЛЯРНЫЙ', uk:'⭐ ПОПУЛЯРНИЙ', en:'⭐ POPULAR' },
+    badge: { ru:'⭐ ПОПУЛЯРНЫЙ', uk:'⭐ ПОПУЛЯРНИЙ', cs:'☀️ LETNÍ HIT', en:'☀️ SUMMER HIT' },
     features: {
       ru:['До 25 каналов','Приоритетные алерты','Расширенные фильтры','Умный ассистент (AI чат)'],
       uk:['До 25 каналів','Пріоритетні алерти','Розширені фільтри','Розумний асистент (AI чат)'],
+      cs:['Až 25 kanálů','Prioritní alerty','Pokročilé filtry','Chytrý asistent (AI chat)'],
       en:['Up to 25 channels','Priority alerts','Advanced filters','Smart assistant (AI chat)']
     }
   },
   max: {
     id: 'max',
-    name: { ru:'Максимум', uk:'Максимум', en:'Maximum' },
-    desc: { ru:'Для профессионалов', uk:'Для професіоналів', en:'For professionals' },
+    name: { ru:'Максимум', uk:'Максимум', cs:'Maximum', en:'Maximum' },
+    desc: { ru:'Для профессионалов', uk:'Для професіоналів', cs:'Pro profesionály', en:'For professionals' },
     price: 17,
     oldPrice: 24,
     btc: '0.0018', ton: '27',
@@ -909,6 +941,7 @@ const PLANS = {
     features: {
       ru:['Неограниченно каналов','Самая быстрая отправка уведомлений','Персональный куратор','Ежедневная сводка рынка','VIP-приоритет сигналов'],
       uk:['Необмежена кількість каналів','Найшвидша відправка сповіщень','Персональний куратор','Щоденний огляд ринку','VIP-пріоритет сигналів'],
+      cs:['Neomezený počet kanálů','Nejrychlejší doručení upozornění','Osobní kurátor','Denní přehled trhu','VIP priorita signálů'],
       en:['Unlimited channels','Fastest notification delivery','Personal curator','Daily market digest','VIP signal priority']
     }
   }
@@ -933,6 +966,7 @@ let currentLang   = 'en';
 
 const i18n = {
   en: {
+    aiGreetOpen:'Hey! 👋 I\'m Clearly AI — here to help with the app and answer crypto questions.',
     tagline:'All info in one message', splashBtn:'Get Started', splashSub:'Setup takes 1 minute',
     welcomeTitle:'Hello! Welcome to <span>Clearly</span>',
     welcomeDesc:"We'll ask you a few questions to find the best plan for you — and set everything up for maximum comfort.",
@@ -1047,8 +1081,72 @@ const i18n = {
     bugSub:'Bot acting unstable? Write to us → @clearly_support',
     bugFooter:'Noticed a bug or instability?',
     subFooterPay:'Payment via Cryptocurrency. Manage your plan in the Profile section.',
+    subBack:'‹ Back',
+    subChooseTitle:'Choose your plan',
+    subChooseDesc:'Bot access requires a subscription.<br>Choose the plan that suits you.',
+    subSummerBanner:'☀️ Summer Sale! Prices reduced for the whole season.',
+    subSummerTag:'-30%',
+    subMo:'mo',
+    subMonth:'month',
+    feedTranslate:'🌐 Translate',
+    translateOriginal:'↩ Original',
+    translatedBadge:'🌐 Translated to English',
+    aiTyping:'Typing…',
+    aiNoReply:'⚠️ No response from server.',
+    aiConnError:'⚠️ Connection error.',
+    vipExclusive:'Exclusive access · Lifetime',
+    daysLeft:'{n} days left',
+    planActive:'Active',
+    changePlan:'Change',
+    validUntil:'Valid until',
+    lifetime:'Lifetime',
+    noSubscription:'No subscription',
+    getPlanBtn:'Get a plan',
+    choosePlan:'Choose',
+    subscribePlan:'Subscribe',
+    choosePayment:'Choose payment method',
+    payNow:'Pay now',
+    planActivatedWelcome:'Plan «{name}» is now active. Welcome!',
+    twitterAddSub:'Enter the Twitter/X account username and choose priority',
+    twitterPreview:'𝕏 Twitter/X account',
+    telegramAddSub:'Enter the Telegram channel username and choose priority',
+    aiAnalyzing:'Analyzing with AI…',
+    subBtnCurrent:'✓ Current plan',
+    subBtnChoosePro:'Choose Pro →',
+    subBtnChooseMax:'Choose Maximum →',
+    subBtnStart:'Start →',
+    fgExtremeGreed:'Extreme Greed',
+    fgGreed:'Greed',
+    fgNeutral:'Neutral',
+    fgFear:'Fear',
+    fgExtremeFear:'Extreme Fear',
+    mktSentiment:'MARKET SENTIMENT',
+    mktFearGreed:'FEAR & GREED INDEX',
+    mktPrices:'PRICES',
+    mktNews:'TOP NEWS',
+    mktSectors:'SECTORS',
+    mktUpcoming:'UPCOMING EVENTS',
+    mktLevels:'KEY LEVELS',
+    mktSupport:'Support',
+    mktResist:'Resistance',
+    mktMoodIdx:'Mood index',
+    mktMcap:'Market Cap',
+    mktDom:'BTC Dominance',
+    mktSource:'Source',
+    sentBullish:'Bullish',
+    sentBearish:'Bearish',
+    sentNeutral:'Neutral',
+    aiGreet:'Hey! I\'m your crypto news AI assistant. Ask about the market, channels, or settings.',
+    refAvail:'Available',
+    refUnavail:'Unavailable',
+    refMinOk:'Minimum reached. Contact the administrator.',
+    refNeedMore:'Now: ${now} of ${min}. Need ${need} more.',
+    refActive:'Active',
+    refNotPaid:'Not paid',
+    profPlanLabel:'Plan',
   },
   uk: {
+    aiGreetOpen:'Привіт! 👋 Я Clearly AI — допоможу розібратися з ботом і відповім на питання з крипти.',
     tagline:'Вся інфа в одному повідомленні', splashBtn:'Почати', splashSub:'Налаштування займе 1 хвилину',
     welcomeTitle:'Привіт! Ласкаво просимо до <span>Clearly</span>',
     welcomeDesc:'Ми поставимо кілька запитань, щоб підібрати найкращий пакет і налаштувати все під вас.',
@@ -1161,8 +1259,317 @@ const i18n = {
     bugSub:'Бот працює нестабільно? Напишіть нам → @clearly_support',
     bugFooter:'Помітили баг або нестабільну роботу?',
     subFooterPay:'Оплата через Криптовалюту. Управління тарифом — у розділі Профіль.',
+    subBack:'‹ Назад',
+    subChooseTitle:'Оберіть тариф',
+    subChooseDesc:'Без підписки доступ до бота закрито.<br>Оберіть план який вам підходить.',
+    subSummerBanner:'☀️ Літні знижки! Ціни знижено на весь сезон.',
+    subSummerTag:'-30%',
+    subMo:'міс',
+    subMonth:'місяць',
+    feedTranslate:'🌐 Перекласти',
+    translateOriginal:'↩ Оригінал',
+    translatedBadge:'🌐 Перекладено на українську',
+    aiTyping:'Друкує…',
+    aiNoReply:'⚠️ Немає відповіді від сервера.',
+    aiConnError:'⚠️ Помилка з\'єднання.',
+    vipExclusive:'Ексклюзивний доступ · Назавжди',
+    daysLeft:'{n} дн. залишилось',
+    planActive:'Активна',
+    changePlan:'Змінити',
+    validUntil:'Діє до',
+    lifetime:'Назавжди',
+    noSubscription:'Немає підписки',
+    getPlanBtn:'Оформіть тариф',
+    choosePlan:'Обрати',
+    subscribePlan:'Оформити тариф',
+    choosePayment:'Оберіть спосіб оплати',
+    payNow:'Оплатити',
+    planActivatedWelcome:'Тариф «{name}» активовано. Ласкаво просимо!',
+    twitterAddSub:'Введіть username Twitter/X акаунта і оберіть важливість',
+    twitterPreview:'𝕏 Twitter/X account',
+    telegramAddSub:'Введіть username каналу і оберіть важливість',
+    aiAnalyzing:'Аналізує AI…',
+    subBtnCurrent:'✓ Поточний тариф',
+    subBtnChoosePro:'Обрати Про →',
+    subBtnChooseMax:'Обрати Максимум →',
+    subBtnStart:'Почати →',
+    fgExtremeGreed:'Екстремальна жадібність',
+    fgGreed:'Жадібність',
+    fgNeutral:'Нейтрально',
+    fgFear:'Страх',
+    fgExtremeFear:'Крайній страх',
+    mktSentiment:'СТАН РИНКУ',
+    mktFearGreed:'СТРАХ & ЖАДІБНІСТЬ',
+    mktPrices:'ЦІНИ',
+    mktNews:'ГОЛОВНІ НОВИНИ',
+    mktSectors:'СЕКТОРИ',
+    mktUpcoming:'МАЙБУТНІ ПОДІЇ',
+    mktLevels:'КЛЮЧОВІ РІВНІ',
+    mktSupport:'Підтримка',
+    mktResist:'Спротив',
+    mktMoodIdx:'Індекс настрою',
+    mktMcap:'Кап. ринку',
+    mktMdom:'Домінація BTC',
+    mktDom:'Домінація BTC',
+    mktSource:'Джерело',
+    sentBullish:'Бичачий',
+    sentBearish:'Ведмежий',
+    sentNeutral:'Нейтральний',
+    aiGreet:'Привіт! Я ваш AI-асистент з крипто-новин. Запитайте про ринок, канали або налаштування.',
+    refAvail:'Доступно',
+    refUnavail:'Недоступно',
+    refMinOk:'Мінімальна сума досягнута. Зверніться до адміна.',
+    refNeedMore:'Зараз: ${now} з ${min}. Потрібно ще ${need}.',
+    refActive:'Активний',
+    refNotPaid:'Не оплатив',
+    profPlanLabel:'Тариф',
+  },
+  cs: {
+    aiGreetOpen:'Ahoj! 👋 Jsem Clearly AI — pomohu s aplikací a zodpovím otázky o kryptu.',
+    tagline:'Všechny informace v jedné zprávě',
+    splashBtn:'Začít',
+    splashSub:'Nastavení trvá 1 minutu',
+    welcomeTitle:'Ahoj! Vítejte v <span>Clearly</span>',
+    doneTitle:'Hotovo!',
+    doneSub:'Nastavení uloženo. Vítejte v <strong style="color:#b0a8ff;">Clearly</strong>!',
+    startBtn:'Začít pracovat 🎯',
+    navProfile:'Profil',
+    navNotif:'Upozornění',
+    navTheme:'Motiv',
+    navSettings:'Nastavení',
+    navChannels:'Kanály',
+    navFeed:'Upozornění',
+    myChannels:'MOJE KANÁLY',
+    delete:'🗑 Smazat',
+    high:'🔴 Vysoká',
+    medium:'🟡 Střední',
+    low:'🟢 Nízká',
+    newChannel:'Nový kanál',
+    addChannelTitle:'➕ Přidat kanál',
+    addChannelSub:'Zadejte username Telegram kanálu a zvolte prioritu',
+    labelUsername:'USERNAME KANÁLU',
+    labelPriority:'PRIORITA',
+    addChannelBtn:'Přidat kanál',
+    cancel:'Zrušit',
+    channelAdded:'✅ Kanál přidán!',
+    channelDeleted:'🗑 Kanál odebrán',
+    noChannelsTitle:'Zatím žádné kanály',
+    noChannelsSub:'Klepněte na „Nový kanál“ pro přidání',
+    profMyProfile:'👤 MŮJ PROFIL',
+    profMyPlans:'📦 BALÍČKY',
+    profStats:'📊 STATISTIKY',
+    profChannelsLabel:'Kanály',
+    profPlansLabel:'Balíčky',
+    profPerMonth:'Za měsíc',
+    profActivePlan:'Aktivní tarif',
+    profActiveLabel:'● Aktivní',
+    profNoPlans:'',
+    profActivBtn:'✓ Zakoupeno',
+    profAddBtn:'+ Přidat',
+    profUpToDate:'Tarif je aktuální',
+    profChangePlan:'Zaplatit',
+    profPartnerBtn:'🤝 Partnerský program',
+    refTitle:'Partnerský program',
+    refHeadline:'Pozvěte přátele a vydělávejte',
+    refSubDesc:'Získejte 5 % z každého referrala, který zaplatí tarif.',
+    refAvailable:'K výběru',
+    refActiveRefs:'Aktivní referraly',
+    refCommission:'Provize z tarifu',
+    refMinWithdraw:'Min. výběr',
+    refYourLink:'VÁŠ ODKAZ',
+    refCopy:'Kopírovat',
+    refRule1:'5 % získáte jen z referralů, kteří koupili tarif.',
+    refRule2:'Připsání proběhne po úspěšné platbě.',
+    refRule3:'Minimální výběr — 5 $.',
+    refRule4:'Kontakt na admina se zobrazí až po dosažení minima.',
+    refUnavailable:'Nedostupné',
+    refWithdrawTitle:'Výběr',
+    refWithdrawDesc:'Nasbírejte alespoň 5 $ pro výběr.',
+    refContactBtn:'Kontaktovat admina @rvelikiy',
+    refListTitle:'MOJI REFERRALY',
+    refNoRefs:'Zatím žádní referraly. Sdílejte odkaz!',
+    refEarningsTitle:'HISTORIE VÝDĚLKŮ',
+    refNoEarnings:'Zatím žádné výdělky.',
+    refCopied:'Zkopírováno!',
+    themeTitle:'🎨 Vzhled',
+    themeSub:'Zvolte styl rozhraní',
+    applyTheme:'Použít motiv',
+    themeApplied:'Motiv „{name}“ použit',
+    notifTitle:'🔔 Upozornění',
+    notifSub:'Správa upozornění',
+    notifOn:'{n} zap.',
+    allNotif:'Všechna upozornění',
+    allNotifSub:'Zapnout nebo vypnout vše',
+    userChannels:'KANÁLY UŽIVATELE',
+    saveSettings:'Uložit nastavení',
+    settingsSaved:'✅ Nastavení uloženo!',
+    settingsTitle:'⚙️ Nastavení',
+    settingsSub:'Přizpůsobte si aplikaci',
+    settingsLangSection:'JAZYK',
+    settingsLangTitle:'Jazyk rozhraní',
+    settingsLangSub:'Zvolte jazyk aplikace',
+    langChanged:'🌐 Jazyk změněn na češtinu',
+    quizStep:'Otázka {n} z {total}',
+    quizNext:'Další →',
+    quizDone:'Hotovo ✅',
+    loading:'Načítání Clearly…',
+    aiComplete:'🤖 AI analýza dokončena',
+    smartPacks:'⚡ CHYTRÉ NOVINKOVÉ BALÍČKY',
+    chooseYourFeed:'Zvolte svůj<br>kanál novinek.',
+    selectOnePack:'Vyberte jeden nebo více balíčků.',
+    paymentMethod:'💳 ZPŮSOB PLATBY',
+    skip:'Přeskočit →',
+    navMarket:'Trh',
+    navFeed:'Upozornění',
+    feedTitle:'🔔 Upozornění',
+    packsRecommendSub:'Na základě vašich odpovědí. Můžete přidat druhý balíček pro plnější feed.',
+    bestMatch:'Nejlepší volba',
+    accessLabel:'Přístup',
+    oneTime:'jednorázově',
+    packAdd:'Přidat',
+    packRemove:'Odebrat',
+    cryptoPayBadge:'💳 Platba kryptem',
+    completePayment:'Dokončit platbu',
+    choosePayMethod:'Zvolte způsob platby a zaplaťte',
+    amountLabel:'Částka',
+    payMethodSection:'ZPŮSOB PLATBY',
+    networkLabel:'Síť',
+    copyBtn:'📋 Kopírovat',
+    cryptobotDesc:'Přes CryptoBot bude v Telegramu vytvořena faktura. Klepněte níže pro otevření odkazu.',
+    cryptobotPayBtn:'🤖 Zaplatit přes CryptoBot',
+    iPaidBtn:'💳 Zaplatil jsem — potvrdit',
+    submittingBtn:'⏳ Odesílám…',
+    creatingInvoice:'Vytvářím fakturu…',
+    payAutoNote:'Nebo bude platba potvrzena automaticky po detekci v síti',
+    pendingTitle:'Čekáme na platbu',
+    pendingSubAuto:'Čekáme na potvrzení transakce v blockchainu. Obvykle 1–3 minuty.',
+    pendingSubManual:'Žádost o platbu odeslána. Přístup se otevře po přijetí platby.',
+    pendingTimer:'Kontrola každých 10 sekund…',
+    cancelPayment:'Zrušit platbu',
+    payConfirmedTitle:'Platba potvrzena!',
+    payConfirmedSub:'Vaše balíčky jsou aktivní.',
+    tabCatalog:'📋 Katalog',
+    tabManual:'✏️ Ručně',
+    catalogSection:'TELEGRAM KANÁLY',
+    deleteChannelHeader:'🗑 Smazat kanál',
+    deleteChannelDesc:'Kanál bude odebrán ze seznamu a už nebudete dostávat upozornění.',
+    deleteConfirmBtn:'🗑 Smazat',
+    confirmDeleteQuestion:'Smazat {username}?',
+    yesDelete:'✓ Ano, smazat',
+    noCancel:'✕ Zrušit',
+    telegramChannel:'Telegram kanál',
+    feedEmpty:'Zatím žádné kanály',
+    feedEmptySub:'Přidejte kanály na záložce Upozornění',
+    feedLoading:'Načítám upozornění…',
+    feedNoMessages:'Zatím žádné zprávy',
+    feedNoMessagesSub:'Bot sleduje vaše kanály.<br>Nové zprávy se zobrazí zde.',
+    feedRefresh:'Obnovit',
+    mediaMessage:'Mediální zpráva',
+    impactLabel:'⚡ Dopad na trh',
+    impactHigh:'🔴 Vysoký dopad',
+    impactMid:'🟡 Střední dopad',
+    impactLow:'🟢 Nízký dopad',
+    justNow:'právě teď',
+    mAgo:'před {n} min',
+    hAgo:'před {n} h',
+    catalogAdded:'✓ Přidáno',
+    catalogAdd:'+ Přidat',
+    packSingular:'balíček',
+    packPlural:'balíčky',
+    errorInvoice:'❌ Chyba při vytváření faktury. Zkuste znovu.',
+    errorGeneric:'❌ Chyba. Zkuste znovu.',
+    copiedToast:'📋 Adresa zkopírována',
+    marketTitle:'📈 Trh',
+    marketRefresh:'Obnovit',
+    marketSentimentLabel:'NÁLADA TRHU',
+    marketAlertsSection:'🔔 TRŽNÍ SIGNÁLY',
+    marketStateSection:'📊 STAV TRHU',
+    marketAlertHigh1:'⚠️ Očekáváno rozhodnutí Fed — možná vysoká volatilita',
+    marketAlertHigh2:'🔴 BTC prolomil podporu 68K — sledujte kaskádu',
+    marketAlertMid1:'🟡 Plánován upgrade ETH — možné přetížení sítě',
+    marketAlertLow1:'🟢 Rostoucí příliv stablecoinů — signál akumulace',
+    marketAlertLow2:'🟢 DeFi TVL +12 % tento týden',
+    marketStateOverall:'Celkový trh',
+    marketStateBullish:'Býčí',
+    marketStateBearish:'Medvědí',
+    marketStateNeutral:'Neutrální',
+    marketErrorTitle:'Nepodařilo se načíst data trhu',
+    marketErrorSub:'Zkontrolujte připojení a zkuste znovu',
+    marketErrorBtn:'Zkusit znovu',
+    marketLoadingSub:'Načítám nejnovější signály',
+    minsAgo:'před {n} min',
+    hoursAgo:'před {n} h',
+    supportSection:'PODPORA',
+    bugTitle:'Našli jste chybu?',
+    bugSub:'Nestabilní chování bota? Napište nám → @clearly_support',
+    bugFooter:'Všimli jste si chyby nebo nestability?',
+    subBack:'‹ Zpět',
+    subChooseTitle:'Zvolte tarif',
+    subChooseDesc:'Bez předplatného je přístup k botu uzavřen.<br>Zvolte plán, který vám vyhovuje.',
+    subSummerBanner:'☀️ Letní slevy! Ceny sníženy na celou sezónu.',
+    subSummerTag:'-30 %',
+    subMo:'měs',
+    subMonth:'měsíc',
+    feedTranslate:'🌐 Přeložit',
+    translateOriginal:'↩ Originál',
+    translatedBadge:'🌐 Přeloženo do češtiny',
+    aiTyping:'Píše…',
+    aiNoReply:'⚠️ Žádná odpověď ze serveru.',
+    aiConnError:'⚠️ Chyba připojení.',
+    vipExclusive:'Exkluzivní přístup · Navždy',
+    daysLeft:'{n} dní zbývá',
+    planActive:'Aktivní',
+    changePlan:'Změnit',
+    validUntil:'Platné do',
+    lifetime:'Navždy',
+    noSubscription:'Žádné předplatné',
+    getPlanBtn:'Zvolte tarif',
+    choosePlan:'Vybrat',
+    subscribePlan:'Zvolit tarif',
+    choosePayment:'Zvolte způsob platby',
+    payNow:'Zaplatit',
+    planActivatedWelcome:'Tarif «{name}» aktivován. Vítejte!',
+    twitterAddSub:'Zadejte username účtu Twitter/X a zvolte prioritu',
+    twitterPreview:'𝕏 Twitter/X účet',
+    telegramAddSub:'Zadejte username kanálu a zvolte prioritu',
+    aiAnalyzing:'Analyzuje AI…',
+    subBtnCurrent:'✓ Aktuální tarif',
+    subBtnChoosePro:'Vybrat Pro →',
+    subBtnChooseMax:'Vybrat Maximum →',
+    subBtnStart:'Začít →',
+    fgExtremeGreed:'Extrémní chamtivost',
+    fgGreed:'Chamtivost',
+    fgNeutral:'Neutrální',
+    fgFear:'Strach',
+    fgExtremeFear:'Extrémní strach',
+    mktSentiment:'NÁLADA TRHU',
+    mktFearGreed:'INDEX STRACHU A CHAMTIVOSTI',
+    mktPrices:'CENY',
+    mktNews:'HLAVNÍ NOVINKY',
+    mktSectors:'SEKTORY',
+    mktUpcoming:'NADCHÁZEJÍCÍ UDÁLOSTI',
+    mktLevels:'KLÍČOVÉ ÚROVNĚ',
+    mktSupport:'Podpora',
+    mktResist:'Odpor',
+    mktMoodIdx:'Index nálady',
+    mktMcap:'Tržní kap.',
+    mktDom:'Dominance BTC',
+    mktSource:'Zdroj',
+    sentBullish:'Býčí',
+    sentBearish:'Medvědí',
+    sentNeutral:'Neutrální',
+    aiGreet:'Ahoj! Jsem váš AI asistent pro krypto novinky. Zeptejte se na trh, kanály nebo nastavení.',
+    refAvail:'Dostupné',
+    refUnavail:'Nedostupné',
+    refMinOk:'Minimální částka dosažena. Kontaktujte administrátora.',
+    refNeedMore:'Nyní: ${now} z ${min}. Ještě ${need}.',
+    refActive:'Aktivní',
+    refNotPaid:'Nezaplatil',
+    profPlanLabel:'Tarif',
+    subFooterPay:'Platba kryptem. Správa tarifu v sekci Profil.',
   },
   ru: {
+    aiGreetOpen:'Привет! 👋 Я Clearly AI — помогу разобраться с ботом и отвечу на вопросы по крипте.',
     tagline:'Вся инфа в одном сообщении', splashBtn:'Начать', splashSub:'Настройка займёт 1 минуту',
     welcomeTitle:'Привет! Добро пожаловать в <span>Clearly</span>',
     welcomeDesc:'Мы зададим вам пару вопросов, чтобы подобрать лучший пакет и настроить всё под вас.',
@@ -1275,16 +1682,79 @@ const i18n = {
     bugSub:'Нестабильная работа бота? Напишите нам → @clearly_support',
     bugFooter:'Заметили баг или нестабильную работу?',
     subFooterPay:'Оплата через Криптовалюту. Управление тарифом — в разделе Профиль.',
+    subBack:'‹ Назад',
+    subChooseTitle:'Выберите тариф',
+    subChooseDesc:'Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.',
+    subSummerBanner:'☀️ Летние скидки! Цены снижены на весь сезон.',
+    subSummerTag:'-30%',
+    subMo:'мес',
+    subMonth:'месяц',
+    feedTranslate:'🌐 Перевести',
+    translateOriginal:'↩ Оригинал',
+    translatedBadge:'🌐 Переведено на русский',
+    aiTyping:'Печатает…',
+    aiNoReply:'⚠️ Нет ответа от сервера.',
+    aiConnError:'⚠️ Ошибка соединения.',
+    vipExclusive:'Эксклюзивный доступ · Навсегда',
+    daysLeft:'{n} дн. осталось',
+    planActive:'Активна',
+    changePlan:'Изменить',
+    validUntil:'Действует до',
+    lifetime:'Навсегда',
+    noSubscription:'Нет подписки',
+    getPlanBtn:'Оформите тариф',
+    choosePlan:'Выбрать',
+    subscribePlan:'Оформить тариф',
+    choosePayment:'Выберите способ оплаты',
+    payNow:'Оплатить',
+    planActivatedWelcome:'Тариф «{name}» активирован. Добро пожаловать!',
+    twitterAddSub:'Введите username Twitter/X аккаунта и выберите важность',
+    twitterPreview:'𝕏 Twitter/X account',
+    telegramAddSub:'Введите username канала и выберите важность',
+    aiAnalyzing:'Анализирует AI…',
+    subBtnCurrent:'✓ Текущий тариф',
+    subBtnChoosePro:'Выбрать Про →',
+    subBtnChooseMax:'Выбрать Максимум →',
+    subBtnStart:'Начать →',
+    fgExtremeGreed:'Экстремальная жадность',
+    fgGreed:'Жадность',
+    fgNeutral:'Нейтрально',
+    fgFear:'Страх',
+    fgExtremeFear:'Крайний страх',
+    mktSentiment:'СОСТОЯНИЕ РЫНКА',
+    mktFearGreed:'СТРАХ & ЖАДНОСТЬ',
+    mktPrices:'ЦЕНЫ',
+    mktNews:'ГЛАВНЫЕ НОВОСТИ',
+    mktSectors:'СЕКТОРЫ',
+    mktUpcoming:'ПРЕДСТОЯЩИЕ СОБЫТИЯ',
+    mktLevels:'КЛЮЧЕВЫЕ УРОВНИ',
+    mktSupport:'Поддержка',
+    mktResist:'Сопротивление',
+    mktMoodIdx:'Индекс настроения',
+    mktMcap:'Кап. рынка',
+    mktDom:'Доминация BTC',
+    mktSource:'Источник',
+    sentBullish:'Бычий',
+    sentBearish:'Медвежий',
+    sentNeutral:'Нейтральный',
+    aiGreet:'Привет! Я ваш AI-ассистент по крипто-новостям. Спросите о рынке, каналах или настройках.',
+    refAvail:'Доступно',
+    refUnavail:'Недоступно',
+    refMinOk:'Минимальная сумма достигнута. Свяжитесь с администратором.',
+    refNeedMore:'Сейчас: ${now} из ${min}. Нужно ещё ${need}.',
+    refActive:'Активен',
+    refNotPaid:'Не оплатил',
+    profPlanLabel:'Тариф',
   }
 };
-// Czech locale: start from English defaults, override key copy where needed.
-i18n.cs = { ...i18n.en, langChanged:'🌐 Jazyk zmenen na cestinu' };
-
 function t(key, vars={}) {
   let str = (i18n[currentLang]||i18n.en)[key] || key;
   Object.entries(vars).forEach(([k,v])=>{ str=str.replace('{'+k+'}',v); });
   return str;
 }
+function loc(obj) { return (obj && (obj[currentLang] ?? obj.en)) || ''; }
+function lt(ru, uk, cs, en) { return ({ru,uk,cs,en}[currentLang]) ?? en; }
+function apiLangName() { return ({ru:'Russian',uk:'Ukrainian',cs:'Czech',en:'English'}[currentLang]) || 'English'; }
 
 function applyI18n() {
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -1650,6 +2120,18 @@ const quizData = {
      opts:[{label:'Новачок',emoji:'🐣',points:{crypto:3}},{label:'Середній',emoji:'🧐',points:{news:2,crypto:2}},{label:'Досвідчений криптан',emoji:'🔥',points:{meme:2,news:3}}]},
     {key:'goal',q:'Навіщо вам новини?',sub:'Оберемо пакет під вашу мету',
      opts:[{label:'Торгувати на новинах',emoji:'⚡',points:{news:5}},{label:'Бачити загальну картину',emoji:'🌐',points:{macro:3,crypto:2}},{label:'Шукати хайп',emoji:'🐸',points:{meme:5}},{label:'Збирати аналітику',emoji:'📋',points:{macro:3,crypto:2}}]}
+  ],
+  cs:[
+    {key:'sphere',q:'Vaše oblast?',sub:'Zvolte, co nejlépe sedí vaší strategii',
+     opts:[{label:'Krypto',emoji:'🪙',points:{crypto:3,news:1}},{label:'Trading',emoji:'📈',points:{news:3,crypto:1}},{label:'Memecoiny',emoji:'🐸',points:{meme:4,news:1}},{label:'AI / Tech',emoji:'🤖',points:{macro:2,crypto:1}},{label:'Akcie / Makro',emoji:'🌎',points:{macro:4}}]},
+    {key:'style',q:'Váš styl obchodování?',sub:'Pomůže zvolit správnou rychlost novinek',
+     opts:[{label:'Scalping',emoji:'⚡',points:{news:4,meme:2}},{label:'Day trading',emoji:'☀️',points:{news:3,crypto:2}},{label:'Swing',emoji:'🌊',points:{macro:3,crypto:2}},{label:'Pozoruji',emoji:'👀',points:{crypto:2,macro:2}}]},
+    {key:'capital',q:'Váš kapitál?',sub:'Pro volbu úrovně rizika',
+     opts:[{label:'Do 500 $',emoji:'🌱',points:{meme:1,crypto:2}},{label:'Do 1 000 $',emoji:'💼',points:{crypto:2,news:2}},{label:'5 000 $+',emoji:'🚀',points:{macro:2,news:3}}]},
+    {key:'experience',q:'Vaše zkušenosti s kryptem?',sub:'Buďme upřímní',
+     opts:[{label:'Začátečník',emoji:'🐣',points:{crypto:3}},{label:'Středně pokročilý',emoji:'🧐',points:{news:2,crypto:2}},{label:'Krypto profík',emoji:'🔥',points:{meme:2,news:3}}]},
+    {key:'goal',q:'K čemu potřebujete novinky?',sub:'Vybereme balíček podle vašeho cíle',
+     opts:[{label:'Obchodovat na signálech',emoji:'⚡',points:{news:5}},{label:'Vidět celkový obraz',emoji:'🌐',points:{macro:3,crypto:2}},{label:'Hledat hype',emoji:'🐸',points:{meme:5}},{label:'Sestavovat analýzu',emoji:'📋',points:{macro:3,crypto:2}}]}
   ]
 };
 
@@ -2346,12 +2828,8 @@ function switchPlatform(platform) {
     twBtn.style.background = '#1a1a1a';
     twBtn.style.color = '#1d9bf0';
     twBtn.style.border = '1px solid #1d9bf044';    input.placeholder = '@elonmusk';
-    if (subtitle) subtitle.textContent = (window._lang === 'ru')
-      ? 'Введите username Twitter/X аккаунта и выберите важность'
-      : (window._lang === 'uk')
-      ? 'Введіть username Twitter/X акаунта і оберіть важливість'
-      : 'Enter the Twitter/X account username and choose priority';
-    if (previewSub) previewSub.textContent = '𝕏 Twitter/X account';
+    if (subtitle) subtitle.textContent = t('twitterAddSub');
+    if (previewSub) previewSub.textContent = t('twitterPreview');
   } else {
     twBtn.style.background = 'transparent';
     twBtn.style.color = '#555';
@@ -2360,12 +2838,8 @@ function switchPlatform(platform) {
     tgBtn.style.background = '#1e1e30';
     tgBtn.style.color = _th.accent;
     input.placeholder = '@channel_name';
-    if (subtitle) subtitle.textContent = (window._lang === 'ru')
-      ? 'Введите username канала и выберите важность'
-      : (window._lang === 'uk')
-      ? 'Введіть username каналу і оберіть важливість'
-      : 'Enter the Telegram channel username and choose priority';
-    if (previewSub) previewSub.textContent = 'Telegram channel';
+    if (subtitle) subtitle.textContent = t('telegramAddSub');
+    if (previewSub) previewSub.textContent = t('telegramChannel');
   }
   document.getElementById('chUsername').value = '';
   validateAddChannel();
@@ -2689,12 +3163,12 @@ async function loadFeed() {
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
       <p class="feed-text" id="feedtext_${msg.id}">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
-      ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" data-msgid="${msg.id}" onclick="toggleFeedTranslate(this)">🌐 ${currentLang==='ru'?'Перевести':currentLang==='uk'?'Перекласти':'Translate'}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
+      ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" data-msgid="${msg.id}" onclick="toggleFeedTranslate(this)">${t('feedTranslate')}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
       ${twitterLink}
       <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
         ${hasServerAI
           ? '' 
-          : '<div class="impact-analyzing"><div class="impact-dot-pulse"></div> Анализирует AI…</div>'
+          : `<div class="impact-analyzing"><div class="impact-dot-pulse"></div> ${t('aiAnalyzing')}</div>`
         }
       </div>
     `;
@@ -2777,7 +3251,7 @@ function renderProfileScreen() {
         <p class="vip-card-title">VIP статус</p>
         <p class="vip-card-sub">
           <span class="vip-dot"></span>
-          ${L2==='ru'?'Эксклюзивный доступ · Навсегда':L2==='uk'?'Ексклюзивний доступ · Назавжди':'Exclusive access · Lifetime'}
+          ${t('vipExclusive')}
         </p>
       </div>
       <div class="vip-stars">✦✦</div>
@@ -2820,21 +3294,21 @@ function renderProfileScreen() {
             }
           } catch(e) {}
         }
-        const planNames = { basic: {ru:'Базовый',uk:'Базовий',en:'Basic'}, pro: {ru:'Про',uk:'Про',en:'Pro'}, max: {ru:'Максимум',uk:'Максимум',en:'Maximum'} };
+        const planNames = { basic: {ru:'Базовый',uk:'Базовий',cs:'Základní',en:'Basic'}, pro: {ru:'Про',uk:'Про',cs:'Pro',en:'Pro'}, max: {ru:'Максимум',uk:'Максимум',cs:'Maximum',en:'Maximum'} };
         const planEmojis = { basic:'🔑', pro:'⭐', max:'👑' };
         if (subActive || purchasedPacks.length > 0) {
           const daysLeft = subEnd ? Math.max(0, Math.ceil((new Date(subEnd) - new Date()) / 86400000)) : null;
           const isLifetime = subEnd && subEnd >= '2099-01-01';
           const daysColor = isLifetime ? '#a78bfa' : (daysLeft !== null ? (daysLeft <= 3 ? '#e05252' : daysLeft <= 7 ? '#f59e0b' : '#3aaa6e') : '#3aaa6e');
           const daysLabel = isLifetime
-            ? (L2==='ru' ? '♾ Навсегда' : L2==='uk' ? '♾ Назавжди' : '♾ Lifetime')
+            ? ('♾ ' + t('lifetime'))
             : (daysLeft !== null
-              ? (L2==='ru' ? `${daysLeft} дн. осталось` : L2==='uk' ? `${daysLeft} дн. залишилось` : `${daysLeft} days left`)
-              : (L2==='ru' ? 'Активна' : L2==='uk' ? 'Активна' : 'Active'));
+              ? (t('daysLeft', {n: daysLeft}))
+              : (t('planActive')));
           const planKey = currentPlan || 'basic';
-          const planLabel = (planNames[planKey]||planNames.basic)[L2] || planKey;
+          const planLabel = loc(planNames[planKey]||planNames.basic) || planKey;
           const planEmoji = planEmojis[planKey] || '💳';
-          const priceLabel = subAmount > 0 ? `$${subAmount.toFixed(2)}/${L2==='ru'?'мес':L2==='uk'?'міс':'mo'}` : '';
+          const priceLabel = subAmount > 0 ? `$${subAmount.toFixed(2)}/${t('subMo')}` : '';
           // Update stats spend
           const spEl2 = document.getElementById('profileSpend');
           if(spEl2) spEl2.textContent = subAmount > 0 ? `$${subAmount.toFixed(2)}` : (purchasedPacks.length > 0 ? `$${(purchasedPacks.length*0.8).toFixed(2)}` : '$0.00');
@@ -2843,22 +3317,22 @@ function renderProfileScreen() {
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
                 <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#6b6bff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${planEmoji}</div>
                 <div style="flex:1;">
-                  <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${L2==='ru'?'Тариф':'Тариф'}: ${planLabel}</p>
+                  <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${t('profPlanLabel')}: ${planLabel}</p>
                   <p style="font-size:11px;color:#6b6bff;margin:0;">${priceLabel}${priceLabel?' · ':''}<span style="color:${daysColor};">${daysLabel}</span></p>
                 </div>
-                <button onclick="openChangePlan()" style="background:#1e1e30;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${L2==='ru'?'Изменить':L2==='uk'?'Змінити':'Change'}</button>
+                <button onclick="openChangePlan()" style="background:#1e1e30;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">${t('changePlan')}</button>
               </div>
               <div style="background:#111;border:.5px solid #2e2e38;border-radius:8px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-size:11px;color:#555;">${L2==='ru'?'Действует до':L2==='uk'?'Діє до':'Valid until'}</span>
-                <span style="font-size:11px;font-weight:600;color:${daysColor};">${isLifetime ? (L2==='ru'?'Навсегда':L2==='uk'?'Назавжди':'Lifetime') : (subEnd || '—')}</span>
+                <span style="font-size:11px;color:#555;">${t('validUntil')}</span>
+                <span style="font-size:11px;font-weight:600;color:${daysColor};">${isLifetime ? (t('lifetime')) : (subEnd || '—')}</span>
               </div>
             </div>`;
         } else {
           planInfoEl.innerHTML = `
             <div style="background:#2a1010;border:.5px solid #e0525244;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
               <div style="font-size:24px;">🔐</div>
-              <div style="flex:1;"><p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${L2==='ru'?'Нет подписки':L2==='uk'?'Немає підписки':'No subscription'}</p><p style="font-size:11px;color:#e05252;margin:0;">${L2==='ru'?'Оформите тариф':L2==='uk'?'Оформіть тариф':'Get a plan'}</p></div>
-              <button onclick="openChangePlan()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);border:none;color:#fff;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;">${L2==='ru'?'Выбрать':L2==='uk'?'Обрати':'Choose'}</button>
+              <div style="flex:1;"><p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${t('noSubscription')}</p><p style="font-size:11px;color:#e05252;margin:0;">${t('getPlanBtn')}</p></div>
+              <button onclick="openChangePlan()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);border:none;color:#fff;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;">${t('choosePlan')}</button>
             </div>`;
         }
       })();
@@ -3343,7 +3817,8 @@ async function loadMarket(forceRefresh) {
   const loadMsgs = {
     ru: ['📡 Получаю цены с бирж…','📰 Загружаю новости…','🤖 AI анализирует данные…','⚡ Почти готово…'],
     uk: ['📡 Отримую ціни з бірж…','📰 Завантажую новини…','🤖 AI аналізує дані…','⚡ Майже готово…'],
-    en: ['📡 Fetching live prices…','📰 Loading news…','🤖 AI analysing data…','⚡ Almost ready…']
+    en: ['📡 Fetching live prices…','📰 Loading news…','🤖 AI analysing data…','⚡ Almost ready…'],
+    cs: ['📡 Načítám živé ceny…','📰 Načítám novinky…','🤖 AI analyzuje data…','⚡ Skoro hotovo…']
   };
   const msgs = loadMsgs[currentLang] || loadMsgs.en;
   let msgIdx = 0;
@@ -3356,7 +3831,7 @@ async function loadMarket(forceRefresh) {
 
   try {
     const th = getTheme();
-    const lang = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : 'English';
+    const lang = apiLangName();
     const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
 
     const cgResp = await fetch(
@@ -3513,11 +3988,11 @@ function _renderMarket(m, th) {
   // Always localize fgLabel regardless of what API returns
   const _fg = m.fear_greed || 50;
   const _L = currentLang;
-  const fgLabel = _fg >= 75 ? (_L==='ru'?'Экстремальная жадность':_L==='uk'?'Екстремальна жадібність':'Extreme Greed')
-    : _fg >= 55 ? (_L==='ru'?'Жадность':_L==='uk'?'Жадібність':'Greed')
-    : _fg >= 45 ? (_L==='ru'?'Нейтрально':_L==='uk'?'Нейтрально':'Neutral')
-    : _fg >= 25 ? (_L==='ru'?'Страх':_L==='uk'?'Страх':'Fear')
-    : (_L==='ru'?'Крайний страх':_L==='uk'?'Крайній страх':'Extreme Fear');
+  const fgLabel = _fg >= 75 ? (lt('Экстремальная жадность','Екстремальна жадібність','Extrémní chamtivost','Extreme Greed'))
+    : _fg >= 55 ? (lt('Жадность','Жадібність','Chamtivost','Greed'))
+    : _fg >= 45 ? (lt('Нейтрально','Нейтрально','Neutrální','Neutral'))
+    : _fg >= 25 ? (lt('Страх','Страх','Strach','Fear'))
+    : (lt('Крайний страх','Крайній страх','Extrémní strach','Extreme Fear'));
 
   const impactColor = {high:'#e05252', medium:'#d49a2e', low:'#3aaa6e'};
   const impBg      = {high:'#2a1010', medium:'#221a08', low:'#0c1f16'};
@@ -3530,19 +4005,19 @@ function _renderMarket(m, th) {
 
   const L = currentLang;
   const s = {
-    sentiment: L==='ru'?'СОСТОЯНИЕ РЫНКА':L==='uk'?'СТАН РИНКУ':'MARKET SENTIMENT',
-    fearGreed: L==='ru'?'СТРАХ & ЖАДНОСТЬ':L==='uk'?'СТРАХ & ЖАДІБНІСТЬ':'FEAR & GREED INDEX',
-    prices:    L==='ru'?'ЦЕНЫ':L==='uk'?'ЦІНИ':'PRICES',
-    news:      L==='ru'?'ГЛАВНЫЕ НОВОСТИ':L==='uk'?'ГОЛОВНІ НОВИНИ':'TOP NEWS',
-    sectors:   L==='ru'?'СЕКТОРЫ':L==='uk'?'СЕКТОРИ':'SECTORS',
-    upcoming:  L==='ru'?'ПРЕДСТОЯЩИЕ СОБЫТИЯ':L==='uk'?'МАЙБУТНІ ПОДІЇ':'UPCOMING EVENTS',
-    levels:    L==='ru'?'КЛЮЧЕВЫЕ УРОВНИ':L==='uk'?'КЛЮЧОВІ РІВНІ':'KEY LEVELS',
-    support:   L==='ru'?'Поддержка':L==='uk'?'Підтримка':'Support',
-    resist:    L==='ru'?'Сопротивление':L==='uk'?'Спротив':'Resistance',
-    moodIdx:   L==='ru'?'Индекс настроения':L==='uk'?'Індекс настрою':'Mood index',
-    mcap:      L==='ru'?'Кап. рынка':L==='uk'?'Кап. ринку':'Market Cap',
-    dom:       L==='ru'?'Доминация BTC':L==='uk'?'Домінація BTC':'BTC Dominance',
-    source:    L==='ru'?'Источник':L==='uk'?'Джерело':'Source',
+    sentiment: t('mktSentiment'),
+    fearGreed: t('mktFearGreed'),
+    prices:    t('mktPrices'),
+    news:      t('mktNews'),
+    sectors:   t('mktSectors'),
+    upcoming:  t('mktUpcoming'),
+    levels:    t('mktLevels'),
+    support:   t('mktSupport'),
+    resist:    t('mktResist'),
+    moodIdx:   t('mktMoodIdx'),
+    mcap:      t('mktMcap'),
+    dom:       t('mktDom'),
+    source:    t('mktSource'),
   };
 
   const pricesHTML = (m.btc_price || m.eth_price) ? `
@@ -3625,7 +4100,7 @@ function _renderMarket(m, th) {
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
           <p style="font-size:24px;font-weight:700;color:${sentColor};margin:0;">
-            ${sentEmoji} ${m.sentiment === 'bullish' ? (L==='ru'?'Бычий':L==='uk'?'Бичачий':'Bullish') : m.sentiment === 'bearish' ? (L==='ru'?'Медвежий':L==='uk'?'Ведмежий':'Bearish') : (L==='ru'?'Нейтральный':L==='uk'?'Нейтральний':'Neutral')}
+            ${sentEmoji} ${m.sentiment === 'bullish' ? (t('sentBullish')) : m.sentiment === 'bearish' ? (t('sentBearish')) : (t('sentNeutral'))}
           </p>
           <p style="font-size:12px;color:#666;margin:4px 0 0;">${m.summary}</p>
         </div>
@@ -3702,7 +4177,8 @@ let _aiTyping = false;
 const _quickHints = {
   en: ['How do I add a channel?','What is the impact score?','How to enable notifications?','Explain DeFi'],
   ru: ['Как добавить канал?','Что такое оценка влияния?','Как включить уведомления?','Объясни DeFi'],
-  uk: ['Як додати канал?','Що таке оцінка впливу?','Як увімкнути сповіщення?','Поясни DeFi']
+  uk: ['Як додати канал?','Що таке оцінка впливу?','Як увімкнути сповіщення?','Поясни DeFi'],
+  cs: ['Jak přidat kanál?','Co je skóre dopadu?','Jak zapnout upozornění?','Vysvětli DeFi']
 };
 
 (function() {
@@ -3801,11 +4277,7 @@ function toggleAiChat() {
     fab.style.pointerEvents = isOpen ? 'none' : 'auto';
   }
   if(isOpen && _aiHistory.length === 0) {
-    const greet = currentLang === 'ru'
-      ? 'Привет! 👋 Я Clearly AI — помогу разобраться с ботом и отвечу на вопросы по крипте.'
-      : currentLang === 'uk'
-      ? 'Привіт! 👋 Я Clearly AI — допоможу розібратися з ботом і відповім на питання з крипти.'
-      : 'Hey! 👋 I\'m Clearly AI — here to help with the app and answer crypto questions.';
+    const greet = t('aiGreetOpen');
     _addBubble('a', greet);
     _renderQuick();
   }
@@ -3858,18 +4330,18 @@ async function aiSend() {
   _aiTyping = true;
   document.getElementById('aiSendBtn').disabled = true;
   const st = document.getElementById('aiStatus');
-  if(st) st.textContent = currentLang === 'ru' ? 'Печатает…' : currentLang === 'uk' ? 'Друкує…' : 'Typing…';
+  if(st) st.textContent = t('aiTyping');
   _showTyping();
   try {
     const r = await apiFetch('/api/chat', 'POST', {messages: _aiHistory});
     document.getElementById('aiTyping')?.remove();
-    const reply = r?.reply || (currentLang === 'ru' ? '⚠️ Нет ответа от сервера.' : currentLang === 'uk' ? '⚠️ Немає відповіді від сервера.' : '⚠️ No response from server.');
+    const reply = r?.reply || t('aiNoReply');
     _addBubble('a', reply);
     _aiHistory.push({role:'assistant', content:reply});
     if(_aiHistory.length > 40) _aiHistory.splice(0, _aiHistory.length - 40);
   } catch(e) {
     document.getElementById('aiTyping')?.remove();
-    _addBubble('a', currentLang === 'ru' ? '⚠️ Ошибка соединения.' : currentLang === 'uk' ? '⚠️ Помилка з\'єднання.' : '⚠️ Connection error.');
+    _addBubble('a', t('aiConnError'));
   }
   _aiTyping = false;
   document.getElementById('aiSendBtn').disabled = false;
@@ -3888,18 +4360,18 @@ async function toggleFeedTranslate(btn) {
   if(btn.dataset.translated === '1') {
     textEl.textContent = origText;
     btn.dataset.translated = '0';
-    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : currentLang === 'cs' ? '🌐 Prelozit' : '🌐 Translate';
+    btn.innerHTML = t('feedTranslate');
     if(badge) badge.style.display = 'none';
     return;
   }
-  const tgt = currentLang === 'ru' ? 'Russian' : currentLang === 'uk' ? 'Ukrainian' : currentLang === 'cs' ? 'Czech' : 'English';
-  const tgtShort = currentLang === 'ru' ? 'ru' : currentLang === 'uk' ? 'uk' : currentLang === 'cs' ? 'cs' : 'en';
+  const tgt = apiLangName();
+  const tgtShort = currentLang;
   const key = msgId + '_' + tgtShort;
   if(_txc[key]) {
     textEl.textContent = _txc[key];
     btn.dataset.translated = '1';
-    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : currentLang === 'cs' ? '↩ Original' : '↩ Original';
-    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : currentLang === 'cs' ? '🌐 Prelozeno do cestiny' : '🌐 Translated to English'; badge.style.display='block'; }
+    btn.innerHTML = t('translateOriginal');
+    if(badge) { badge.textContent = t('translatedBadge'); badge.style.display='block'; }
     return;
   }
   btn.classList.add('loading');
@@ -3920,11 +4392,11 @@ async function toggleFeedTranslate(btn) {
     textEl.textContent = translated;
     btn.dataset.translated = '1';
     btn.classList.remove('loading');
-    btn.innerHTML = currentLang === 'ru' ? '↩ Оригинал' : currentLang === 'uk' ? '↩ Оригінал' : currentLang === 'cs' ? '↩ Original' : '↩ Original';
-    if(badge) { badge.textContent = currentLang === 'ru' ? '🌐 Переведено на русский' : currentLang === 'uk' ? '🌐 Перекладено на українську' : currentLang === 'cs' ? '🌐 Prelozeno do cestiny' : '🌐 Translated to English'; badge.style.display='block'; }
+    btn.innerHTML = t('translateOriginal');
+    if(badge) { badge.textContent = t('translatedBadge'); badge.style.display='block'; }
   } catch(e) {
     btn.classList.remove('loading');
-    btn.innerHTML = currentLang === 'ru' ? '🌐 Перевести' : currentLang === 'uk' ? '🌐 Перекласти' : currentLang === 'cs' ? '🌐 Prelozit' : '🌐 Translate';
+    btn.innerHTML = t('feedTranslate');
   }
 }
 
@@ -3947,32 +4419,29 @@ function renderSubscriptionPlans(highlightId) {
   if (!container) return;
   container.innerHTML = '';
 
-  const titles = { ru:'Выберите тариф', uk:'Оберіть тариф', en:'Choose your plan' };
-  const descs  = {
-    ru:'Без подписки доступ к боту закрыт.<br>Выберите план который вам подходит.',
-    uk:'Без підписки доступ до бота закрито.<br>Оберіть план який вам підходить.',
-    en:'Bot access requires a subscription.<br>Choose the plan that suits you.'
-  };
-  const el = document.getElementById('subTitle'); if(el) el.textContent = titles[L]||titles.en;
-  const el2 = document.getElementById('subDesc'); if(el2) el2.innerHTML = descs[L]||descs.en;
+  const el = document.getElementById('subTitle'); if(el) el.textContent = t('subChooseTitle');
+  const el2 = document.getElementById('subDesc'); if(el2) el2.innerHTML = t('subChooseDesc');
+  const backBtn = document.getElementById('subBackBtn');
+  if (backBtn) backBtn.textContent = t('subBack');
 
-  // Summer discount banner
-  const summerLabels = {
-    ru: '☀️ Летние скидки! Цены снижены на весь сезон.',
-    uk: '☀️ Літні знижки! Ціни знижено на весь сезон.',
-    en: '☀️ Summer Sale! Prices reduced for the whole season.'
-  };
   const bannerDiv = document.createElement('div');
   bannerDiv.className = 'sub-summer-banner';
-  bannerDiv.innerHTML = `<span class="sub-summer-banner-text">${summerLabels[L]||summerLabels.en}</span>`;
+  bannerDiv.innerHTML = `
+    <span class="sub-summer-banner-icon">☀️</span>
+    <div class="sub-summer-banner-body">
+      <span class="sub-summer-banner-tag">${t('subSummerTag')}</span>
+      <span class="sub-summer-banner-text">${t('subSummerBanner')}</span>
+    </div>
+    <span class="sub-summer-deco">🌴</span>`;
   container.appendChild(bannerDiv);
 
-  const btnLabels = {
-    ru: { current:'✓ Текущий тариф', choose:'Выбрать', choosePro:'Выбрать Про →', chooseMax:'Выбрать Максимум →', chooseBasic:'Начать →' },
-    uk: { current:'✓ Поточний тариф', choose:'Обрати', choosePro:'Обрати Про →', chooseMax:'Обрати Максимум →', chooseBasic:'Почати →' },
-    en: { current:'✓ Current plan', choose:'Choose', choosePro:'Choose Pro →', chooseMax:'Choose Maximum →', chooseBasic:'Start →' }
+  const lbl = {
+    current: t('subBtnCurrent'),
+    choose: t('choosePlan'),
+    choosePro: t('subBtnChoosePro'),
+    chooseMax: t('subBtnChooseMax'),
+    chooseBasic: t('subBtnStart')
   };
-  const lbl = btnLabels[L] || btnLabels.en;
 
   ['basic','pro','max'].forEach(planId => {
     const plan = PLANS[planId];
@@ -3982,8 +4451,8 @@ function renderSubscriptionPlans(highlightId) {
     const card = document.createElement('div');
     card.className = 'sub-plan' + (isActive ? ' active-plan' : '') + (planId === 'pro' ? ' plan-pro' : '');
 
-    const badgeHTML = plan.badge ? `<div class="sub-plan-badge">${plan.badge[L]||plan.badge.en}</div>` : '';
-    const features = (plan.features[L]||plan.features.en).map(f =>
+    const badgeHTML = plan.badge ? `<div class="sub-plan-badge">${loc(plan.badge)}</div>` : '';
+    const features = (plan.features[currentLang]||plan.features.en).map(f =>
       `<div class="sub-plan-feature"><span class="fcheck">✓</span><span>${f}</span></div>`
     ).join('');
 
@@ -4000,13 +4469,13 @@ function renderSubscriptionPlans(highlightId) {
 
     card.innerHTML = `
       ${badgeHTML}
-      <p class="sub-plan-name">${plan.name[L]||plan.name.en}</p>
-      <p class="sub-plan-desc">${plan.desc[L]||plan.desc.en}</p>
+      <p class="sub-plan-name">${loc(plan.name)}</p>
+      <p class="sub-plan-desc">${loc(plan.desc)}</p>
       <div class="sub-plan-price-row">
         <span class="sub-plan-price">$${plan.price}</span>
         ${plan.oldPrice ? `<span class="sub-plan-old-price">$${plan.oldPrice}</span>` : ''}
       </div>
-      <p class="sub-plan-period">/ ${L==='ru'?'мес':L==='uk'?'міс':'mo'}</p>
+      <p class="sub-plan-period">/ ${t('subMo')}</p>
       <p class="sub-plan-crypto">≈ ${plan.btc} BTC · ${plan.ton} TON</p>
       <div class="sub-plan-features">${features}</div>
       <button class="sub-plan-btn ${btnClass}" ${btnOnclick}>${btnText}</button>
@@ -4047,7 +4516,7 @@ function openCryptoPayModalForPlan(planId) {
   listEl.innerHTML = '';
   const row = document.createElement('div');
   row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:7px 12px;';
-  row.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span>🔐</span><span style="font-size:13px;color:#c0c0d0;">${plan.name[L] || plan.name.en} — 1 ${L==='ru'?'месяц':L==='uk'?'місяць':'month'}</span></div><span style="font-size:11px;color:#555;">$${amount}</span>`;
+  row.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span>🔐</span><span style="font-size:13px;color:#c0c0d0;">${loc(plan.name)} — 1 ${t('subMonth')}</span></div><span style="font-size:11px;color:#555;">$${amount}</span>`;
   listEl.appendChild(row);
 
   // Render payment methods
@@ -4077,11 +4546,11 @@ function openPlanPayModal(planId) {
 
   // Populate modal fields
   document.getElementById('planPayAmount').textContent = '$' + amount + ' USDT';
-  document.getElementById('planPayBadge').textContent = plan.name[L] || plan.name.en;
+  document.getElementById('planPayBadge').textContent = loc(plan.name);
   document.getElementById('planPayTitle').textContent =
-    L==='ru' ? 'Оформить тариф' : L==='uk' ? 'Оформити тариф' : 'Subscribe';
+    t('subscribePlan');
   document.getElementById('planPaySubtitle').textContent =
-    L==='ru' ? 'Выберите способ оплаты' : L==='uk' ? 'Оберіть спосіб оплати' : 'Choose payment method';
+    t('choosePayment');
 
   // Reset payment method selection
   _planPaymentMethod = null;
@@ -4152,7 +4621,7 @@ async function confirmPlanPayment() {
     }
   } catch(e) {
     btn.disabled = false;
-    btn.textContent = currentLang==='ru' ? 'Оплатить' : currentLang==='uk' ? 'Оплатити' : 'Pay now';
+    btn.textContent = t('payNow');
     showMainToast('❌ ' + (e.message || 'Ошибка оплаты'));
   }
 }
@@ -4216,14 +4685,10 @@ function planPaymentConfirmed(planId) {
   // Show confirmation screen (reuse payPendingScreen)
   const screen = document.getElementById('payPendingScreen');
   const L = currentLang;
-  const planName = plan.name[L] || plan.name.en;
+  const planName = loc(plan.name);
   const confirmedTitle = t('payConfirmedTitle');
-  const confirmedSub = L==='ru'
-    ? `Тариф «${planName}» активирован. Добро пожаловать!`
-    : L==='uk'
-    ? `Тариф «${planName}» активовано. Ласкаво просимо!`
-    : `Plan «${planName}» is now active. Welcome!`;
-  const startLabel = t('startBtn') || (L==='ru'?'Начать':'Start');
+  const confirmedSub = t('planActivatedWelcome', {name: planName});
+  const startLabel = t('startBtn');
 
   screen.innerHTML = `
     <div style="text-align:center;padding:32px 24px;max-width:360px;margin:0 auto;">
@@ -4267,7 +4732,8 @@ function checkChannelLimit() {
     const msgs = {
       ru: { basic:`Лимит ${max} каналов на тарифе Базовый. Перейдите на Про для 25 каналов.`, pro:`Лимит ${max} каналов на тарифе Про. Перейдите на Максимум.`, max:'Неограниченно каналов.' },
       uk: { basic:`Ліміт ${max} каналів на тарифі Базовий. Перейдіть на Про.`, pro:`Ліміт ${max} каналів на тарифі Про. Перейдіть на Максимум.`, max:'Необмежено каналів.' },
-      en: { basic:`Limit of ${max} channels on Basic plan. Upgrade to Pro for 25 channels.`, pro:`Limit of ${max} channels on Pro plan. Upgrade to Maximum.`, max:'Unlimited channels.' }
+      en: { basic:`Limit of ${max} channels on Basic plan. Upgrade to Pro for 25 channels.`, pro:`Limit of ${max} channels on Pro plan. Upgrade to Maximum.`, max:'Unlimited channels.' },
+      cs: { basic:`Limit ${max} kanálů na tarifu Basic. Přejděte na Pro pro 25 kanálů.`, pro:`Limit ${max} kanálů na tarifu Pro. Přejděte na Maximum.`, max:'Neomezený počet kanálů.' }
     };
     const L = currentLang;
     showMainToast((msgs[L]||msgs.en)[currentPlan]||'Upgrade your plan');
@@ -4283,9 +4749,10 @@ function checkAIAccess() {
     const msgs = {
       ru:'🤖 AI ассистент доступен только на тарифах Про и Максимум.',
       uk:'🤖 AI асистент доступний лише на тарифах Про та Максимум.',
-      en:'🤖 AI assistant is available on Pro and Maximum plans only.'
+      en:'🤖 AI assistant is available on Pro and Maximum plans only.',
+      cs:'🤖 AI asistent je dostupný jen u tarifů Pro a Maximum.'
     };
-    showMainToast(msgs[currentLang]||msgs.en);
+    showMainToast(msgs[currentLang]||msgs.en||msgs.cs);
     setTimeout(() => showSubscriptionScreen('pro'), 1200);
     return false;
   }
@@ -4550,19 +5017,15 @@ async function loadReferralData() {
     const desc = document.getElementById('refWithdrawDesc');
     const btn = document.getElementById('refContactBtn');
     if (balance >= minW) {
-      badge.textContent = L==='ru'?'Доступно':L==='uk'?'Доступно':'Available';
+      badge.textContent = t('refAvail');
       badge.style.background = '#1a3a1a'; badge.style.color = '#3aaa6e';
-      desc.textContent = L==='ru'?'Минимальная сумма достигнута. Свяжитесь с администратором.':L==='uk'?'Мінімальна сума досягнута. Зверніться до адміна.':'Minimum reached. Contact the administrator.';
+      desc.textContent = t('refMinOk');
       if (btn) { btn.style.display = 'block'; btn.style.background = th.gradient; }
     } else {
-      badge.textContent = L==='ru'?'Недоступно':L==='uk'?'Недоступно':'Unavailable';
+      badge.textContent = t('refUnavail');
       badge.style.background = '#2a1010'; badge.style.color = '#e05252';
       const need = (minW - balance).toFixed(2);
-      desc.textContent = L==='ru'
-        ? `Сейчас: $${balance.toFixed(2)} из $${minW}. Нужно ещё $${need}.`
-        : L==='uk'
-        ? `Зараз: $${balance.toFixed(2)} з $${minW}. Потрібно ще $${need}.`
-        : `Now: $${balance.toFixed(2)} of $${minW}. Need $${need} more.`;
+      desc.textContent = t('refNeedMore').replace('${now}', balance.toFixed(2)).replace('${min}', String(minW)).replace('${need}', need);
       if (btn) btn.style.display = 'none';
     }
     // Referrals list
@@ -4572,7 +5035,7 @@ async function loadReferralData() {
         const name = r.first_name || r.username || ('ID ' + r.referred_id);
         const isPaid = r.paid === 1;
         const date = r.joined_at ? r.joined_at.split('T')[0] : '—';
-        const statusLabel = isPaid ? (L==='ru'?'Активен':L==='uk'?'Активний':'Active') : (L==='ru'?'Не оплатил':L==='uk'?'Не оплатив':'Not paid');
+        const statusLabel = isPaid ? t('refActive') : t('refNotPaid');
         return `<div style="background:#111118;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <div><p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${name}</p><p style="font-size:11px;color:#555;margin:0;">${date}</p></div>
           <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;${isPaid?'background:#1a3a1a;color:#3aaa6e':'background:#1a1a2a;color:#666'}">${statusLabel}</span>
