@@ -2299,7 +2299,9 @@ function selectInitialLang(lang) {
   _resetLangPillInlineStyles('#vLangSelect .lang-pill');
   syncInitialLangPills(lang);
   syncSettingsLangPills(lang);
-  applyTheme(currentTheme);
+  // Important: don't call applyTheme() here, it closes theme screen and can
+  // force main view styles while onboarding language screen is active.
+  _applyThemeById(currentTheme);
   applyI18n();
 }
 
