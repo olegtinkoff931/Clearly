@@ -334,7 +334,7 @@
     }
     #vSubscription > * { position:relative; z-index:1; }
     .sub-header { padding:22px 20px 12px; text-align:center; position:relative; }
-    .sub-back-btn { position:absolute; top:16px; left:16px; display:flex; align-items:center; gap:5px; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.12); color:#ffe8b0; font-size:14px; font-weight:600; cursor:pointer; padding:7px 10px; border-radius:12px; transition:background .15s,transform .1s; backdrop-filter:blur(6px); }
+    .sub-back-btn { position:absolute; top:16px; left:16px; z-index:5; display:flex; align-items:center; gap:5px; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.12); color:#ffe8b0; font-size:14px; font-weight:600; cursor:pointer; padding:7px 10px; border-radius:12px; transition:background .15s,transform .1s; backdrop-filter:blur(6px); touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
     .sub-back-btn:active { background:rgba(0,0,0,.4); transform:scale(.97); }
     .sub-lock-icon { font-size:48px; margin-bottom:10px; filter:drop-shadow(0 4px 12px rgba(255,180,0,.5)); animation:subSunPulse 3s ease-in-out infinite; }
     @keyframes subSunPulse { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(8deg)} }
@@ -446,7 +446,7 @@
 
   <div id="vSubscription" style="display:none;">
     <div class="sub-header">
-      <button class="sub-back-btn" id="subBackBtn" onclick="hideSubscriptionScreen()" style="display:none;">
+      <button type="button" class="sub-back-btn" id="subBackBtn" onclick="hideSubscriptionScreen()" style="display:none;">
         ‹ Назад
       </button>
       <div class="sub-lock-icon">☀️</div>
@@ -2049,7 +2049,7 @@ async function init() {
     renderChannelList();
     renderProfileScreen();
     if (!hasPlan()) {
-      showSubscriptionScreen();
+      showSubscriptionScreen(null, { forced: true });
     } else {
       const vm = document.getElementById('vMain');
       if (vm) {
@@ -4401,16 +4401,58 @@ async function toggleFeedTranslate(btn) {
 }
 
 
-function showSubscriptionScreen(highlightPlan) {
-  document.getElementById('vSubscription').style.display = 'flex';
-  // Show back button only if user already has an active plan (came from "Change plan")
+// ── Plan payment state ──────────────────────────────────────────
+let _pendingPlanId = null;
+let _pendingPlanPaymentId = null;
+let _planPaymentMethod = null;
+let _planPayCheckInterval = null;
+let _subReturnTo = null; // 'profile' | 'main' | null
+
+function restoreMainAppView() {
+  const loadEl = document.getElementById('vLoading');
+  if (loadEl) { loadEl.style.display = 'none'; loadEl.style.opacity = '0'; }
+  const vm = document.getElementById('vMain');
+  if (vm) {
+    vm.className = 'view';
+    vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
+  }
+  const nav = document.getElementById('mainBottomNav');
+  if (nav) { nav.style.display = ''; nav.style.opacity = '1'; nav.style.pointerEvents = 'auto'; }
+  const fab = document.getElementById('aiFab');
+  if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
+}
+
+function showSubscriptionScreen(highlightPlan, opts = {}) {
+  if (opts.returnTo) _subReturnTo = opts.returnTo;
+  else if (opts.forced) _subReturnTo = null;
+  else _subReturnTo = (hasPlan() || currentPlan) ? 'main' : null;
+
+  const screen = document.getElementById('vSubscription');
+  if (screen) screen.style.display = 'flex';
+
   const backBtn = document.getElementById('subBackBtn');
-  if (backBtn) backBtn.style.display = currentPlan ? 'flex' : 'none';
+  if (backBtn) {
+    backBtn.style.display = _subReturnTo ? 'flex' : 'none';
+    backBtn.textContent = t('subBack');
+  }
+
   renderSubscriptionPlans(highlightPlan || null);
 }
 
 function hideSubscriptionScreen() {
-  document.getElementById('vSubscription').style.display = 'none';
+  const screen = document.getElementById('vSubscription');
+  if (screen) screen.style.display = 'none';
+
+  const dest = _subReturnTo;
+  _subReturnTo = null;
+
+  if (dest === 'profile') {
+    openProfileScreen();
+    return;
+  }
+  if (dest === 'main' || hasPlan() || currentPlan) {
+    restoreMainAppView();
+  }
 }
 
 function renderSubscriptionPlans(highlightId) {
@@ -4422,7 +4464,10 @@ function renderSubscriptionPlans(highlightId) {
   const el = document.getElementById('subTitle'); if(el) el.textContent = t('subChooseTitle');
   const el2 = document.getElementById('subDesc'); if(el2) el2.innerHTML = t('subChooseDesc');
   const backBtn = document.getElementById('subBackBtn');
-  if (backBtn) backBtn.textContent = t('subBack');
+  if (backBtn) {
+    backBtn.textContent = t('subBack');
+    if (_subReturnTo) backBtn.style.display = 'flex';
+  }
 
   const bannerDiv = document.createElement('div');
   bannerDiv.className = 'sub-summer-banner';
@@ -4483,12 +4528,6 @@ function renderSubscriptionPlans(highlightId) {
     container.appendChild(card);
   });
 }
-
-// ── Plan payment state ──────────────────────────────────────────
-let _pendingPlanId = null;
-let _pendingPlanPaymentId = null;
-let _planPaymentMethod = null;
-let _planPayCheckInterval = null;
 
 function selectPlan(planId) {
   const plan = PLANS[planId];
@@ -4707,19 +4746,10 @@ function planPaymentConfirmed(planId) {
 
 function planPaymentDone(planId) {
   document.getElementById('payPendingScreen').classList.remove('open');
-  hideSubscriptionScreen();
-
-  const loadEl = document.getElementById('vLoading');
-  if (loadEl) { loadEl.style.display = 'none'; loadEl.style.opacity = '0'; }
-  const vm = document.getElementById('vMain');
-  if (vm) {
-    vm.className = 'view';
-    vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
-  }
-  const nav = document.getElementById('mainBottomNav');
-  if (nav) { nav.style.display = ''; nav.style.opacity = '1'; nav.style.pointerEvents = 'auto'; }
-  const fab = document.getElementById('aiFab');
-  if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
+  const subScreen = document.getElementById('vSubscription');
+  if (subScreen) subScreen.style.display = 'none';
+  _subReturnTo = null;
+  restoreMainAppView();
 
   _pendingPlanId = null;
   _pendingPlanPaymentId = null;
@@ -4738,7 +4768,7 @@ function checkChannelLimit() {
     const L = currentLang;
     showMainToast((msgs[L]||msgs.en)[currentPlan]||'Upgrade your plan');
     const upgrade = currentPlan === 'basic' ? 'pro' : 'max';
-    setTimeout(() => showSubscriptionScreen(upgrade), 1200);
+    setTimeout(() => showSubscriptionScreen(upgrade, { returnTo: 'main' }), 1200);
     return false;
   }
   return true;
@@ -4753,7 +4783,7 @@ function checkAIAccess() {
       cs:'🤖 AI asistent je dostupný jen u tarifů Pro a Maximum.'
     };
     showMainToast(msgs[currentLang]||msgs.en||msgs.cs);
-    setTimeout(() => showSubscriptionScreen('pro'), 1200);
+    setTimeout(() => showSubscriptionScreen('pro', { returnTo: 'main' }), 1200);
     return false;
   }
   return true;
@@ -4761,8 +4791,7 @@ function checkAIAccess() {
 
 function openChangePlan() {
   closeProfileScreen();
-  // Always show subscription plan selection screen
-  showSubscriptionScreen(currentPlan || null);
+  showSubscriptionScreen(currentPlan || null, { returnTo: 'profile' });
 }
 
 function openRenewPayModal() {
