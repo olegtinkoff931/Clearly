@@ -337,7 +337,11 @@
     .sub-plan-name { font-size:17px; font-weight:700; color:#e8e8f0; margin:0 0 2px; }
     .sub-plan-desc { font-size:11px; color:#666; margin:0 0 12px; }
     .sub-plan-price { font-size:32px; font-weight:800; color:#e8e8f0; margin:0 0 2px; line-height:1; }
-    .sub-plan-period { font-size:11px; color:#555; margin:0 0 14px; }
+    .sub-plan-old-price { font-size:14px; color:#666; text-decoration:line-through; margin:0 0 0 6px; font-weight:400; display:inline; }
+    .sub-plan-price-row { display:flex; align-items:baseline; gap:0; flex-wrap:nowrap; }
+    .sub-summer-banner { margin:0 14px 0; padding:9px 14px; background:linear-gradient(135deg,#ff8c00,#ffcc00); border-radius:12px; display:flex; align-items:center; gap:8px; }
+    .sub-summer-banner-icon { font-size:18px; flex-shrink:0; }
+    .sub-summer-banner-text { font-size:12px; font-weight:700; color:#1a0a00; line-height:1.3; }
     .sub-plan-crypto { font-size:10px; color:#444; margin:0 0 14px; }
     .sub-plan-features { display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
     .sub-plan-feature { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:#b0b0c8; line-height:1.4; }
@@ -860,6 +864,7 @@ const PLANS = {
     name: { ru:'Базовый', uk:'Базовий', en:'Basic' },
     desc: { ru:'Для начинающих трейдеров', uk:'Для початківців', en:'For beginner traders' },
     price: 8,
+    oldPrice: 12,
     btc: '0.0003', ton: '4',
     maxChannels: 10,
     hasAI: false,
@@ -875,6 +880,7 @@ const PLANS = {
     name: { ru:'Про', uk:'Про', en:'Pro' },
     desc: { ru:'Для активных трейдеров', uk:'Для активних трейдерів', en:'For active traders' },
     price: 12,
+    oldPrice: 18,
     btc: '0.0007', ton: '11',
     maxChannels: 25,
     hasAI: true,
@@ -890,6 +896,7 @@ const PLANS = {
     name: { ru:'Максимум', uk:'Максимум', en:'Maximum' },
     desc: { ru:'Для профессионалов', uk:'Для професіоналів', en:'For professionals' },
     price: 17,
+    oldPrice: 24,
     btc: '0.0018', ton: '27',
     maxChannels: Infinity,
     hasAI: true,
@@ -3940,6 +3947,17 @@ function renderSubscriptionPlans(highlightId) {
   const el = document.getElementById('subTitle'); if(el) el.textContent = titles[L]||titles.en;
   const el2 = document.getElementById('subDesc'); if(el2) el2.innerHTML = descs[L]||descs.en;
 
+  // Summer discount banner
+  const summerLabels = {
+    ru: '☀️ Летние скидки! Цены снижены на весь сезон.',
+    uk: '☀️ Літні знижки! Ціни знижено на весь сезон.',
+    en: '☀️ Summer Sale! Prices reduced for the whole season.'
+  };
+  const bannerDiv = document.createElement('div');
+  bannerDiv.className = 'sub-summer-banner';
+  bannerDiv.innerHTML = `<span class="sub-summer-banner-text">${summerLabels[L]||summerLabels.en}</span>`;
+  container.appendChild(bannerDiv);
+
   const btnLabels = {
     ru: { current:'✓ Текущий тариф', choose:'Выбрать', choosePro:'Выбрать Про →', chooseMax:'Выбрать Максимум →', chooseBasic:'Начать →' },
     uk: { current:'✓ Поточний тариф', choose:'Обрати', choosePro:'Обрати Про →', chooseMax:'Обрати Максимум →', chooseBasic:'Почати →' },
@@ -3975,7 +3993,10 @@ function renderSubscriptionPlans(highlightId) {
       ${badgeHTML}
       <p class="sub-plan-name">${plan.name[L]||plan.name.en}</p>
       <p class="sub-plan-desc">${plan.desc[L]||plan.desc.en}</p>
-      <p class="sub-plan-price">$${plan.price}</p>
+      <div class="sub-plan-price-row">
+        <span class="sub-plan-price">$${plan.price}</span>
+        ${plan.oldPrice ? `<span class="sub-plan-old-price">$${plan.oldPrice}</span>` : ''}
+      </div>
       <p class="sub-plan-period">/ ${L==='ru'?'мес':L==='uk'?'міс':'mo'}</p>
       <p class="sub-plan-crypto">≈ ${plan.btc} BTC · ${plan.ton} TON</p>
       <div class="sub-plan-features">${features}</div>
