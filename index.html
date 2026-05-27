@@ -4064,22 +4064,56 @@ async function confirmPlanPayment() {
       } else {
         window.open(resp.pay_url, '_blank');
       }
-      // Start polling for confirmation
-      btn.textContent = '⏳ Жду оплату...';
-      _planPayCheckInterval = setInterval(() => checkPlanPayment(), 4000);
+      // Close modal, show pending screen
+      closePlanPayModal();
+      showPlanPayPendingScreen(true);
     } else if (resp.payment_id) {
-      // Manual payment — show waiting state
+      // Manual payment — close modal, show pending screen
       _pendingPlanPaymentId = resp.payment_id;
-      btn.textContent = '⏳ Ожидаем подтверждение...';
-      _planPayCheckInterval = setInterval(() => checkPlanPayment(), 5000);
+      closePlanPayModal();
+      showPlanPayPendingScreen(false);
     } else {
       throw new Error(resp.error || 'Unknown error');
     }
   } catch(e) {
     btn.disabled = false;
-    btn.textContent = currentLang==='ru' ? 'Оплатить' : 'Pay now';
+    btn.textContent = currentLang==='ru' ? 'Оплатить' : currentLang==='uk' ? 'Оплатити' : 'Pay now';
     showMainToast('❌ ' + (e.message || 'Ошибка оплаты'));
   }
+}
+
+function showPlanPayPendingScreen(isAuto) {
+  const screen = document.getElementById('payPendingScreen');
+  // Restore pending UI (in case it was replaced by confirmed state)
+  screen.innerHTML = `<div id="payPendingContent">
+    <div class="pay-pending-icon">⏳</div>
+    <p class="pay-pending-title" id="pendingTitle"></p>
+    <p class="pay-pending-sub" id="pendingSub"></p>
+    <div style="margin-top:20px;width:100%;max-width:320px;">
+      <div style="height:4px;background:#1e1e2a;border-radius:2px;overflow:hidden;">
+        <div style="height:100%;background:linear-gradient(90deg,#6b6bff,#a78bfa);border-radius:2px;animation:progressAnim 2s ease-in-out infinite;width:60%;"></div>
+      </div>
+    </div>
+    <p class="pay-pending-timer" id="pendingTimer"></p>
+    <button onclick="cancelPlanPendingPayment()" style="margin-top:20px;background:none;border:.5px solid #2e2e38;border-radius:10px;padding:8px 20px;font-size:12px;color:#555;cursor:pointer;" data-i18n="cancelPayment"></button>
+  </div>`;
+  document.getElementById('pendingTitle').textContent = t('pendingTitle');
+  document.getElementById('pendingSub').textContent = isAuto ? t('pendingSubAuto') : t('pendingSubManual');
+  document.getElementById('pendingTimer').textContent = t('pendingTimer');
+  document.querySelector('#payPendingScreen [data-i18n="cancelPayment"]').textContent = t('cancelPayment');
+  screen.classList.add('open');
+
+  if (_planPayCheckInterval) clearInterval(_planPayCheckInterval);
+  _planPayCheckInterval = setInterval(() => checkPlanPayment(), 10000);
+  setTimeout(() => checkPlanPayment(), 3000);
+}
+
+function cancelPlanPendingPayment() {
+  if (_planPayCheckInterval) { clearInterval(_planPayCheckInterval); _planPayCheckInterval = null; }
+  document.getElementById('payPendingScreen').classList.remove('open');
+  _pendingPlanId = null;
+  _pendingPlanPaymentId = null;
+  _planPaymentMethod = null;
 }
 
 async function checkPlanPayment() {
@@ -4102,13 +4136,37 @@ async function checkPlanPayment() {
 function planPaymentConfirmed(planId) {
   const plan = PLANS[planId];
   currentPlan = planId;
-  closePlanPayModal();
+  if (_planPayCheckInterval) { clearInterval(_planPayCheckInterval); _planPayCheckInterval = null; }
 
-  const successMsgs = {
-    ru: `✅ Тариф «${plan.name.ru}» активирован!`,
-    uk: `✅ Тариф «${plan.name.uk}» активовано!`,
-    en: `✅ Plan «${plan.name.en}» activated!`
-  };
+  // Show confirmation screen (reuse payPendingScreen)
+  const screen = document.getElementById('payPendingScreen');
+  const L = currentLang;
+  const planName = plan.name[L] || plan.name.en;
+  const confirmedTitle = t('payConfirmedTitle');
+  const confirmedSub = L==='ru'
+    ? `Тариф «${planName}» активирован. Добро пожаловать!`
+    : L==='uk'
+    ? `Тариф «${planName}» активовано. Ласкаво просимо!`
+    : `Plan «${planName}» is now active. Welcome!`;
+  const startLabel = t('startBtn') || (L==='ru'?'Начать':'Start');
+
+  screen.innerHTML = `
+    <div style="text-align:center;padding:32px 24px;max-width:360px;margin:0 auto;">
+      <div class="pay-confirmed-icon" style="font-size:64px;margin-bottom:20px;animation:ringPop .7s cubic-bezier(.34,1.56,.64,1) both;">🎉</div>
+      <p style="font-size:22px;font-weight:700;color:#e8e8f0;margin:0 0 10px;">${confirmedTitle}</p>
+      <p style="font-size:13px;color:#666;line-height:1.6;margin:0 0 28px;">${confirmedSub}</p>
+      <button onclick="planPaymentDone('${planId}')" style="width:100%;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">
+        ${startLabel} 🎯
+      </button>
+    </div>`;
+  screen.classList.add('open');
+
+  renderChannelList();
+  renderProfileScreen();
+}
+
+function planPaymentDone(planId) {
+  document.getElementById('payPendingScreen').classList.remove('open');
   hideSubscriptionScreen();
 
   const loadEl = document.getElementById('vLoading');
@@ -4123,9 +4181,9 @@ function planPaymentConfirmed(planId) {
   const fab = document.getElementById('aiFab');
   if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
 
-  renderChannelList();
-  renderProfileScreen();
-  setTimeout(() => showMainToast(successMsgs[currentLang]||successMsgs.en), 400);
+  _pendingPlanId = null;
+  _pendingPlanPaymentId = null;
+  _planPaymentMethod = null;
 }
 
 function checkChannelLimit() {
