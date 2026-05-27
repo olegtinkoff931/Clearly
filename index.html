@@ -1836,6 +1836,17 @@ function syncInitialLangPills(lang = onboardingLangChoice || currentLang) {
   });
 }
 
+function _resetLangPillInlineStyles(selector) {
+  document.querySelectorAll(selector).forEach(pill => {
+    pill.style.borderColor = '';
+    pill.style.background = '';
+    const nm = pill.querySelector('.lang-pill-name');
+    const tg2 = pill.querySelector('.lang-pill-tag');
+    if (nm) nm.style.color = '';
+    if (tg2) tg2.style.color = '';
+  });
+}
+
 const themes=[
   {id:'midnight',name:'Midnight',accent:'#7f77dd',gradient:'linear-gradient(135deg,#7f77dd,#534ab7)',preview:'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)',appBg:'#111114'},
   {id:'aurora',  name:'Aurora',  accent:'#1d9e75',gradient:'linear-gradient(135deg,#1d9e75,#0f6e56)',preview:'linear-gradient(135deg,#0d2b1f 0%,#1a4a30 50%,#0f6e56 100%)',appBg:'#0f1713'},
@@ -2260,8 +2271,11 @@ function startOnboarding() {
 function selectInitialLang(lang) {
   onboardingLangChoice = lang;
   currentLang = lang;
+  // Theme applies inline styles to `.lang-pill.active`; clear old ones first
+  _resetLangPillInlineStyles('#vLangSelect .lang-pill');
   syncInitialLangPills(lang);
   syncSettingsLangPills(lang);
+  applyTheme(currentTheme);
   applyI18n();
 }
 
