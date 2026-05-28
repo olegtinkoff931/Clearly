@@ -797,16 +797,22 @@
   </div>
 
   <div id="vMarket" style="background:#111114;display:none;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:62px;z-index:15;overflow-y:auto;">
-    <div class="feed-topbar" style="flex-shrink:0;position:sticky;top:0;background:#111114;z-index:5;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <p class="feed-title" data-i18n="marketTitle">📈 Market</p>
-        <div id="marketLiveDot" style="display:none;width:6px;height:6px;border-radius:50%;background:#3aaa6e;animation:dotPulse 1.6s ease-in-out infinite;"></div>
+    <div class="feed-topbar" style="flex-shrink:0;position:sticky;top:0;background:#111114;z-index:5;flex-direction:column;align-items:stretch;gap:8px;padding-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <p class="feed-title" id="marketScreenTitle" data-i18n="marketTitle">📈 Market</p>
+          <div id="marketLiveDot" style="display:none;width:6px;height:6px;border-radius:50%;background:#3aaa6e;animation:dotPulse 1.6s ease-in-out infinite;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;" id="marketHeaderActions">
+          <span id="marketLastUpdate" style="font-size:10px;color:#444;"></span>
+          <button onclick="loadMarket(true)" style="background:none;border:none;color:#555;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;" id="marketRefreshBtn">
+            <i class="ti ti-refresh" style="font-size:13px;"></i> <span data-i18n="marketRefresh">Refresh</span>
+          </button>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span id="marketLastUpdate" style="font-size:10px;color:#444;"></span>
-        <button onclick="loadMarket(true)" style="background:none;border:none;color:#555;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;" id="marketRefreshBtn">
-          <i class="ti ti-refresh" style="font-size:13px;"></i> <span data-i18n="marketRefresh">Refresh</span>
-        </button>
+      <div style="display:flex;gap:6px;background:#1a1a20;border-radius:12px;padding:4px;width:100%;">
+        <button type="button" id="segMarketSignals" onclick="setMarketMode('signals')" style="flex:1;padding:8px;border-radius:9px;border:none;background:#1e1e30;color:#b0a8ff;font-size:12px;font-weight:600;cursor:pointer;" data-i18n="marketTabSignals">Signals</button>
+        <button type="button" id="segMarketPortfolio" onclick="setMarketMode('portfolio')" style="flex:1;padding:8px;border-radius:9px;border:none;background:transparent;color:#555;font-size:12px;font-weight:600;cursor:pointer;" data-i18n="marketTabPortfolio">Portfolio</button>
       </div>
     </div>
     <div id="marketLoading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;">
@@ -829,6 +835,40 @@
       </button>
     </div>
     <div id="marketContent" style="display:none;padding:12px;flex-direction:column;gap:12px;padding-bottom:24px;"></div>
+
+    <div id="portfolioPanel" style="display:none;flex-direction:column;padding:12px;gap:12px;padding-bottom:80px;">
+      <div id="portfolioLoading" style="display:none;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;border:2px solid #1e1e28;border-top-color:#6b6bff;animation:spin .9s linear infinite;"></div>
+        <p style="font-size:12px;color:#666;margin:0;" data-i18n="portfolioLoading">Loading portfolio…</p>
+      </div>
+      <div id="portfolioEmpty" style="display:none;flex-direction:column;align-items:center;text-align:center;padding:48px 20px;">
+        <p style="font-size:36px;margin:0 0 12px;">💼</p>
+        <p style="font-size:15px;font-weight:600;color:#e8e8f0;margin:0 0 8px;" data-i18n="portfolioEmptyTitle">No positions yet</p>
+        <p style="font-size:12px;color:#555;margin:0 0 20px;max-width:260px;" data-i18n="portfolioEmptySub">Add your coins and invested amounts to track P&amp;L and compare with BTC.</p>
+        <button type="button" onclick="openPortfolioModal()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;padding:12px 24px;font-size:13px;font-weight:600;cursor:pointer;" data-i18n="portfolioAddFirst">+ Add position</button>
+      </div>
+      <div id="portfolioContent" style="display:none;flex-direction:column;gap:12px;"></div>
+      <button type="button" id="portfolioFab" onclick="openPortfolioModal()" style="display:none;position:fixed;bottom:76px;right:16px;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:999px;padding:12px 18px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px #6b6bff55;z-index:20;align-items:center;gap:6px;">
+        <i class="ti ti-plus" style="font-size:15px;"></i> <span data-i18n="portfolioAddBtn">Add</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="portfolioModal" onclick="closePortfolioModalOutside(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <p class="modal-title" id="portfolioModalTitle" data-i18n="portfolioModalAdd">Add position</p>
+      <p class="modal-sub" data-i18n="portfolioModalSub">Coin symbol, quantity and total cost in USD</p>
+      <input type="hidden" id="portfolioEditId" value="">
+      <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:5px;" data-i18n="portfolioLabelSymbol">COIN</label>
+      <input class="ch-input" id="portfolioSymbol" type="text" placeholder="BTC, ETH, SOL…" style="text-transform:uppercase;margin-bottom:12px;">
+      <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:5px;" data-i18n="portfolioLabelAmount">QUANTITY</label>
+      <input class="ch-input" id="portfolioAmount" type="number" inputmode="decimal" step="any" placeholder="0.5" style="margin-bottom:12px;">
+      <label style="font-size:11px;color:#555;letter-spacing:.5px;display:block;margin-bottom:5px;" data-i18n="portfolioLabelCost">INVESTED (USD)</label>
+      <input class="ch-input" id="portfolioCost" type="number" inputmode="decimal" step="any" placeholder="1000" style="margin-bottom:16px;">
+      <button type="button" class="modal-btn" id="portfolioSaveBtn" onclick="savePortfolioPosition()" data-i18n="portfolioSaveBtn">Save</button>
+      <button type="button" style="width:100%;background:none;border:none;color:#555;padding:10px;font-size:13px;cursor:pointer;margin-top:4px;" onclick="closePortfolioModal()" data-i18n="cancel">Cancel</button>
+    </div>
   </div>
 
   <div class="modal-overlay" id="addChannelModal" onclick="closeAddChannelOutside(event)">
@@ -1167,6 +1207,32 @@ const i18n = {
     marketErrorSub:'Check your connection and try again',
     marketErrorBtn:'Retry',
     marketLoadingSub:'Fetching latest signals',
+    marketTabSignals:'Signals',
+    marketTabPortfolio:'Portfolio',
+    portfolioLoading:'Loading portfolio…',
+    portfolioEmptyTitle:'No positions yet',
+    portfolioEmptySub:'Add your coins and invested amounts to track P&L and compare with BTC.',
+    portfolioAddFirst:'+ Add position',
+    portfolioAddBtn:'Add',
+    portfolioTotal:'Total value',
+    portfolioCost:'Invested',
+    portfolioPnl:'P&L',
+    portfolio24h:'24h',
+    portfolioVsBtc:'vs BTC (24h)',
+    portfolioVsBtcAll:'vs BTC (if HODL)',
+    portfolioAlloc:'Allocation',
+    portfolioPositions:'Positions',
+    portfolioModalAdd:'Add position',
+    portfolioModalEdit:'Edit position',
+    portfolioModalSub:'Coin symbol, quantity and total cost in USD',
+    portfolioLabelSymbol:'COIN',
+    portfolioLabelAmount:'QUANTITY',
+    portfolioLabelCost:'INVESTED (USD)',
+    portfolioSaveBtn:'Save',
+    portfolioSaved:'Position saved',
+    portfolioDeleted:'Position removed',
+    portfolioError:'Could not save position',
+    portfolioDeleteConfirm:'Remove {symbol}?',
     minsAgo:'{n}m ago',
     hoursAgo:'{n}h ago',
     supportSection:'SUPPORT',
@@ -1361,6 +1427,32 @@ const i18n = {
     marketErrorSub:'Перевірте підключення та спробуйте знову',
     marketErrorBtn:'Повторити',
     marketLoadingSub:'Отримую останні сигнали',
+    marketTabSignals:'Сигнали',
+    marketTabPortfolio:'Портфель',
+    portfolioLoading:'Завантаження портфеля…',
+    portfolioEmptyTitle:'Позицій ще немає',
+    portfolioEmptySub:'Додайте монети та суми вкладень — P&amp;L і порівняння з BTC.',
+    portfolioAddFirst:'+ Додати позицію',
+    portfolioAddBtn:'Додати',
+    portfolioTotal:'Загальна вартість',
+    portfolioCost:'Вкладено',
+    portfolioPnl:'P&amp;L',
+    portfolio24h:'24 год',
+    portfolioVsBtc:'vs BTC (24 год)',
+    portfolioVsBtcAll:'vs BTC (якби HODL)',
+    portfolioAlloc:'Розподіл',
+    portfolioPositions:'Позиції',
+    portfolioModalAdd:'Додати позицію',
+    portfolioModalEdit:'Редагувати позицію',
+    portfolioModalSub:'Символ, кількість і сума вкладення в USD',
+    portfolioLabelSymbol:'МОНЕТА',
+    portfolioLabelAmount:'КІЛЬКІСТЬ',
+    portfolioLabelCost:'ВКЛАДЕНО (USD)',
+    portfolioSaveBtn:'Зберегти',
+    portfolioSaved:'Позицію збережено',
+    portfolioDeleted:'Позицію видалено',
+    portfolioError:'Не вдалося зберегти',
+    portfolioDeleteConfirm:'Видалити {symbol}?',
     minsAgo:'{n} хв тому',
     hoursAgo:'{n} год тому',
     supportSection:'ПІДТРИМКА',
@@ -1621,6 +1713,32 @@ const i18n = {
     marketErrorSub:'Zkontrolujte připojení a zkuste znovu',
     marketErrorBtn:'Zkusit znovu',
     marketLoadingSub:'Načítám nejnovější signály',
+    marketTabSignals:'Signály',
+    marketTabPortfolio:'Portfolio',
+    portfolioLoading:'Načítám portfolio…',
+    portfolioEmptyTitle:'Zatím žádné pozice',
+    portfolioEmptySub:'Přidejte mince a částky investic — P&amp;L a srovnání s BTC.',
+    portfolioAddFirst:'+ Přidat pozici',
+    portfolioAddBtn:'Přidat',
+    portfolioTotal:'Celková hodnota',
+    portfolioCost:'Investováno',
+    portfolioPnl:'P&amp;L',
+    portfolio24h:'24 h',
+    portfolioVsBtc:'vs BTC (24 h)',
+    portfolioVsBtcAll:'vs BTC (HODL)',
+    portfolioAlloc:'Rozložení',
+    portfolioPositions:'Pozice',
+    portfolioModalAdd:'Přidat pozici',
+    portfolioModalEdit:'Upravit pozici',
+    portfolioModalSub:'Symbol, množství a investice v USD',
+    portfolioLabelSymbol:'MINCE',
+    portfolioLabelAmount:'MNOŽSTVÍ',
+    portfolioLabelCost:'INVESTICE (USD)',
+    portfolioSaveBtn:'Uložit',
+    portfolioSaved:'Pozice uložena',
+    portfolioDeleted:'Pozice odstraněna',
+    portfolioError:'Uložení se nezdařilo',
+    portfolioDeleteConfirm:'Odstranit {symbol}?',
     minsAgo:'před {n} min',
     hoursAgo:'před {n} h',
     supportSection:'PODPORA',
@@ -1815,6 +1933,32 @@ const i18n = {
     marketErrorSub:'Проверьте соединение и попробуйте снова',
     marketErrorBtn:'Повторить',
     marketLoadingSub:'Получаю последние сигналы',
+    marketTabSignals:'Сигналы',
+    marketTabPortfolio:'Портфель',
+    portfolioLoading:'Загрузка портфеля…',
+    portfolioEmptyTitle:'Позиций пока нет',
+    portfolioEmptySub:'Добавьте монеты и суммы вложений — P&amp;L и сравнение с BTC.',
+    portfolioAddFirst:'+ Добавить позицию',
+    portfolioAddBtn:'Добавить',
+    portfolioTotal:'Общая стоимость',
+    portfolioCost:'Вложено',
+    portfolioPnl:'P&amp;L',
+    portfolio24h:'24ч',
+    portfolioVsBtc:'vs BTC (24ч)',
+    portfolioVsBtcAll:'vs BTC (если HODL)',
+    portfolioAlloc:'Распределение',
+    portfolioPositions:'Позиции',
+    portfolioModalAdd:'Добавить позицию',
+    portfolioModalEdit:'Редактировать позицию',
+    portfolioModalSub:'Символ монеты, количество и сумма вложения в USD',
+    portfolioLabelSymbol:'МОНЕТА',
+    portfolioLabelAmount:'КОЛИЧЕСТВО',
+    portfolioLabelCost:'ВЛОЖЕНО (USD)',
+    portfolioSaveBtn:'Сохранить',
+    portfolioSaved:'Позиция сохранена',
+    portfolioDeleted:'Позиция удалена',
+    portfolioError:'Не удалось сохранить',
+    portfolioDeleteConfirm:'Удалить {symbol}?',
     minsAgo:'{n} мин назад',
     hoursAgo:'{n} ч назад',
     supportSection:'ПОДДЕРЖКА',
@@ -2134,7 +2278,7 @@ function applyTheme() {
 
 async function apiFetch(path, method='GET', body=null) {
   const url = API_BASE + path;
-  const timeoutMs = path === '/api/chat' ? 20000 : 6000;
+  const timeoutMs = path === '/api/chat' ? 20000 : (String(path).includes('/api/portfolio') ? 15000 : 6000);
   const controller = new AbortController();
   const tid = setTimeout(() => controller.abort(), timeoutMs);
   const opts = {
@@ -3221,9 +3365,11 @@ function switchTab(tab) {
   const marketEl=document.getElementById('vMarket');
   if(tab==='market'){
     marketEl.style.display='flex';
-    loadMarket();
+    if (_marketMode === 'portfolio') setMarketMode('portfolio');
+    else setMarketMode('signals');
   } else {
     marketEl.style.display='none';
+    document.getElementById('portfolioFab').style.display='none';
   }
   if(tab==='profile'){openProfileScreen();}
   else{closeProfileScreen();}
@@ -4078,6 +4224,256 @@ function loadChannelAvatars() {
 let _marketLoaded = false;
 let _marketLoading = false;
 let _marketData = null;
+let _marketMode = 'signals';
+let _portfolioLoading = false;
+let _portfolioData = null;
+
+function setMarketMode(mode) {
+  _marketMode = mode;
+  const th = getTheme();
+  const segSig = document.getElementById('segMarketSignals');
+  const segPort = document.getElementById('segMarketPortfolio');
+  const activeBg = '#1e1e30';
+  const idleBg = 'transparent';
+  if (segSig) {
+    segSig.style.background = mode === 'signals' ? activeBg : idleBg;
+    segSig.style.color = mode === 'signals' ? th.accent : '#555';
+  }
+  if (segPort) {
+    segPort.style.background = mode === 'portfolio' ? activeBg : idleBg;
+    segPort.style.color = mode === 'portfolio' ? th.accent : '#555';
+  }
+  const titleEl = document.getElementById('marketScreenTitle');
+  const actions = document.getElementById('marketHeaderActions');
+  const loadingEl = document.getElementById('marketLoading');
+  const errorEl = document.getElementById('marketError');
+  const contentEl = document.getElementById('marketContent');
+  const portPanel = document.getElementById('portfolioPanel');
+  const liveDot = document.getElementById('marketLiveDot');
+  const fab = document.getElementById('portfolioFab');
+
+  if (mode === 'portfolio') {
+    if (titleEl) titleEl.textContent = t('marketTabPortfolio');
+    if (actions) actions.style.display = 'none';
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'none';
+    if (liveDot) liveDot.style.display = 'none';
+    if (portPanel) portPanel.style.display = 'flex';
+    setAIFabVisible(false);
+    loadPortfolio();
+  } else {
+    if (titleEl) titleEl.textContent = t('marketTitle');
+    if (actions) actions.style.display = 'flex';
+    if (portPanel) portPanel.style.display = 'none';
+    if (fab) fab.style.display = 'none';
+    if (_marketLoaded && contentEl) {
+      contentEl.style.display = 'flex';
+      if (liveDot) liveDot.style.display = 'block';
+    } else if (! _marketLoading) {
+      loadMarket();
+    }
+  }
+}
+
+function _fmtUsd(n, decimals) {
+  const v = Number(n) || 0;
+  const d = decimals != null ? decimals : (Math.abs(v) >= 100 ? 0 : 2);
+  const sign = v < 0 ? '-' : '';
+  return sign + '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+function _fmtPct(n) {
+  const v = Number(n) || 0;
+  return (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+}
+
+function _pnlColor(v) {
+  if (v > 0) return '#3aaa6e';
+  if (v < 0) return '#e05555';
+  return '#888';
+}
+
+async function loadPortfolio(force) {
+  if (_portfolioLoading && !force) return;
+  if (!currentUserId) {
+    document.getElementById('portfolioEmpty').style.display = 'flex';
+    document.getElementById('portfolioContent').style.display = 'none';
+    document.getElementById('portfolioFab').style.display = 'none';
+    return;
+  }
+  _portfolioLoading = true;
+  const loadEl = document.getElementById('portfolioLoading');
+  const emptyEl = document.getElementById('portfolioEmpty');
+  const contentEl = document.getElementById('portfolioContent');
+  const fab = document.getElementById('portfolioFab');
+  if (loadEl) loadEl.style.display = 'flex';
+  if (emptyEl) emptyEl.style.display = 'none';
+  if (contentEl) contentEl.style.display = 'none';
+  try {
+    const data = await apiFetch('/api/portfolio/' + currentUserId);
+    _portfolioData = data;
+    _renderPortfolio(data);
+    if (loadEl) loadEl.style.display = 'none';
+    const hasPos = data.positions && data.positions.length > 0;
+    if (emptyEl) emptyEl.style.display = hasPos ? 'none' : 'flex';
+    if (contentEl) contentEl.style.display = hasPos ? 'flex' : 'none';
+    if (fab) fab.style.display = hasPos ? 'flex' : 'none';
+  } catch (e) {
+    console.warn('loadPortfolio', e);
+    if (loadEl) loadEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'flex';
+  }
+  _portfolioLoading = false;
+}
+
+function _renderPortfolio(data) {
+  const el = document.getElementById('portfolioContent');
+  if (!el || !data) return;
+  const th = getTheme();
+  const pnlCol = _pnlColor(data.pnl_usd);
+  const ch24Col = _pnlColor(data.change_24h_pct);
+  const vsBtc24 = _pnlColor(data.vs_btc_24h_pct);
+  const vsBtcAll = _pnlColor(data.vs_btc_pnl_usd);
+
+  let allocHtml = '';
+  const colors = ['#6b6bff', '#a78bfa', '#3aaa6e', '#f59e0b', '#e05555', '#38bdf8', '#f472b6'];
+  (data.positions || []).forEach((p, i) => {
+    const c = colors[i % colors.length];
+    allocHtml += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="font-size:11px;font-weight:600;color:#ccc;width:36px;">${p.symbol}</span>
+      <div style="flex:1;height:8px;background:#1a1a22;border-radius:4px;overflow:hidden;">
+        <div style="width:${Math.max(p.share_pct, 2)}%;height:100%;background:${c};border-radius:4px;"></div>
+      </div>
+      <span style="font-size:10px;color:#666;width:32px;text-align:right;">${p.share_pct}%</span>
+    </div>`;
+  });
+
+  let posHtml = '';
+  (data.positions || []).forEach(p => {
+    const pc = _pnlColor(p.pnl_usd);
+    posHtml += `<div style="background:#1a1a20;border:.5px solid #272730;border-radius:14px;padding:14px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div>
+          <p style="font-size:15px;font-weight:700;color:#e8e8f0;margin:0;">${p.symbol}</p>
+          <p style="font-size:11px;color:#555;margin:4px 0 0;">${p.amount} · ${_fmtUsd(p.cost_usd)}</p>
+        </div>
+        <div style="text-align:right;">
+          <p style="font-size:14px;font-weight:600;color:#e8e8f0;margin:0;">${_fmtUsd(p.value_usd)}</p>
+          <p style="font-size:11px;color:${pc};margin:4px 0 0;">${_fmtUsd(p.pnl_usd)} (${_fmtPct(p.pnl_pct)})</p>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;">
+        <span>24h ${_fmtPct(p.change_24h_pct)}</span>
+        <span>
+          <button type="button" onclick="openPortfolioModal(${p.id})" style="background:none;border:none;color:${th.accent};font-size:10px;cursor:pointer;padding:0 6px;">✏️</button>
+          <button type="button" onclick="deletePortfolioPosition(${p.id},'${p.symbol}')" style="background:none;border:none;color:#e05555;font-size:10px;cursor:pointer;padding:0;">🗑</button>
+        </span>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = `
+    <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid #272730;border-radius:16px;padding:16px;">
+      <p style="font-size:11px;color:#555;margin:0 0 4px;letter-spacing:.5px;">${t('portfolioTotal')}</p>
+      <p style="font-size:26px;font-weight:700;color:#e8e8f0;margin:0 0 12px;">${_fmtUsd(data.total_value)}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><p style="font-size:10px;color:#555;margin:0;">${t('portfolioCost')}</p><p style="font-size:13px;font-weight:600;color:#aaa;margin:4px 0 0;">${_fmtUsd(data.total_cost)}</p></div>
+        <div><p style="font-size:10px;color:#555;margin:0;">${t('portfolioPnl')}</p><p style="font-size:13px;font-weight:600;color:${pnlCol};margin:4px 0 0;">${_fmtUsd(data.pnl_usd)} (${_fmtPct(data.pnl_pct)})</p></div>
+        <div><p style="font-size:10px;color:#555;margin:0;">${t('portfolio24h')}</p><p style="font-size:13px;font-weight:600;color:${ch24Col};margin:4px 0 0;">${_fmtPct(data.change_24h_pct)}</p></div>
+        <div><p style="font-size:10px;color:#555;margin:0;">${t('portfolioVsBtc')}</p><p style="font-size:13px;font-weight:600;color:${vsBtc24};margin:4px 0 0;">${_fmtPct(data.vs_btc_24h_pct)} <span style="color:#444;font-size:10px;">(BTC ${_fmtPct(data.btc_change_24h_pct)})</span></p></div>
+      </div>
+    </div>
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:14px;padding:14px;">
+      <p style="font-size:11px;color:#555;margin:0 0 8px;letter-spacing:.5px;">${t('portfolioVsBtcAll')}</p>
+      <p style="font-size:13px;color:#ccc;margin:0;"><span style="color:${vsBtcAll};font-weight:600;">${_fmtUsd(data.vs_btc_pnl_usd)}</span> ${data.vs_btc_pnl_usd >= 0 ? '▲' : '▼'}</p>
+    </div>
+    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:14px;padding:14px;">
+      <p style="font-size:11px;color:#555;margin:0 0 10px;letter-spacing:.5px;">${t('portfolioAlloc')}</p>
+      ${allocHtml || '<p style="font-size:12px;color:#555;margin:0;">—</p>'}
+    </div>
+    <p style="font-size:11px;color:#555;margin:8px 0 4px;letter-spacing:.5px;">${t('portfolioPositions')}</p>
+    ${posHtml}
+    <button type="button" onclick="loadPortfolio(true)" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;">
+      <i class="ti ti-refresh"></i> ${t('marketRefresh')}
+    </button>
+  `;
+}
+
+function openPortfolioModal(editId) {
+  document.getElementById('portfolioEditId').value = editId || '';
+  document.getElementById('portfolioModalTitle').textContent = editId ? t('portfolioModalEdit') : t('portfolioModalAdd');
+  if (editId && _portfolioData && _portfolioData.positions) {
+    const p = _portfolioData.positions.find(x => x.id === editId);
+    if (p) {
+      document.getElementById('portfolioSymbol').value = p.symbol;
+      document.getElementById('portfolioAmount').value = p.amount;
+      document.getElementById('portfolioCost').value = p.cost_usd;
+    }
+  } else {
+    document.getElementById('portfolioSymbol').value = '';
+    document.getElementById('portfolioAmount').value = '';
+    document.getElementById('portfolioCost').value = '';
+  }
+  document.getElementById('portfolioModal').classList.add('visible');
+  setAIFabVisible(false);
+}
+
+function closePortfolioModal() {
+  document.getElementById('portfolioModal').classList.remove('visible');
+  if (_marketMode === 'portfolio' && currentTab === 'market') setAIFabVisible(true);
+  else if (currentTab !== 'market') setAIFabVisible(true);
+}
+
+function closePortfolioModalOutside(e) {
+  if (e.target.id === 'portfolioModal') closePortfolioModal();
+}
+
+async function savePortfolioPosition() {
+  if (!currentUserId) return;
+  const symbol = document.getElementById('portfolioSymbol').value.trim();
+  const amount = parseFloat(document.getElementById('portfolioAmount').value);
+  const cost = parseFloat(document.getElementById('portfolioCost').value);
+  const editId = document.getElementById('portfolioEditId').value;
+  if (!symbol || !(amount > 0) || !(cost > 0)) {
+    showMainToast(t('portfolioError'));
+    return;
+  }
+  const btn = document.getElementById('portfolioSaveBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  try {
+    const body = { user_id: currentUserId, symbol, amount, cost_usd: cost };
+    if (editId) body.id = parseInt(editId, 10);
+    const data = await apiFetch('/api/portfolio', 'POST', body);
+    _portfolioData = data;
+    _renderPortfolio(data);
+    document.getElementById('portfolioEmpty').style.display = 'none';
+    document.getElementById('portfolioContent').style.display = 'flex';
+    document.getElementById('portfolioFab').style.display = 'flex';
+    closePortfolioModal();
+    showMainToast(t('portfolioSaved'));
+  } catch (e) {
+    showMainToast(t('portfolioError'));
+  }
+  if (btn) { btn.disabled = false; btn.textContent = t('portfolioSaveBtn'); }
+}
+
+async function deletePortfolioPosition(id, symbol) {
+  if (!currentUserId) return;
+  if (!confirm(t('portfolioDeleteConfirm', { symbol }))) return;
+  try {
+    const data = await apiFetch('/api/portfolio/delete', 'POST', { user_id: currentUserId, id });
+    _portfolioData = data;
+    _renderPortfolio(data);
+    const hasPos = data.positions && data.positions.length > 0;
+    document.getElementById('portfolioEmpty').style.display = hasPos ? 'none' : 'flex';
+    document.getElementById('portfolioContent').style.display = hasPos ? 'flex' : 'none';
+    document.getElementById('portfolioFab').style.display = hasPos ? 'flex' : 'none';
+    showMainToast(t('portfolioDeleted'));
+  } catch (e) {
+    showMainToast(t('portfolioError'));
+  }
+}
 
 // ── Groq model waterfall for frontend calls ───────────────────────
 const GROQ_CHAT_MODELS_FE = [
@@ -4142,6 +4538,7 @@ async function groqCallFE(messages, modelList, maxTokens=500, temperature=0.7, r
 }
 
 async function loadMarket(forceRefresh) {
+  if (_marketMode === 'portfolio') return;
   if (_marketLoading) return;
   if (_marketLoaded && !forceRefresh) return;
   _marketLoading = true;
