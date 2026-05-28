@@ -705,11 +705,11 @@
               <label class="toggle-label" for="quietHoursToggle"></label>
             </div>
           </div>
-          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span style="font-size:11px;color:#777;min-width:20px;" data-i18n="settingsQuietFrom">From</span>
-            <input id="quietStartInput" type="time" value="23:00" style="background:#111114;border:.5px solid #2e2e38;border-radius:8px;padding:6px 8px;color:#ddd;" onchange="saveQuietHours()">
+            <input id="quietStartInput" type="time" value="23:00" style="min-width:108px;background:#111114;border:.5px solid #2e2e38;border-radius:8px;padding:6px 8px;color:#ddd;" onchange="saveQuietHours()">
             <span style="font-size:11px;color:#777;min-width:16px;" data-i18n="settingsQuietTo">To</span>
-            <input id="quietEndInput" type="time" value="08:00" style="background:#111114;border:.5px solid #2e2e38;border-radius:8px;padding:6px 8px;color:#ddd;" onchange="saveQuietHours()">
+            <input id="quietEndInput" type="time" value="08:00" style="min-width:108px;background:#111114;border:.5px solid #2e2e38;border-radius:8px;padding:6px 8px;color:#ddd;" onchange="saveQuietHours()">
           </div>
           <p id="quietHoursHint" style="font-size:11px;color:#666;margin-top:6px;"></p>
         </div>
@@ -3689,10 +3689,17 @@ function openProfileChangePay() {
   openCryptoPayModal();
 }
 
-function openThemeScreen()  { renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); }
-function closeThemeScreen() { document.getElementById('vTheme').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; }
-function openNotifScreen()  { syncNotifScreen(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); }
-function closeNotifScreen() { document.getElementById('vNotif').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; }
+function setAIFabVisible(visible) {
+  const fab = document.getElementById('aiFab');
+  if (!fab) return;
+  fab.style.opacity = visible ? '1' : '0';
+  fab.style.pointerEvents = visible ? 'auto' : 'none';
+}
+
+function openThemeScreen()  { renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); setAIFabVisible(false); }
+function closeThemeScreen() { document.getElementById('vTheme').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
+function openNotifScreen()  { syncNotifScreen(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); setAIFabVisible(false); }
+function closeNotifScreen() { document.getElementById('vNotif').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function toggleRow(idx,checkbox,channelId) {
   const row=document.getElementById('row'+idx);
@@ -3752,13 +3759,13 @@ function updateQuietHoursUI() {
   if (tgl) tgl.checked = !!quietHoursEnabled;
   if (startEl) {
     startEl.value = quietStart || '23:00';
-    startEl.disabled = !quietHoursEnabled;
-    startEl.style.opacity = quietHoursEnabled ? '1' : '0.5';
+    startEl.disabled = false;
+    startEl.style.opacity = '1';
   }
   if (endEl) {
     endEl.value = quietEnd || '08:00';
-    endEl.disabled = !quietHoursEnabled;
-    endEl.style.opacity = quietHoursEnabled ? '1' : '0.5';
+    endEl.disabled = false;
+    endEl.style.opacity = '1';
   }
   if (hint) {
     hint.textContent = quietHoursEnabled
@@ -3800,8 +3807,8 @@ function updateCount() {
 
 function saveNotif() { showToast('notifToast',t('settingsSaved')); }
 
-function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); }
-function closeSettingsScreen() { document.getElementById('vSettings').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; }
+function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); }
+function closeSettingsScreen() { document.getElementById('vSettings').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function setLang(lang) {
   currentLang=lang;
