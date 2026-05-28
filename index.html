@@ -308,44 +308,7 @@
     .cb { max-width:84%; padding:9px 13px; border-radius:16px; font-size:13px; line-height:1.55; animation:msgPop .25s cubic-bezier(.34,1.56,.64,1) both; word-break:break-word; white-space:pre-wrap; }
     @keyframes msgPop { from{opacity:0;transform:scale(.88) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
     .cb.u { align-self:flex-end; background:linear-gradient(135deg,#4a4adc,#7c5ce8); color:#fff; border-radius:16px 16px 4px 16px; }
-    .cb.a {
-      align-self:flex-start;
-      background:#ffffff;
-      color:#111118;
-      border:none;
-      border-radius:20px;
-      padding:0;
-      max-width:92%;
-      overflow:hidden;
-      box-shadow:0 4px 24px rgba(0,0,0,.28);
-    }
-    .cb.a .cbot-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px 8px;
-      border-bottom:1px solid #f0f0f4;
-    }
-    .cb.a .cbot-brand { display:flex; align-items:center; gap:8px; }
-    .cb.a .cbot-logo {
-      width:30px; height:30px; border-radius:50%;
-      background:linear-gradient(135deg,#6b6bff,#a78bfa);
-      display:flex; align-items:center; justify-content:center;
-      font-size:14px; flex-shrink:0;
-    }
-    .cb.a .cbot-name { font-size:13px; font-weight:700; color:#111118; }
-    .cb.a .cbot-time { font-size:11px; color:#aaa; }
-    .cb.a .cbot-body { padding:12px 14px 14px; display:flex; flex-direction:column; gap:8px; }
-    .cb.a .cbot-title-row { display:flex; align-items:flex-start; gap:8px; }
-    .cb.a .cbot-dot { width:10px; height:10px; border-radius:50%; background:#6b6bff; flex-shrink:0; margin-top:3px; }
-    .cb.a .cbot-main-title { font-size:14px; font-weight:700; color:#111118; line-height:1.4; }
-    .cb.a .cbot-row { display:flex; align-items:flex-start; gap:8px; font-size:13px; color:#222230; line-height:1.45; }
-    .cb.a .cbot-row-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
-    .cb.a .cbot-row b { color:#111118; }
-    .cb.a .cbot-plain { padding:12px 14px; font-size:13px; color:#222230; line-height:1.55; }
-    .cb.a .cbot-ask {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 14px; border-top:1px solid #f0f0f4;
-      font-size:12px; color:#aaa; cursor:default;
-    }
+    .cb.a { align-self:flex-start; background:#1e1e2c; color:#d0d0e8; border:.5px solid #2a2a40; border-radius:16px 16px 16px 4px; }
     .tdots { display:flex; gap:4px; align-items:center; height:18px; }
     .tdot { width:5px; height:5px; border-radius:50%; background:#6b6bff; animation:tb 1.2s ease-in-out infinite; }
     .tdot:nth-child(2){animation-delay:.2s} .tdot:nth-child(3){animation-delay:.4s}
@@ -4508,105 +4471,13 @@ function _quickSend(t) {
   aiSend();
 }
 
-function _formatBotCard(text) {
-  // Try to detect structured content and render as Clearly-style card
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2,'0');
-  const mm = String(now.getMinutes()).padStart(2,'0');
-  const timeStr = hh + ':' + mm;
-
-  // Parse possible sections from markdown-like text
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
-  // Extract title: first non-empty line (strip leading emoji/symbols)
-  let title = lines[0] || text;
-  // Remove markdown bold
-  title = title.replace(/\*\*/g, '').replace(/^#+\s*/, '');
-
-  // Look for key fields in text
-  const bodyLines = lines.slice(1);
-
-  // Build rows for known keywords
-  const knownRows = [];
-  const usedIdx = new Set();
-
-  const patterns = [
-    { keys: ['importance','важность','важно'], icon: '📊', label: null },
-    { keys: ['impact','влияние','эффект'], icon: '📈', label: null },
-    { keys: ['what it means','что это значит','значит','означает'], icon: '📄', label: null },
-    { keys: ['risk','риск'], icon: '⚠️', label: null },
-    { keys: ['summary','итог','вывод','резюме'], icon: '💡', label: null },
-    { keys: ['affected','затронуто','токены'], icon: '🎯', label: null },
-  ];
-
-  bodyLines.forEach((line, i) => {
-    const lc = line.toLowerCase();
-    for (const p of patterns) {
-      if (p.keys.some(k => lc.startsWith(k) || lc.includes(':') && lc.split(':')[0].includes(k))) {
-        if (!usedIdx.has(i)) {
-          usedIdx.add(i);
-          const clean = line.replace(/\*\*/g, '').replace(/^[^:]+:\s*/, match => `<b>${match}</b>`);
-          knownRows.push({ icon: p.icon, text: clean });
-        }
-        break;
-      }
-    }
-  });
-
-  // Remaining lines as plain rows
-  const remainingLines = bodyLines.filter((_, i) => !usedIdx.has(i));
-
-  let bodyHtml = '';
-
-  if (knownRows.length > 0) {
-    // Structured card
-    bodyHtml += `<div class="cbot-title-row"><span class="cbot-dot"></span><span class="cbot-main-title">${title}</span></div>`;
-    knownRows.forEach(r => {
-      bodyHtml += `<div class="cbot-row"><span class="cbot-row-icon">${r.icon}</span><span>${r.text}</span></div>`;
-    });
-    if (remainingLines.length > 0) {
-      const extra = remainingLines.join(' ').replace(/\*\*/g, '');
-      bodyHtml += `<div class="cbot-row"><span class="cbot-row-icon">💬</span><span>${extra}</span></div>`;
-    }
-  } else if (lines.length <= 2) {
-    // Short plain text — keep simple but styled
-    return `<div class="cb a"><div class="cbot-body"><div class="cbot-plain">${text.replace(/\*\*/g,'')}</div></div></div>`;
-  } else {
-    // Multi-line without known patterns — title + rest
-    bodyHtml += `<div class="cbot-title-row"><span class="cbot-dot"></span><span class="cbot-main-title">${title}</span></div>`;
-    bodyLines.forEach(line => {
-      const clean = line.replace(/\*\*/g, '');
-      bodyHtml += `<div class="cbot-row"><span class="cbot-row-icon">•</span><span>${clean}</span></div>`;
-    });
-  }
-
-  return `<div class="cb a">
-    <div class="cbot-header">
-      <div class="cbot-brand">
-        <div class="cbot-logo">🔍</div>
-        <span class="cbot-name">Clearly</span>
-      </div>
-      <span class="cbot-time">${timeStr}</span>
-    </div>
-    <div class="cbot-body">${bodyHtml}</div>
-    <div class="cbot-ask"><span>Ask AI about this</span><span>→</span></div>
-  </div>`;
-}
-
 function _addBubble(role, text) {
   const msgs = document.getElementById('aiMsgs');
   if(!msgs) return;
   const el = document.createElement('div');
-  if (role === 'a') {
-    el.innerHTML = _formatBotCard(text);
-    const inner = el.firstElementChild;
-    if (inner) { msgs.appendChild(inner); }
-    else { msgs.appendChild(el); }
-  } else {
-    el.className = 'cb ' + role;
-    el.textContent = text;
-    msgs.appendChild(el);
-  }
+  el.className = 'cb ' + role;
+  el.textContent = text;
+  msgs.appendChild(el);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
