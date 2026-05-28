@@ -293,6 +293,96 @@
     .feed-translate-btn.loading { opacity:.6; pointer-events:none; }
     .feed-translated-badge { font-size:9px; color:#555; margin-top:3px; }
 
+    /* ── Market tab ── */
+    #marketContent { display:flex; flex-direction:column; gap:14px; }
+    .mkt-section-hd { font-size:10px; color:#5a5a68; letter-spacing:1px; text-transform:uppercase; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+    .mkt-section-hd::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,#2a2a36,transparent); }
+    .mkt-card { background:#16161c; border:.5px solid #2a2a34; border-radius:18px; padding:16px; position:relative; overflow:hidden; }
+    .mkt-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent); pointer-events:none; }
+    .mkt-hero { border-radius:20px; padding:18px; position:relative; overflow:hidden; }
+    .mkt-hero-glow { position:absolute; width:140px; height:140px; border-radius:50%; filter:blur(50px); opacity:.35; pointer-events:none; top:-30px; right:-20px; }
+    .mkt-hero-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; position:relative; z-index:1; }
+    .mkt-sent-badge { display:inline-flex; align-items:center; gap:6px; font-size:22px; font-weight:800; letter-spacing:-.3px; margin:0 0 8px; }
+    .mkt-sent-score { font-size:11px; font-weight:600; padding:3px 8px; border-radius:8px; background:rgba(0,0,0,.25); }
+    .mkt-summary { font-size:12px; color:#9a9aaa; line-height:1.55; margin:0; max-width:100%; }
+    .mkt-btc-pill { flex-shrink:0; background:rgba(0,0,0,.3); border:.5px solid #ffffff12; border-radius:14px; padding:10px 12px; text-align:center; min-width:64px; }
+    .mkt-btc-pill span { display:block; font-size:9px; color:#666; letter-spacing:.5px; margin-bottom:4px; }
+    .mkt-btc-pill em { font-style:normal; font-size:22px; line-height:1; }
+    .mkt-bar { background:#0e0e14; border-radius:999px; height:7px; overflow:hidden; margin-top:14px; }
+    .mkt-bar-fill { height:100%; border-radius:999px; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+    .mkt-price-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .mkt-price-tile { background:linear-gradient(160deg,#121218,#1a1a24); border:.5px solid #2e2e3a; border-radius:14px; padding:14px; position:relative; overflow:hidden; }
+    .mkt-price-tile::after { content:''; position:absolute; bottom:0; right:0; width:60px; height:40px; background:radial-gradient(circle at 100% 100%,rgba(255,255,255,.04),transparent); pointer-events:none; }
+    .mkt-coin-hd { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .mkt-coin-icon { width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; }
+    .mkt-coin-icon.btc { background:linear-gradient(135deg,#f7931a33,#f7931a11); color:#f7931a; border:.5px solid #f7931a44; }
+    .mkt-coin-icon.eth { background:linear-gradient(135deg,#627eea33,#627eea11); color:#8b9ef5; border:.5px solid #627eea44; }
+    .mkt-coin-name { font-size:11px; font-weight:600; color:#777; letter-spacing:.3px; }
+    .mkt-price-val { font-size:17px; font-weight:700; color:#f0f0f8; margin:0 0 4px; letter-spacing:-.2px; }
+    .mkt-chg { font-size:12px; font-weight:600; margin:0; display:inline-flex; align-items:center; gap:4px; }
+    .mkt-chg.up { color:#3aaa6e; }
+    .mkt-chg.down { color:#e05252; }
+    .mkt-stat-row { display:flex; gap:8px; margin-top:10px; }
+    .mkt-stat-chip { flex:1; background:#111116; border:.5px solid #262630; border-radius:12px; padding:10px 12px; }
+    .mkt-stat-chip p { margin:0; }
+    .mkt-stat-chip .lbl { font-size:9px; color:#555; letter-spacing:.4px; margin-bottom:4px; }
+    .mkt-stat-chip .val { font-size:13px; font-weight:600; color:#e0e0ec; }
+    .mkt-fg-wrap { display:flex; align-items:center; gap:16px; }
+    .mkt-fg-ring { position:relative; width:72px; height:72px; flex-shrink:0; }
+    .mkt-fg-ring svg { display:block; }
+    .mkt-fg-lbl { font-size:20px; font-weight:800; margin:0 0 4px; letter-spacing:-.2px; }
+    .mkt-fg-sub { font-size:11px; color:#555; margin:0; }
+    .mkt-fg-scale { display:flex; justify-content:space-between; margin-top:12px; font-size:9px; color:#444; }
+    .mkt-news-item { display:flex; gap:12px; padding:12px 0; }
+    .mkt-news-item + .mkt-news-item { border-top:.5px solid #222228; }
+    .mkt-news-accent { width:3px; border-radius:2px; flex-shrink:0; align-self:stretch; min-height:36px; }
+    .mkt-news-body { flex:1; min-width:0; }
+    .mkt-news-title { font-size:13px; color:#e4e4ee; line-height:1.5; margin:0 0 8px; }
+    .mkt-news-meta { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+    .mkt-tag { font-size:9px; font-weight:700; letter-spacing:.3px; padding:3px 8px; border-radius:6px; text-transform:uppercase; }
+    .mkt-source { font-size:10px; color:#484858; }
+    .mkt-sector-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .mkt-sector { border-radius:14px; padding:14px; min-height:88px; display:flex; flex-direction:column; justify-content:space-between; border:.5px solid transparent; transition:transform .15s; }
+    .mkt-sector:active { transform:scale(.98); }
+    .mkt-sector-name { font-size:14px; font-weight:700; color:#eee; margin:0 0 4px; }
+    .mkt-sector-note { font-size:10px; color:#777; line-height:1.35; margin:0; flex:1; }
+    .mkt-sector-arrow { font-size:18px; font-weight:800; align-self:flex-end; }
+    .mkt-level-card { background:linear-gradient(160deg,#121218,#18181f); border:.5px solid #2a2a36; border-radius:14px; padding:14px; }
+    .mkt-level-coin { font-size:12px; font-weight:700; color:#888; margin:0 0 10px; }
+    .mkt-level-range { height:4px; background:#1e1e28; border-radius:2px; margin:0 0 10px; position:relative; overflow:hidden; }
+    .mkt-level-range-fill { position:absolute; left:15%; right:15%; top:0; bottom:0; border-radius:2px; opacity:.6; }
+    .mkt-level-prices { display:flex; justify-content:space-between; gap:8px; }
+    .mkt-level-prices div p { margin:0; }
+    .mkt-level-prices .lbl { font-size:9px; margin-bottom:3px; }
+    .mkt-level-prices .pr { font-size:13px; font-weight:700; color:#f0f0f8; }
+    .mkt-event { display:flex; gap:12px; padding:12px 0; position:relative; }
+    .mkt-event + .mkt-event { border-top:.5px solid #222228; }
+    .mkt-event-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; box-shadow:0 0 0 3px rgba(255,255,255,.04); }
+    .mkt-event.hot .mkt-event-dot { background:#e05252; box-shadow:0 0 0 4px #e0525222; }
+    .mkt-event.norm .mkt-event-dot { background:#6b6bff; box-shadow:0 0 0 4px #6b6bff22; }
+    .mkt-event-title { font-size:13px; color:#e4e4ee; margin:0 0 3px; line-height:1.4; }
+    .mkt-event-date { font-size:11px; color:#555; margin:0; }
+    .mkt-empty { text-align:center; padding:28px 16px; color:#555; }
+    .mkt-empty-icon { font-size:28px; margin-bottom:8px; opacity:.7; }
+    .mkt-empty p { font-size:12px; margin:0; line-height:1.5; }
+    @keyframes mktFadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .mkt-animate { animation:mktFadeUp .4s ease both; }
+    .mkt-animate.d1 { animation-delay:.05s; }
+    .mkt-animate.d2 { animation-delay:.1s; }
+    .mkt-animate.d3 { animation-delay:.15s; }
+    .mkt-animate.d4 { animation-delay:.2s; }
+    .mkt-animate.d5 { animation-delay:.25s; }
+    .mkt-animate.d6 { animation-delay:.3s; }
+    .mkt-seg-bar { display:flex; gap:4px; background:#121218; border:.5px solid #2a2a34; border-radius:14px; padding:4px; width:100%; }
+    .mkt-seg-btn { flex:1; padding:9px 10px; border-radius:11px; border:none; background:transparent; color:#555; font-size:12px; font-weight:600; cursor:pointer; transition:background .2s,color .2s,box-shadow .2s; font-family:inherit; }
+    .mkt-seg-btn.active { background:#1e1e2c; color:var(--accent,#a78bfa); box-shadow:0 2px 12px rgba(0,0,0,.35); }
+    .mkt-loading-ring { position:relative; width:64px; height:64px; display:flex; align-items:center; justify-content:center; }
+    .mkt-loading-ring-outer { position:absolute; inset:0; border-radius:50%; border:2px solid #1e1e28; border-top-color:var(--accent,#6b6bff); animation:spin .85s linear infinite; }
+    .mkt-loading-ring-inner { position:absolute; inset:10px; border-radius:50%; border:2px solid transparent; border-top-color:#ffffff22; animation:spin 1.3s linear infinite reverse; }
+    .mkt-loading-emoji { font-size:22px; position:relative; z-index:1; }
+    .mkt-loading-title { font-size:14px; font-weight:600; color:#aaa; margin:0 0 6px; }
+    .mkt-loading-sub { font-size:11px; color:#484858; margin:0; letter-spacing:.3px; }
+
     #aiFab { position:fixed; bottom:80px; right:16px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#6b6bff,#a78bfa); box-shadow:0 4px 20px #6b6bff55; display:flex; align-items:center; justify-content:center; cursor:grab; z-index:9998; transition:transform .2s, opacity .3s; opacity:0; pointer-events:none; touch-action:none; }
     #aiFab.dragging { cursor:grabbing; transform:scale(1.12); box-shadow:0 8px 32px #6b6bff88; transition:box-shadow .15s, transform .15s; }
     #aiFab:not(.dragging):active { transform:scale(.93); }
@@ -810,20 +900,20 @@
           </button>
         </div>
       </div>
-      <div style="display:flex;gap:6px;background:#1a1a20;border-radius:12px;padding:4px;width:100%;">
-        <button type="button" id="segMarketSignals" onclick="setMarketMode('signals')" style="flex:1;padding:8px;border-radius:9px;border:none;background:#1e1e30;color:#b0a8ff;font-size:12px;font-weight:600;cursor:pointer;" data-i18n="marketTabSignals">Signals</button>
-        <button type="button" id="segMarketPortfolio" onclick="setMarketMode('portfolio')" style="flex:1;padding:8px;border-radius:9px;border:none;background:transparent;color:#555;font-size:12px;font-weight:600;cursor:pointer;" data-i18n="marketTabPortfolio">Portfolio</button>
+      <div class="mkt-seg-bar" id="marketSegBar">
+        <button type="button" id="segMarketSignals" class="mkt-seg-btn active" onclick="setMarketMode('signals')" data-i18n="marketTabSignals">Signals</button>
+        <button type="button" id="segMarketPortfolio" class="mkt-seg-btn" onclick="setMarketMode('portfolio')" data-i18n="marketTabPortfolio">Portfolio</button>
       </div>
     </div>
-    <div id="marketLoading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;">
-      <div style="position:relative;width:52px;height:52px;">
-        <div style="position:absolute;inset:0;border-radius:50%;border:2px solid #1e1e28;"></div>
-        <div style="position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:#6b6bff;animation:spin .9s linear infinite;"></div>
-        <div style="position:absolute;inset:8px;border-radius:50%;border:2px solid transparent;border-top-color:#a78bfa44;animation:spin 1.4s linear infinite reverse;"></div>
+    <div id="marketLoading" class="mkt-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:18px;">
+      <div class="mkt-loading-ring">
+        <div class="mkt-loading-ring-outer"></div>
+        <div class="mkt-loading-ring-inner"></div>
+        <span class="mkt-loading-emoji">📊</span>
       </div>
       <div style="text-align:center;">
-        <p id="marketLoadingText" style="font-size:13px;color:#888;margin:0 0 4px;">🤖 AI анализирует рынок…</p>
-        <p style="font-size:11px;color:#444;margin:0;" data-i18n="marketLoadingSub">Fetching latest signals</p>
+        <p id="marketLoadingText" class="mkt-loading-title">🤖 AI анализирует рынок…</p>
+        <p class="mkt-loading-sub" data-i18n="marketLoadingSub">Fetching latest signals</p>
       </div>
     </div>
     <div id="marketError" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;">
@@ -1292,6 +1382,8 @@ const i18n = {
     mktMcap:'Market Cap',
     mktDom:'BTC Dominance',
     mktSource:'Source',
+    mktNewsEmpty:'No headlines right now — refresh in a minute.',
+    mktUpcomingEmpty:'No major events on the radar this week.',
     sentBullish:'Bullish',
     sentBearish:'Bearish',
     sentNeutral:'Neutral',
@@ -1513,6 +1605,8 @@ const i18n = {
     mktMdom:'Домінація BTC',
     mktDom:'Домінація BTC',
     mktSource:'Джерело',
+    mktNewsEmpty:'Новин поки немає — оновіть через хвилину.',
+    mktUpcomingEmpty:'Важливих подій на цьому тижні немає.',
     sentBullish:'Бичачий',
     sentBearish:'Ведмежий',
     sentNeutral:'Нейтральний',
@@ -1797,6 +1891,8 @@ const i18n = {
     mktMcap:'Tržní kap.',
     mktDom:'Dominance BTC',
     mktSource:'Zdroj',
+    mktNewsEmpty:'Zatím žádné titulky — zkuste obnovit za chvíli.',
+    mktUpcomingEmpty:'Tento týden žádné významné události.',
     sentBullish:'Býčí',
     sentBearish:'Medvědí',
     sentNeutral:'Neutrální',
@@ -2018,6 +2114,8 @@ const i18n = {
     mktMcap:'Кап. рынка',
     mktDom:'Доминация BTC',
     mktSource:'Источник',
+    mktNewsEmpty:'Новостей пока нет — обновите через минуту.',
+    mktUpcomingEmpty:'Крупных событий на этой неделе нет.',
     sentBullish:'Бычий',
     sentBearish:'Медвежий',
     sentNeutral:'Нейтральный',
@@ -4230,19 +4328,10 @@ let _portfolioData = null;
 
 function setMarketMode(mode) {
   _marketMode = mode;
-  const th = getTheme();
   const segSig = document.getElementById('segMarketSignals');
   const segPort = document.getElementById('segMarketPortfolio');
-  const activeBg = '#1e1e30';
-  const idleBg = 'transparent';
-  if (segSig) {
-    segSig.style.background = mode === 'signals' ? activeBg : idleBg;
-    segSig.style.color = mode === 'signals' ? th.accent : '#555';
-  }
-  if (segPort) {
-    segPort.style.background = mode === 'portfolio' ? activeBg : idleBg;
-    segPort.style.color = mode === 'portfolio' ? th.accent : '#555';
-  }
+  if (segSig) segSig.classList.toggle('active', mode === 'signals');
+  if (segPort) segPort.classList.toggle('active', mode === 'portfolio');
   const titleEl = document.getElementById('marketScreenTitle');
   const actions = document.getElementById('marketHeaderActions');
   const loadingEl = document.getElementById('marketLoading');
@@ -4716,196 +4805,199 @@ Based on the real data above, return ONLY this JSON (fill all fields, translate 
   _marketLoading = false;
 }
 
+function _mktChgClass(chg) {
+  const s = String(chg || '').trim();
+  if (!s) return 'neutral';
+  return s.startsWith('-') || s.startsWith('−') ? 'down' : 'up';
+}
+
+function _mktChgHtml(chg) {
+  const cls = _mktChgClass(chg);
+  const arrow = cls === 'up' ? '▲' : cls === 'down' ? '▼' : '•';
+  return `<p class="mkt-chg ${cls}">${arrow} ${chg || '—'}</p>`;
+}
+
+function _mktEsc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function _renderMarket(m, th) {
   const content = document.getElementById('marketContent');
   if (!content) return;
 
+  const accent = th.accent || '#7f77dd';
   const sentColor = m.sentiment === 'bullish' ? '#3aaa6e' : m.sentiment === 'bearish' ? '#e05252' : '#d49a2e';
-  const sentEmoji = m.sentiment === 'bullish' ? '🐂' : m.sentiment === 'bearish' ? '🐻' : '➡️';
-  const btcArrow  = m.btc_trend === 'up' ? '📈' : m.btc_trend === 'down' ? '📉' : '➡️';
-  const fgColor   = m.fear_greed >= 60 ? '#3aaa6e' : m.fear_greed >= 40 ? '#d49a2e' : '#e05252';
-  // Always localize fgLabel regardless of what API returns
-  const _fg = m.fear_greed || 50;
-  const _L = currentLang;
-  const fgLabel = _fg >= 75 ? (lt('Экстремальная жадность','Екстремальна жадібність','Extrémní chamtivost','Extreme Greed'))
-    : _fg >= 55 ? (lt('Жадность','Жадібність','Chamtivost','Greed'))
-    : _fg >= 45 ? (lt('Нейтрально','Нейтрально','Neutrální','Neutral'))
-    : _fg >= 25 ? (lt('Страх','Страх','Strach','Fear'))
-    : (lt('Крайний страх','Крайній страх','Extrémní strach','Extreme Fear'));
+  const sentEmoji = m.sentiment === 'bullish' ? '🐂' : m.sentiment === 'bearish' ? '🐻' : '⚖️';
+  const sentLabel = m.sentiment === 'bullish' ? t('sentBullish') : m.sentiment === 'bearish' ? t('sentBearish') : t('sentNeutral');
+  const btcArrow  = m.btc_trend === 'up' ? '📈' : m.btc_trend === 'down' ? '📉' : '↔️';
+  const score = Math.min(100, Math.max(0, Number(m.sentiment_score) || 50));
+  const fg = Math.min(100, Math.max(0, Number(m.fear_greed) || 50));
+  const fgColor = fg >= 60 ? '#3aaa6e' : fg >= 40 ? '#d49a2e' : '#e05252';
+  const fgLabel = fg >= 75 ? lt('Экстремальная жадность','Екстремальна жадібність','Extrémní chamtivost','Extreme Greed')
+    : fg >= 55 ? lt('Жадность','Жадібність','Chamtivost','Greed')
+    : fg >= 45 ? lt('Нейтрально','Нейтрально','Neutrální','Neutral')
+    : fg >= 25 ? lt('Страх','Страх','Strach','Fear')
+    : lt('Крайний страх','Крайній страх','Extrémní strach','Extreme Fear');
 
-  const impactColor = {high:'#e05252', medium:'#d49a2e', low:'#3aaa6e'};
-  const impBg      = {high:'#2a1010', medium:'#221a08', low:'#0c1f16'};
-  const dirIcon    = {up:'📈', down:'📉', neutral:'➡️'};
-  const impIcon    = {high:'🔴', medium:'🟡', low:'🟢'};
-  const sectorArrow= {up:'↑', down:'↓', neutral:'→'};
-  const sectorColor= {up:'#3aaa6e', down:'#e05252', neutral:'#d49a2e'};
-  const sectorBg   = {up:'#0c1f16', down:'#2a1010', neutral:'#221a08'};
-  const sectorBorder= {up:'#3aaa6e33', down:'#e0525233', neutral:'#d49a2e33'};
+  const impactColor = { high:'#e05252', medium:'#d49a2e', low:'#3aaa6e' };
+  const impBg = { high:'#2a1010', medium:'#221a08', low:'#0c1f16' };
+  const dirIcon = { up:'📈', down:'📉', neutral:'➡️' };
+  const sectorArrow = { up:'↑', down:'↓', neutral:'→' };
+  const sectorColor = { up:'#3aaa6e', down:'#e05252', neutral:'#d49a2e' };
+  const sectorBg = { up:'#0c1f16', down:'#2a1010', neutral:'#221a08' };
+  const sectorBorder = { up:'#3aaa6e40', down:'#e0525240', neutral:'#d49a2e40' };
 
-  const L = currentLang;
-  const s = {
-    sentiment: t('mktSentiment'),
-    fearGreed: t('mktFearGreed'),
-    prices:    t('mktPrices'),
-    news:      t('mktNews'),
-    sectors:   t('mktSectors'),
-    upcoming:  t('mktUpcoming'),
-    levels:    t('mktLevels'),
-    support:   t('mktSupport'),
-    resist:    t('mktResist'),
-    moodIdx:   t('mktMoodIdx'),
-    mcap:      t('mktMcap'),
-    dom:       t('mktDom'),
-    source:    t('mktSource'),
-  };
+  const fgArc = Math.round(2 * Math.PI * 28 * fg / 100);
+  const fgRest = Math.round(2 * Math.PI * 28 * (1 - fg / 100));
 
-  const pricesHTML = (m.btc_price || m.eth_price) ? `
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 10px;">${s.prices}</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        ${m.btc_price ? `
-        <div style="background:#111118;border:.5px solid #272730;border-radius:12px;padding:10px 12px;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-            <span style="font-size:18px;">₿</span>
-            <span style="font-size:11px;font-weight:600;color:#888;">BTC</span>
-          </div>
-          <p style="font-size:15px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${m.btc_price}</p>
-          <p style="font-size:11px;color:${(m.btc_change_24h||'').startsWith('-')?'#e05252':'#3aaa6e'};margin:0;">${m.btc_change_24h||''}</p>
-        </div>` : ''}
-        ${m.eth_price ? `
-        <div style="background:#111118;border:.5px solid #272730;border-radius:12px;padding:10px 12px;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-            <span style="font-size:18px;">Ξ</span>
-            <span style="font-size:11px;font-weight:600;color:#888;">ETH</span>
-          </div>
-          <p style="font-size:15px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${m.eth_price}</p>
-          <p style="font-size:11px;color:${(m.eth_change_24h||'').startsWith('-')?'#e05252':'#3aaa6e'};margin:0;">${m.eth_change_24h||''}</p>
-        </div>` : ''}
+  const priceTile = (coin, iconClass, sym, price, chg) => price ? `
+    <div class="mkt-price-tile mkt-animate">
+      <div class="mkt-coin-hd">
+        <div class="mkt-coin-icon ${iconClass}">${sym === 'BTC' ? '₿' : 'Ξ'}</div>
+        <span class="mkt-coin-name">${sym}</span>
+      </div>
+      <p class="mkt-price-val">${_mktEsc(price)}</p>
+      ${_mktChgHtml(chg)}
+    </div>` : '';
+
+  const pricesBlock = (m.btc_price || m.eth_price) ? `
+    <div class="mkt-card mkt-animate d2">
+      <p class="mkt-section-hd" style="margin-bottom:12px;">${t('mktPrices')}</p>
+      <div class="mkt-price-grid">
+        ${priceTile('btc','btc','BTC',m.btc_price,m.btc_change_24h)}
+        ${priceTile('eth','eth','ETH',m.eth_price,m.eth_change_24h)}
       </div>
       ${(m.market_cap || m.dominance_btc) ? `
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        ${m.market_cap ? `<div style="flex:1;background:#111118;border:.5px solid #272730;border-radius:10px;padding:8px 10px;"><p style="font-size:9px;color:#555;margin:0 0 2px;letter-spacing:.5px;">${s.mcap}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${m.market_cap}</p></div>` : ''}
-        ${m.dominance_btc ? `<div style="flex:1;background:#111118;border:.5px solid #272730;border-radius:10px;padding:8px 10px;"><p style="font-size:9px;color:#555;margin:0 0 2px;letter-spacing:.5px;">${s.dom}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${m.dominance_btc}</p></div>` : ''}
+      <div class="mkt-stat-row">
+        ${m.market_cap ? `<div class="mkt-stat-chip"><p class="lbl">${t('mktMcap')}</p><p class="val">${_mktEsc(m.market_cap)}</p></div>` : ''}
+        ${m.dominance_btc ? `<div class="mkt-stat-chip"><p class="lbl">${t('mktDom')}</p><p class="val">${_mktEsc(m.dominance_btc)}</p></div>` : ''}
       </div>` : ''}
     </div>` : '';
 
-  const newsHTML = (m.top_news||[]).map((n,i) => `
-    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;${i < (m.top_news.length-1) ? 'border-bottom:.5px solid #1a1a24;' : ''}">
-      <div style="width:32px;height:32px;border-radius:9px;background:${impBg[n.impact]||'#1a1a20'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${dirIcon[n.direction]||'➡️'}</div>
-      <div style="flex:1;min-width:0;">
-        <p style="font-size:13px;color:#e0e0f0;margin:0 0 5px;line-height:1.45;">${n.title}</p>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:9px;background:${impBg[n.impact]||'#1a1a20'};color:${impactColor[n.impact]||'#888'};border:.5px solid ${impactColor[n.impact]||'#444'}44;border-radius:5px;padding:2px 7px;font-weight:600;">${impIcon[n.impact]||''} ${n.impact?.toUpperCase()}</span>
-          ${n.source ? `<span style="font-size:10px;color:#444;">${s.source}: ${n.source}</span>` : ''}
+  const newsList = (m.top_news || []).filter(n => n && n.title);
+  const newsHTML = newsList.length ? newsList.map(n => {
+    const imp = n.impact || 'low';
+    const col = impactColor[imp] || '#888';
+    return `
+    <div class="mkt-news-item">
+      <div class="mkt-news-accent" style="background:${col};"></div>
+      <div class="mkt-news-body">
+        <p class="mkt-news-title">${_mktEsc(n.title)}</p>
+        <div class="mkt-news-meta">
+          <span class="mkt-tag" style="background:${impBg[imp]||'#1a1a20'};color:${col};border:.5px solid ${col}44;">${dirIcon[n.direction]||'•'} ${(imp||'').toUpperCase()}</span>
+          ${n.source ? `<span class="mkt-source">${t('mktSource')}: ${_mktEsc(n.source)}</span>` : ''}
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('') : `<div class="mkt-empty"><div class="mkt-empty-icon">📰</div><p>${t('mktNewsEmpty')}</p></div>`;
 
-  const upcomingHTML = (m.upcoming||[]).map((u,i) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;${i < (m.upcoming.length-1) ? 'border-bottom:.5px solid #1a1a24;' : ''}">
-      <div style="width:36px;height:36px;border-radius:10px;background:${u.importance==='high'?'#2a1010':'#1e1e28'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-        ${u.importance==='high'?'🔔':'📅'}
-      </div>
+  const upcomingList = (m.upcoming || []).filter(u => u && u.event);
+  const upcomingHTML = upcomingList.length ? upcomingList.map(u => `
+    <div class="mkt-event ${u.importance === 'high' ? 'hot' : 'norm'}">
+      <div class="mkt-event-dot"></div>
       <div style="flex:1;min-width:0;">
-        <p style="font-size:13px;color:#e0e0f0;margin:0 0 2px;line-height:1.4;">${u.event}</p>
-        <p style="font-size:11px;color:#555;margin:0;">${u.date}</p>
+        <p class="mkt-event-title">${_mktEsc(u.event)}</p>
+        <p class="mkt-event-date">${_mktEsc(u.date)}</p>
       </div>
-      ${u.importance==='high'?`<span style="font-size:9px;background:#2a1010;color:#e05252;border:.5px solid #e0525244;border-radius:6px;padding:2px 8px;font-weight:600;flex-shrink:0;">HOT</span>`:''}
-    </div>`).join('');
+      ${u.importance === 'high' ? `<span class="mkt-tag" style="background:#2a1010;color:#e05252;border:.5px solid #e0525244;align-self:center;">HOT</span>` : ''}
+    </div>`).join('') : `<div class="mkt-empty"><div class="mkt-empty-icon">📅</div><p>${t('mktUpcomingEmpty')}</p></div>`;
 
-  const sectorsHTML = (m.sectors||[]).map(s2 => `
-    <div style="background:${sectorBg[s2.status]||'#1a1a20'}88;border:.5px solid ${sectorBorder[s2.status]||'#272730'};border-radius:12px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;">
+  const sectorsHTML = (m.sectors || []).map(s2 => `
+    <div class="mkt-sector" style="background:${sectorBg[s2.status]||'#1a1a20'};border-color:${sectorBorder[s2.status]||'#272730'};">
       <div>
-        <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 2px;">${s2.name}</p>
-        <p style="font-size:10px;color:#555;margin:0;line-height:1.3;">${s2.note}</p>
+        <p class="mkt-sector-name">${_mktEsc(s2.name)}</p>
+        <p class="mkt-sector-note">${_mktEsc(s2.note)}</p>
       </div>
-      <span style="font-size:20px;font-weight:700;color:${sectorColor[s2.status]||'#888'};flex-shrink:0;margin-left:8px;">${sectorArrow[s2.status]||'→'}</span>
+      <span class="mkt-sector-arrow" style="color:${sectorColor[s2.status]||'#888'};">${sectorArrow[s2.status]||'→'}</span>
     </div>`).join('');
 
-  const levelsHTML = (m.key_levels||[]).map(kl => `
-    <div style="background:#111118;border:.5px solid #272730;border-radius:11px;padding:10px 12px;">
-      <p style="font-size:11px;font-weight:600;color:#888;margin:0 0 6px;">${kl.coin}</p>
-      <div style="display:flex;justify-content:space-between;gap:8px;">
-        <div><p style="font-size:9px;color:#3aaa6e;margin:0 0 2px;">▲ ${s.support}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${kl.support}</p></div>
-        <div style="text-align:right;"><p style="font-size:9px;color:#e05252;margin:0 0 2px;">▼ ${s.resist}</p><p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0;">${kl.resistance}</p></div>
+  const levelsHTML = (m.key_levels || []).map(kl => `
+    <div class="mkt-level-card">
+      <p class="mkt-level-coin">${_mktEsc(kl.coin)}</p>
+      <div class="mkt-level-range"><div class="mkt-level-range-fill" style="background:${th.gradient};"></div></div>
+      <div class="mkt-level-prices">
+        <div>
+          <p class="lbl" style="color:#3aaa6e;">▲ ${t('mktSupport')}</p>
+          <p class="pr">${_mktEsc(kl.support)}</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="lbl" style="color:#e05252;">▼ ${t('mktResist')}</p>
+          <p class="pr">${_mktEsc(kl.resistance)}</p>
+        </div>
       </div>
     </div>`).join('');
 
   content.style.display = 'flex';
   content.innerHTML = `
-    <!-- Sentiment card -->
-    <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid ${th.accent}33;border-radius:16px;padding:16px;animation:slideIn .3s ease both;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 10px;">${s.sentiment}</p>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div>
-          <p style="font-size:24px;font-weight:700;color:${sentColor};margin:0;">
-            ${sentEmoji} ${m.sentiment === 'bullish' ? (t('sentBullish')) : m.sentiment === 'bearish' ? (t('sentBearish')) : (t('sentNeutral'))}
+    <div class="mkt-hero mkt-animate" style="background:linear-gradient(145deg,#14141c 0%,#1a1a26 55%,#12121a 100%);border:.5px solid ${sentColor}33;box-shadow:0 8px 32px ${sentColor}18;">
+      <div class="mkt-hero-glow" style="background:${sentColor};"></div>
+      <p class="mkt-section-hd" style="margin-bottom:14px;color:#666;">${t('mktSentiment')}</p>
+      <div class="mkt-hero-row">
+        <div style="flex:1;min-width:0;">
+          <p class="mkt-sent-badge" style="color:${sentColor};">
+            <span>${sentEmoji}</span>
+            <span>${sentLabel}</span>
+            <span class="mkt-sent-score" style="color:${accent};">${score}/100</span>
           </p>
-          <p style="font-size:12px;color:#666;margin:4px 0 0;">${m.summary}</p>
+          <p class="mkt-summary">${_mktEsc(m.summary)}</p>
         </div>
-        <div style="text-align:right;flex-shrink:0;margin-left:12px;">
-          <p style="font-size:10px;color:#555;margin:0 0 2px;">BTC</p>
-          <p style="font-size:24px;margin:0;">${btcArrow}</p>
+        <div class="mkt-btc-pill">
+          <span>BTC</span>
+          <em>${btcArrow}</em>
         </div>
       </div>
-      <div style="background:#111116;border-radius:8px;height:6px;overflow:hidden;">
-        <div style="height:100%;width:${m.sentiment_score}%;background:${th.gradient};border-radius:8px;transition:width 1s cubic-bezier(.4,0,.2,1);"></div>
+      <div class="mkt-bar">
+        <div class="mkt-bar-fill" style="width:${score}%;background:${th.gradient};"></div>
       </div>
     </div>
 
-    <!-- Prices -->
-    ${pricesHTML}
+    ${pricesBlock}
 
-    <!-- Fear & Greed -->
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;animation:slideIn .4s ease both;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 12px;">${s.fearGreed}</p>
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="position:relative;width:66px;height:66px;flex-shrink:0;">
-          <svg width="66" height="66" viewBox="0 0 66 66">
-            <circle cx="33" cy="33" r="28" fill="none" stroke="#1e1e28" stroke-width="5"/>
-            <circle cx="33" cy="33" r="28" fill="none" stroke="${fgColor}" stroke-width="5"
-              stroke-dasharray="${Math.round(2*3.14159*28*m.fear_greed/100)} ${Math.round(2*3.14159*28*(1-m.fear_greed/100))}"
-              stroke-dashoffset="${Math.round(2*3.14159*28*0.25)}"
-              stroke-linecap="round"/>
-            <text x="33" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="${fgColor}" font-family="system-ui">${m.fear_greed}</text>
+    <div class="mkt-card mkt-animate d3">
+      <p class="mkt-section-hd">${t('mktFearGreed')}</p>
+      <div class="mkt-fg-wrap">
+        <div class="mkt-fg-ring">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="30" fill="none" stroke="#1a1a24" stroke-width="6"/>
+            <circle cx="36" cy="36" r="30" fill="none" stroke="${fgColor}" stroke-width="6"
+              stroke-dasharray="${fgArc} ${fgRest}"
+              stroke-dashoffset="${Math.round(2 * Math.PI * 30 * 0.25)}"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <text x="36" y="40" text-anchor="middle" font-size="16" font-weight="800" fill="${fgColor}" font-family="system-ui,sans-serif">${fg}</text>
           </svg>
         </div>
         <div>
-          <p style="font-size:18px;font-weight:700;color:${fgColor};margin:0 0 4px;">${fgLabel}</p>
-          <p style="font-size:11px;color:#555;margin:0;">${s.moodIdx} 0–100</p>
+          <p class="mkt-fg-lbl" style="color:${fgColor};">${fgLabel}</p>
+          <p class="mkt-fg-sub">${t('mktMoodIdx')} · 0–100</p>
         </div>
+      </div>
+      <div class="mkt-fg-scale">
+        <span>${lt('Страх','Страх','Strach','Fear')}</span>
+        <span>${lt('Нейтрально','Нейтрально','Neutrální','Neutral')}</span>
+        <span>${lt('Жадность','Жадібність','Chamtivost','Greed')}</span>
       </div>
     </div>
 
-    <!-- Top news -->
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;animation:slideIn .5s ease both;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${s.news}</p>
+    <div class="mkt-card mkt-animate d4">
+      <p class="mkt-section-hd">${t('mktNews')}</p>
       ${newsHTML}
     </div>
 
-    <!-- Sectors -->
-    <div style="animation:slideIn .6s ease both;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 8px;">${s.sectors}</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        ${sectorsHTML}
-      </div>
+    <div class="mkt-animate d5">
+      <p class="mkt-section-hd">${t('mktSectors')}</p>
+      <div class="mkt-sector-grid">${sectorsHTML}</div>
     </div>
 
-    ${(m.key_levels||[]).length > 0 ? `
-    <!-- Key Levels -->
-    <div style="animation:slideIn .65s ease both;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 8px;">${s.levels}</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        ${levelsHTML}
-      </div>
+    ${(m.key_levels || []).length ? `
+    <div class="mkt-animate d5">
+      <p class="mkt-section-hd">${t('mktLevels')}</p>
+      <div class="mkt-price-grid">${levelsHTML}</div>
     </div>` : ''}
 
-    <!-- Upcoming events -->
-    <div style="background:#1a1a20;border:.5px solid #272730;border-radius:16px;padding:14px;animation:slideIn .7s ease both;margin-bottom:8px;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;margin:0 0 4px;">${s.upcoming}</p>
+    <div class="mkt-card mkt-animate d6" style="margin-bottom:12px;">
+      <p class="mkt-section-hd">${t('mktUpcoming')}</p>
       ${upcomingHTML}
     </div>
-
   `;
 }
 
