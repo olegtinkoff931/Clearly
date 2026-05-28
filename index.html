@@ -140,7 +140,7 @@
     .sr-icon-lang { background:#1e1e30; }
     .settings-row-info { flex:1; }
     .settings-row-title { font-size:13px; font-weight:500; color:#e8e8f0; }
-    .settings-row-sub { font-size:11px; color:#555; margin-top:2px; }
+    .settings-row-sub { font-size:11px; color:#999; margin-top:2px; }
     .lang-pills { display:flex; gap:6px; margin:0 12px 16px; }
     .lang-pill { flex:1; padding:10px; border-radius:12px; border:.5px solid #272730; background:#1a1a20; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; transition:background .15s, border-color .2s; }
     .lang-pill:hover { background:#20202a; }
@@ -777,7 +777,7 @@
             <input id="impactThresholdRange" type="range" min="0" max="100" step="1" value="0" style="flex:1;" oninput="updateImpactThresholdPreview(this.value)" onchange="saveImpactThreshold()">
             <span id="impactThresholdValue" style="font-size:12px;font-weight:700;color:#a78bfa;min-width:40px;text-align:right;">0%</span>
           </div>
-          <p id="impactThresholdHint" style="font-size:11px;color:#666;margin-top:6px;"></p>
+          <p id="impactThresholdHint" style="font-size:11px;color:#aaa;margin-top:6px;"></p>
         </div>
       </div>
     </div>
@@ -801,7 +801,7 @@
             <span style="font-size:11px;color:#777;min-width:16px;" data-i18n="settingsQuietTo">To</span>
             <input id="quietEndInput" type="time" value="08:00" style="min-width:108px;background:#111114;border:.5px solid #2e2e38;border-radius:8px;padding:6px 8px;color:#ddd;" onchange="saveQuietHours()">
           </div>
-          <p id="quietHoursHint" style="font-size:11px;color:#666;margin-top:6px;"></p>
+          <p id="quietHoursHint" style="font-size:11px;color:#aaa;margin-top:6px;"></p>
         </div>
       </div>
     </div>
@@ -4051,7 +4051,7 @@ function updateCount() {
 
 function saveNotif() { showToast('notifToast',t('settingsSaved')); }
 
-function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); }
+function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); updateImpactThresholdPreview(impactThreshold); updateQuietHoursUI(); }
 function closeSettingsScreen() { document.getElementById('vSettings').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function setLang(lang) {
