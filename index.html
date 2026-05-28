@@ -691,6 +691,30 @@
         </div>
       </div>
     </div>
+    <p class="settings-section" data-i18n="settingsQuietSection">DO NOT DISTURB</p>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:#1f1a2f;">🌙</div>
+        <div class="settings-row-info">
+          <p class="settings-row-title" data-i18n="settingsQuietTitle">Quiet hours</p>
+          <p class="settings-row-sub" data-i18n="settingsQuietSub">Bot will pause alerts during selected time.</p>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span style="font-size:12px;color:#aaa;">ON/OFF</span>
+            <div class="toggle-wrap">
+              <input type="checkbox" class="toggle-input" id="quietHoursToggle" onchange="saveQuietHours()">
+              <label class="toggle-label" for="quietHoursToggle"></label>
+            </div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:#777;min-width:20px;" data-i18n="settingsQuietFrom">From</span>
+            <input id="quietStartInput" type="time" value="23:00" style="background:#111114;border:.5px solid #2e2e38;border-radius:8px;padding:6px 8px;color:#ddd;" onchange="saveQuietHours()">
+            <span style="font-size:11px;color:#777;min-width:16px;" data-i18n="settingsQuietTo">To</span>
+            <input id="quietEndInput" type="time" value="08:00" style="background:#111114;border:.5px solid #2e2e38;border-radius:8px;padding:6px 8px;color:#ddd;" onchange="saveQuietHours()">
+          </div>
+          <p id="quietHoursHint" style="font-size:11px;color:#666;margin-top:6px;"></p>
+        </div>
+      </div>
+    </div>
     <p class="settings-section" data-i18n="supportSection">SUPPORT</p>
     <div class="settings-card" style="margin:0 12px 8px;">
       <div class="settings-row" onclick="window.open('https://t.me/clearly_support_bot','_blank')" style="cursor:pointer;">
@@ -1010,6 +1034,10 @@ if (tg) { tg.expand(); tg.ready(); }
 let currentUserId = null;
 let currentLang   = 'en';
 let impactThreshold = 0;
+let quietHoursEnabled = false;
+let quietStart = '23:00';
+let quietEnd = '08:00';
+let tzOffsetMin = new Date().getTimezoneOffset();
 let needsInitialLangChoice = false;
 let onboardingLangChoice = null;
 
@@ -1051,6 +1079,13 @@ const i18n = {
     settingsImpactTitle:'Minimum impact to notify',
     settingsImpactSub:'Only send messages above selected impact score.',
     settingsImpactHint:'You will receive alerts with impact {n}% and higher.',
+    settingsQuietSection:'DO NOT DISTURB',
+    settingsQuietTitle:'Quiet hours',
+    settingsQuietSub:'Bot will pause alerts during selected time.',
+    settingsQuietFrom:'From',
+    settingsQuietTo:'To',
+    settingsQuietHintOn:'Silent mode active: {start}–{end}.',
+    settingsQuietHintOff:'Silent mode is disabled.',
     initialLangTitle:'Choose your language',
     initialLangDesc:'Before the questionnaire, select your interface language.',
     initialLangContinue:'Continue →',
@@ -1240,6 +1275,13 @@ const i18n = {
     settingsImpactTitle:'Мінімальний вплив для сповіщень',
     settingsImpactSub:'Надсилати тільки повідомлення з потрібним рівнем впливу.',
     settingsImpactHint:'Ви отримаєте сповіщення з впливом {n}% і вище.',
+    settingsQuietSection:'НЕ ТУРБУВАТИ',
+    settingsQuietTitle:'Тихі години',
+    settingsQuietSub:'Бот призупиняє сповіщення у вибраний час.',
+    settingsQuietFrom:'Від',
+    settingsQuietTo:'До',
+    settingsQuietHintOn:'Тихий режим активний: {start}–{end}.',
+    settingsQuietHintOff:'Тихий режим вимкнено.',
     initialLangTitle:'Оберіть мову',
     initialLangDesc:'Перед опитуванням виберіть мову інтерфейсу.',
     initialLangContinue:'Продовжити →',
@@ -1481,6 +1523,13 @@ const i18n = {
     settingsImpactTitle:'Minimální dopad pro upozornění',
     settingsImpactSub:'Posílat jen zprávy nad zvoleným dopadem.',
     settingsImpactHint:'Dostanete upozornění s dopadem {n}% a vyšším.',
+    settingsQuietSection:'NERUŠIT',
+    settingsQuietTitle:'Tiché hodiny',
+    settingsQuietSub:'Bot pozastaví upozornění ve zvoleném čase.',
+    settingsQuietFrom:'Od',
+    settingsQuietTo:'Do',
+    settingsQuietHintOn:'Tichý režim aktivní: {start}–{end}.',
+    settingsQuietHintOff:'Tichý režim je vypnutý.',
     initialLangTitle:'Vyberte jazyk',
     initialLangDesc:'Před dotazníkem vyberte jazyk rozhraní.',
     initialLangContinue:'Pokračovat →',
@@ -1680,6 +1729,13 @@ const i18n = {
     settingsImpactTitle:'Минимальное влияние для уведомлений',
     settingsImpactSub:'Отправлять только сообщения выше выбранного порога влияния.',
     settingsImpactHint:'Вы будете получать алерты с влиянием {n}% и выше.',
+    settingsQuietSection:'НЕ БЕСПОКОИТЬ',
+    settingsQuietTitle:'Тихие часы',
+    settingsQuietSub:'Бот не будет присылать уведомления в выбранное время.',
+    settingsQuietFrom:'С',
+    settingsQuietTo:'До',
+    settingsQuietHintOn:'Тихий режим активен: {start}–{end}.',
+    settingsQuietHintOff:'Тихий режим выключен.',
     initialLangTitle:'Выберите язык',
     initialLangDesc:'Перед опросом выберите язык интерфейса.',
     initialLangContinue:'Продолжить →',
@@ -2129,6 +2185,10 @@ async function init() {
 
   currentLang = userData.lang || 'en';
   impactThreshold = Math.max(0, Math.min(100, parseInt(userData.impact_threshold ?? 0, 10) || 0));
+  quietHoursEnabled = !!(parseInt(userData.quiet_hours_enabled ?? 0, 10) || 0);
+  quietStart = (userData.quiet_start || '23:00').slice(0, 5);
+  quietEnd = (userData.quiet_end || '08:00').slice(0, 5);
+  tzOffsetMin = parseInt(userData.tz_offset_min ?? new Date().getTimezoneOffset(), 10) || new Date().getTimezoneOffset();
   onboardingLangChoice = currentLang;
   syncSettingsLangPills(currentLang);
   syncInitialLangPills(currentLang);
@@ -3658,6 +3718,7 @@ function toggleAll(globalCb) {
     }
   });
   updateImpactThresholdPreview(impactThreshold);
+  updateQuietHoursUI();
   updateCount();
 }
 
@@ -3679,6 +3740,50 @@ async function saveImpactThreshold() {
     await apiFetch('/api/impact-threshold', 'POST', {
       user_id: currentUserId,
       impact_threshold: impactThreshold,
+    });
+  }
+}
+
+function updateQuietHoursUI() {
+  const tgl = document.getElementById('quietHoursToggle');
+  const startEl = document.getElementById('quietStartInput');
+  const endEl = document.getElementById('quietEndInput');
+  const hint = document.getElementById('quietHoursHint');
+  if (tgl) tgl.checked = !!quietHoursEnabled;
+  if (startEl) {
+    startEl.value = quietStart || '23:00';
+    startEl.disabled = !quietHoursEnabled;
+    startEl.style.opacity = quietHoursEnabled ? '1' : '0.5';
+  }
+  if (endEl) {
+    endEl.value = quietEnd || '08:00';
+    endEl.disabled = !quietHoursEnabled;
+    endEl.style.opacity = quietHoursEnabled ? '1' : '0.5';
+  }
+  if (hint) {
+    hint.textContent = quietHoursEnabled
+      ? t('settingsQuietHintOn', { start: quietStart, end: quietEnd })
+      : t('settingsQuietHintOff');
+  }
+}
+
+async function saveQuietHours() {
+  const tgl = document.getElementById('quietHoursToggle');
+  const startEl = document.getElementById('quietStartInput');
+  const endEl = document.getElementById('quietEndInput');
+  quietHoursEnabled = !!tgl?.checked;
+  quietStart = (startEl?.value || quietStart || '23:00').slice(0, 5);
+  quietEnd = (endEl?.value || quietEnd || '08:00').slice(0, 5);
+  tzOffsetMin = new Date().getTimezoneOffset();
+  updateQuietHoursUI();
+  showToast('settingsToast', t('settingsSaved'));
+  if (currentUserId) {
+    await apiFetch('/api/quiet-hours', 'POST', {
+      user_id: currentUserId,
+      enabled: quietHoursEnabled,
+      quiet_start: quietStart,
+      quiet_end: quietEnd,
+      tz_offset_min: tzOffsetMin
     });
   }
 }
