@@ -676,6 +676,21 @@
         <span class="lang-pill-tag">CS</span>
       </div>
     </div>
+    <p class="settings-section" data-i18n="settingsImpactSection">IMPACT FILTER</p>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:#2a1f0f;">⚡</div>
+        <div class="settings-row-info">
+          <p class="settings-row-title" data-i18n="settingsImpactTitle">Minimum impact to notify</p>
+          <p class="settings-row-sub" data-i18n="settingsImpactSub">Only send messages above selected impact score.</p>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+            <input id="impactThresholdRange" type="range" min="0" max="100" step="1" value="0" style="flex:1;" oninput="updateImpactThresholdPreview(this.value)" onchange="saveImpactThreshold()">
+            <span id="impactThresholdValue" style="font-size:12px;font-weight:700;color:#a78bfa;min-width:40px;text-align:right;">0%</span>
+          </div>
+          <p id="impactThresholdHint" style="font-size:11px;color:#666;margin-top:6px;"></p>
+        </div>
+      </div>
+    </div>
     <p class="settings-section" data-i18n="supportSection">SUPPORT</p>
     <div class="settings-card" style="margin:0 12px 8px;">
       <div class="settings-row" onclick="window.open('https://t.me/clearly_support_bot','_blank')" style="cursor:pointer;">
@@ -994,6 +1009,7 @@ if (tg) { tg.expand(); tg.ready(); }
 
 let currentUserId = null;
 let currentLang   = 'en';
+let impactThreshold = 0;
 let needsInitialLangChoice = false;
 let onboardingLangChoice = null;
 
@@ -1031,6 +1047,10 @@ const i18n = {
     settingsTitle:'⚙️ Settings', settingsSub:'Customize your experience',
     settingsLangSection:'LANGUAGE', settingsLangTitle:'Interface Language',
     settingsLangSub:'Choose the language for the app', langChanged:'🌐 Language changed to English',
+    settingsImpactSection:'IMPACT FILTER',
+    settingsImpactTitle:'Minimum impact to notify',
+    settingsImpactSub:'Only send messages above selected impact score.',
+    settingsImpactHint:'You will receive alerts with impact {n}% and higher.',
     initialLangTitle:'Choose your language',
     initialLangDesc:'Before the questionnaire, select your interface language.',
     initialLangContinue:'Continue →',
@@ -1216,6 +1236,10 @@ const i18n = {
     settingsTitle:'⚙️ Налаштування', settingsSub:'Персоналізація',
     settingsLangSection:'МОВА', settingsLangTitle:'Мова інтерфейсу',
     settingsLangSub:'Оберіть мову застосунку', langChanged:'🌐 Мову змінено на Українську',
+    settingsImpactSection:'ФІЛЬТР ВПЛИВУ',
+    settingsImpactTitle:'Мінімальний вплив для сповіщень',
+    settingsImpactSub:'Надсилати тільки повідомлення з потрібним рівнем впливу.',
+    settingsImpactHint:'Ви отримаєте сповіщення з впливом {n}% і вище.',
     initialLangTitle:'Оберіть мову',
     initialLangDesc:'Перед опитуванням виберіть мову інтерфейсу.',
     initialLangContinue:'Продовжити →',
@@ -1453,6 +1477,10 @@ const i18n = {
     settingsLangTitle:'Jazyk rozhraní',
     settingsLangSub:'Zvolte jazyk aplikace',
     langChanged:'🌐 Jazyk změněn na češtinu',
+    settingsImpactSection:'FILTR DOPADU',
+    settingsImpactTitle:'Minimální dopad pro upozornění',
+    settingsImpactSub:'Posílat jen zprávy nad zvoleným dopadem.',
+    settingsImpactHint:'Dostanete upozornění s dopadem {n}% a vyšším.',
     initialLangTitle:'Vyberte jazyk',
     initialLangDesc:'Před dotazníkem vyberte jazyk rozhraní.',
     initialLangContinue:'Pokračovat →',
@@ -1648,6 +1676,10 @@ const i18n = {
     settingsTitle:'⚙️ Настройки', settingsSub:'Персонализация',
     settingsLangSection:'ЯЗЫК', settingsLangTitle:'Язык интерфейса',
     settingsLangSub:'Выберите язык приложения', langChanged:'🌐 Язык изменён на Русский',
+    settingsImpactSection:'ФИЛЬТР ВЛИЯНИЯ',
+    settingsImpactTitle:'Минимальное влияние для уведомлений',
+    settingsImpactSub:'Отправлять только сообщения выше выбранного порога влияния.',
+    settingsImpactHint:'Вы будете получать алерты с влиянием {n}% и выше.',
     initialLangTitle:'Выберите язык',
     initialLangDesc:'Перед опросом выберите язык интерфейса.',
     initialLangContinue:'Продолжить →',
@@ -2096,6 +2128,7 @@ async function init() {
   }
 
   currentLang = userData.lang || 'en';
+  impactThreshold = Math.max(0, Math.min(100, parseInt(userData.impact_threshold ?? 0, 10) || 0));
   onboardingLangChoice = currentLang;
   syncSettingsLangPills(currentLang);
   syncInitialLangPills(currentLang);
@@ -3624,7 +3657,30 @@ function toggleAll(globalCb) {
       }
     }
   });
+  updateImpactThresholdPreview(impactThreshold);
   updateCount();
+}
+
+function updateImpactThresholdPreview(value) {
+  impactThreshold = Math.max(0, Math.min(100, parseInt(value ?? impactThreshold, 10) || 0));
+  const range = document.getElementById('impactThresholdRange');
+  if (range) range.value = String(impactThreshold);
+  const valEl = document.getElementById('impactThresholdValue');
+  if (valEl) valEl.textContent = `${impactThreshold}%`;
+  const hintEl = document.getElementById('impactThresholdHint');
+  if (hintEl) hintEl.textContent = t('settingsImpactHint', { n: impactThreshold });
+}
+
+async function saveImpactThreshold() {
+  const range = document.getElementById('impactThresholdRange');
+  updateImpactThresholdPreview(range?.value ?? impactThreshold);
+  showToast('settingsToast', t('settingsSaved'));
+  if (currentUserId) {
+    await apiFetch('/api/impact-threshold', 'POST', {
+      user_id: currentUserId,
+      impact_threshold: impactThreshold,
+    });
+  }
 }
 
 function updateCount() {
