@@ -2795,6 +2795,18 @@ async function init() {
     needsInitialLangChoice = false;
     renderChannelList();
     renderProfileScreen();
+    // Force-kill tutorial for any existing user (has quiz done = not new)
+    localStorage.setItem('clearly_tutorial_done', '1');
+    const _tutOv = document.getElementById('tutorialOverlay');
+    if (_tutOv) {
+      _tutOv.classList.remove('active');
+      ['tut-top','tut-bottom','tut-left','tut-right'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.cssText = 'height:0;width:0;';
+      });
+      const _sp = document.getElementById('tutSpotlight');
+      if (_sp) _sp.style.cssText = 'opacity:0;width:0;height:0;';
+    }
     if (!hasPlan()) {
       showSubscriptionScreen(null, { forced: true });
     } else {
@@ -6837,6 +6849,12 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   const TUT_KEY = 'clearly_tutorial_done';
 
   window.tutStart = function() {
+    // Skip for users who already have channels — they're not new
+    if (typeof channels !== 'undefined' && channels.length > 0) {
+      localStorage.setItem(TUT_KEY, '1');
+      tutDone();
+      return;
+    }
     if (localStorage.getItem(TUT_KEY)) return;
     tutStep = 0;
     const ov = document.getElementById('tutorialOverlay');
