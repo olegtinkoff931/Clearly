@@ -932,9 +932,29 @@
         </div>
       </div>
     </div>
+    <p class="settings-section" data-i18n="settingsKwSection">KEYWORD FILTER</p>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:#1a2030;">🔍</div>
+        <div class="settings-row-info">
+          <p class="settings-row-title" data-i18n="settingsKwTitle">Keyword filter</p>
+          <p class="settings-row-sub" data-i18n="settingsKwSub">Only receive alerts that mention these words. Leave empty to receive all.</p>
+          <div style="margin-top:10px;position:relative;">
+            <input id="keywordFilterInput" type="text" placeholder="BTC, SEC, Binance…"
+              style="width:100%;box-sizing:border-box;background:#111114;border:.5px solid #2e2e38;border-radius:9px;padding:9px 38px 9px 11px;color:#e8e8f0;font-size:13px;outline:none;"
+              oninput="renderKwTags()" onkeydown="kwInputKeydown(event)">
+            <button onclick="kwAddFromInput()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#7c7cdc;font-size:18px;cursor:pointer;padding:0;line-height:1;">+</button>
+          </div>
+          <div id="kwTagsWrap" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;min-height:4px;"></div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button onclick="saveKeywordFilter()" style="flex:1;padding:8px;border-radius:9px;background:#2a2a50;border:.5px solid #5b5bdc55;color:#b0a8ff;font-size:12px;font-weight:600;cursor:pointer;" data-i18n="settingsKwSave">Save</button>
+            <button onclick="clearKeywordFilter()" style="padding:8px 12px;border-radius:9px;background:#1a1a20;border:.5px solid #333;color:#666;font-size:12px;cursor:pointer;" data-i18n="settingsKwClear">Clear all</button>
+          </div>
+          <p id="kwHint" style="font-size:11px;color:#aaa;margin-top:6px;"></p>
+        </div>
+      </div>
+    </div>
     <p class="settings-section" data-i18n="supportSection">SUPPORT</p>
-    <div class="settings-card" style="margin:0 12px 8px;">
-      <div class="settings-row" onclick="window.open('https://t.me/clearly_support_bot','_blank')" style="cursor:pointer;">
         <div class="settings-row-icon" style="background:#1e2a1e;">🐛</div>
         <div class="settings-row-info">
           <p class="settings-row-title" data-i18n="bugTitle">Заметили баг?</p>
@@ -1293,6 +1313,7 @@ let currentUserId = null;
 let currentLang   = 'en';
 let impactThreshold = 0;
 let quietHoursEnabled = false;
+let keywordFilter = [];
 let quietStart = '23:00';
 let quietEnd = '08:00';
 let tzOffsetMin = new Date().getTimezoneOffset();
@@ -1344,6 +1365,11 @@ const i18n = {
     settingsQuietTo:'To',
     settingsQuietHintOn:'Silent mode active: {start}–{end}.',
     settingsQuietHintOff:'Silent mode is disabled.',
+    settingsKwSection:'KEYWORD FILTER',
+    settingsKwTitle:'Keyword filter',
+    settingsKwSub:'Only receive alerts that mention these words. Leave empty to receive all.',
+    settingsKwSave:'Save',
+    settingsKwClear:'Clear all',
     initialLangTitle:'Choose your language',
     initialLangDesc:'Before the questionnaire, select your interface language.',
     initialLangContinue:'Continue →',
@@ -1575,6 +1601,11 @@ const i18n = {
     settingsQuietTo:'До',
     settingsQuietHintOn:'Тихий режим активний: {start}–{end}.',
     settingsQuietHintOff:'Тихий режим вимкнено.',
+    settingsKwSection:'ФІЛЬТР КЛЮЧОВИХ СЛІВ',
+    settingsKwTitle:'Фільтр за ключовими словами',
+    settingsKwSub:'Отримуйте лише сповіщення, що містять ці слова. Залиште порожнім — приходитимуть усі.',
+    settingsKwSave:'Зберегти',
+    settingsKwClear:'Очистити',
     initialLangTitle:'Оберіть мову',
     initialLangDesc:'Перед опитуванням виберіть мову інтерфейсу.',
     initialLangContinue:'Продовжити →',
@@ -1858,6 +1889,11 @@ const i18n = {
     settingsQuietTo:'Do',
     settingsQuietHintOn:'Tichý režim aktivní: {start}–{end}.',
     settingsQuietHintOff:'Tichý režim je vypnutý.',
+    settingsKwSection:'FILTR KLÍČOVÝCH SLOV',
+    settingsKwTitle:'Filtr klíčových slov',
+    settingsKwSub:'Přijímejte jen upozornění obsahující tato slova. Nechte prázdné pro vše.',
+    settingsKwSave:'Uložit',
+    settingsKwClear:'Vymazat vše',
     initialLangTitle:'Vyberte jazyk',
     initialLangDesc:'Před dotazníkem vyberte jazyk rozhraní.',
     initialLangContinue:'Pokračovat →',
@@ -2099,6 +2135,11 @@ const i18n = {
     settingsQuietTo:'До',
     settingsQuietHintOn:'Тихий режим активен: {start}–{end}.',
     settingsQuietHintOff:'Тихий режим выключен.',
+    settingsKwSection:'ФИЛЬТР ПО КЛЮЧЕВЫМ СЛОВАМ',
+    settingsKwTitle:'Фильтр ключевых слов',
+    settingsKwSub:'Получать только посты с этими словами. Оставьте пустым — будут приходить все.',
+    settingsKwSave:'Сохранить',
+    settingsKwClear:'Очистить',
     initialLangTitle:'Выберите язык',
     initialLangDesc:'Перед опросом выберите язык интерфейса.',
     initialLangContinue:'Продолжить →',
@@ -2588,6 +2629,7 @@ async function init() {
   quietStart = (userData.quiet_start || '23:00').slice(0, 5);
   quietEnd = (userData.quiet_end || '08:00').slice(0, 5);
   tzOffsetMin = parseInt(userData.tz_offset_min ?? new Date().getTimezoneOffset(), 10) || new Date().getTimezoneOffset();
+  keywordFilter = Array.isArray(userData.keyword_filter) ? userData.keyword_filter : [];
   onboardingLangChoice = currentLang;
   syncSettingsLangPills(currentLang);
   syncInitialLangPills(currentLang);
@@ -3629,7 +3671,6 @@ async function openChannelWeeklySummary(username, resultEl, btn) {
     const resp = await apiFetch('/api/channel/weekly', 'POST', {
       user_id: currentUserId,
       username: username,
-      lang: currentLang,
     });
 
     if (!resp || resp.error) {
@@ -4349,6 +4390,85 @@ async function saveQuietHours() {
   }
 }
 
+// ── Keyword Filter ─────────────────────────────────────────────────
+function updateKwUI() {
+  const input = document.getElementById('keywordFilterInput');
+  const hint  = document.getElementById('kwHint');
+  if (input) input.value = '';
+  renderKwTags();
+  if (hint) {
+    if (keywordFilter.length) {
+      hint.textContent = lt(
+        `Активно: ${keywordFilter.join(', ')}`,
+        `Активно: ${keywordFilter.join(', ')}`,
+        `Aktivní: ${keywordFilter.join(', ')}`,
+        `Active: ${keywordFilter.join(', ')}`
+      );
+      hint.style.color = '#7c7cdc';
+    } else {
+      hint.textContent = lt('Фильтр отключён — приходят все посты','Фільтр вимкнено — надходять усі пости','Filtr vypnutý — přicházejí všechny příspěvky','Filter off — all posts come through');
+      hint.style.color = '#555';
+    }
+  }
+}
+
+function renderKwTags() {
+  const wrap = document.getElementById('kwTagsWrap');
+  if (!wrap) return;
+  const inputEl = document.getElementById('keywordFilterInput');
+  // Parse pending input tokens too (show preview)
+  const inputVal = (inputEl?.value || '').split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+  const combined = [...new Set([...keywordFilter, ...inputVal])];
+  wrap.innerHTML = combined.map(kw => {
+    const fromSaved = keywordFilter.includes(kw);
+    return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 9px;border-radius:20px;background:${fromSaved?'#2a2a50':'#1a2030'};border:.5px solid ${fromSaved?'#5b5bdc66':'#2e3a50'};color:${fromSaved?'#b0a8ff':'#6a8aaa'};font-size:11px;font-weight:500;">
+      ${kw}
+      ${fromSaved ? `<span onclick="removeKwTag('${kw}')" style="cursor:pointer;font-size:13px;color:#7070cc;line-height:1;margin-left:2px;">×</span>` : ''}
+    </span>`;
+  }).join('');
+}
+
+function removeKwTag(kw) {
+  keywordFilter = keywordFilter.filter(k => k !== kw);
+  updateKwUI();
+}
+
+function kwAddFromInput() {
+  const input = document.getElementById('keywordFilterInput');
+  if (!input) return;
+  const newKws = input.value.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+  keywordFilter = [...new Set([...keywordFilter, ...newKws])];
+  input.value = '';
+  updateKwUI();
+}
+
+function kwInputKeydown(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    kwAddFromInput();
+  }
+}
+
+function clearKeywordFilter() {
+  keywordFilter = [];
+  const input = document.getElementById('keywordFilterInput');
+  if (input) input.value = '';
+  updateKwUI();
+  saveKeywordFilter();
+}
+
+async function saveKeywordFilter() {
+  kwAddFromInput(); // flush any typed but not-yet-added tokens
+  updateKwUI();
+  showToast('settingsToast', t('settingsSaved'));
+  if (currentUserId) {
+    await apiFetch('/api/keyword-filter', 'POST', {
+      user_id: currentUserId,
+      keywords: keywordFilter,
+    });
+  }
+}
+
 function updateCount() {
   const cbs=document.querySelectorAll('.notif-channels .toggle-input');
   const on=[...cbs].filter(cb=>cb.checked).length;
@@ -4361,7 +4481,7 @@ function updateCount() {
 
 function saveNotif() { showToast('notifToast',t('settingsSaved')); }
 
-function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); updateImpactThresholdPreview(impactThreshold); updateQuietHoursUI(); }
+function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); updateImpactThresholdPreview(impactThreshold); updateQuietHoursUI(); updateKwUI(); }
 function closeSettingsScreen() { document.getElementById('vSettings').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function setLang(lang) {
