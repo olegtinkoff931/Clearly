@@ -270,6 +270,20 @@
     .impact-tag-mid  { background:#221a08; color:#d49a2e; border:.5px solid #d49a2e44; }
     .impact-tag-high { background:#2a1010; color:#e05252; border:.5px solid #e0525244; }
     .impact-analyzing { font-size:10px; color:#555; display:flex; align-items:center; gap:5px; }
+    /* AI Sentiment & Details */
+    .ai-sentiment-row { display:flex; align-items:flex-start; gap:7px; margin-top:7px; flex-wrap:wrap; }
+    .ai-sent-badge { font-size:10px; font-weight:700; padding:3px 9px; border-radius:8px; white-space:nowrap; flex-shrink:0; }
+    .ai-sent-pos { background:#0d2018; color:#3aaa6e; border:.5px solid #3aaa6e44; }
+    .ai-sent-neg { background:#2a1010; color:#e05252; border:.5px solid #e0525244; }
+    .ai-sent-neu { background:#1a1a2a; color:#8888bb; border:.5px solid #5555aa44; }
+    .ai-sent-reason { font-size:10px; color:#666; line-height:1.4; flex:1; }
+    .ai-details-toggle { display:flex; align-items:center; gap:5px; margin-top:8px; cursor:pointer; font-size:10px; color:#6b6bff; font-weight:500; user-select:none; width:fit-content; }
+    .ai-details-toggle:hover { color:#a78bfa; }
+    .ai-details-body { margin-top:6px; display:flex; flex-direction:column; gap:6px; }
+    .ai-detail-block { background:#14141c; border:.5px solid #222230; border-radius:9px; padding:8px 10px; }
+    .ai-detail-risks { border-color:#d49a2e33; background:#18140a; }
+    .ai-detail-label { font-size:9px; font-weight:700; color:#555; letter-spacing:.5px; text-transform:uppercase; display:block; margin-bottom:3px; }
+    .ai-detail-text { font-size:11px; color:#a0a0b8; line-height:1.5; margin:0; }
     .impact-dot-pulse { width:6px; height:6px; border-radius:50%; background:#6b6bff; animation:dotPulse 1.2s ease-in-out infinite; flex-shrink:0; }
     @keyframes dotPulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
 
@@ -835,7 +849,7 @@
             <p style="font-size:12px;color:#555;margin:0;">Clearly</p>
           </div>
         </div>
-        <div id="profileActivePacks"></div>
+        <div id="profileActivePacks" style="display:none;"></div>
       </div>
       <div style="padding:14px 16px 8px;">
         <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="profMyPlans">📦 MY PLANS</p>
@@ -3520,9 +3534,14 @@ async function analyzeImpact(msgId, text) {
   if(_impactCache[msgId]) return _impactCache[msgId];
   try {
     const msgs = [
-      { role: 'system', content: `You are a crypto market analyst. Analyze the given message and return ONLY a JSON object with two fields:
+      { role: 'system', content: `You are a crypto market analyst. Analyze the given message and return ONLY a JSON object with these fields:
 - "score": integer 0-100 representing market impact probability (0=no impact, 100=extreme impact)
 - "reason": 3-5 word explanation in Russian
+- "sentiment": one of "positive", "negative", "neutral"
+- "sentiment_reason": 1 short sentence in Russian explaining the sentiment
+- "summary": 1-2 sentences in Russian on the essence of the message
+- "market_effect": 1 sentence in Russian on how this affects crypto market
+- "risks": 1 sentence in Russian on key risks or uncertainties
 
 Scoring guide:
 0-15: routine/personal content
@@ -3534,15 +3553,22 @@ Scoring guide:
 Return ONLY valid JSON, nothing else.` },
       { role: 'user', content: `Analyze this crypto message: "${text}"` }
     ];
-    // Use fast 8b model for impact analysis — fast & cheap, good enough for scoring
-    const raw = await groqCallFE(msgs, GROQ_CHAT_MODELS_FE, 100, 0.1, { type: 'json_object' });
+    const raw = await groqCallFE(msgs, GROQ_CHAT_MODELS_FE, 300, 0.1, { type: 'json_object' });
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
-    const result = { score: Math.max(0, Math.min(100, parseInt(parsed.score) || 0)), reason: parsed.reason || '' };
+    const result = {
+      score: Math.max(0, Math.min(100, parseInt(parsed.score) || 0)),
+      reason: parsed.reason || '',
+      sentiment: parsed.sentiment || 'neutral',
+      sentimentReason: parsed.sentiment_reason || '',
+      summary: parsed.summary || '',
+      marketEffect: parsed.market_effect || '',
+      risks: parsed.risks || ''
+    };
     _impactCache[msgId] = result;
     return result;
   } catch(e) {
-    return { score: 0, reason: '' };
+    return { score: 0, reason: '', sentiment: 'neutral', sentimentReason: '', summary: '', marketEffect: '', risks: '' };
   }
 }
 
@@ -3558,11 +3584,54 @@ function getImpactLabel(score) {
   return t('impactLow');
 }
 
-function renderImpactBar(cardEl, msgId, score, reason) {
+function renderImpactBar(cardEl, msgId, score, reason, extra) {
   const cls = getImpactClass(score);
   const label = getImpactLabel(score);
   const wrapEl = cardEl.querySelector('.impact-bar-wrap');
   if(!wrapEl) return;
+
+  // extra = { sentiment, sentimentReason, summary, marketEffect, risks }
+  const ex = extra || {};
+  const sentimentMap = {
+    positive: { icon: '📈', label: 'Позитивное', cls: 'pos' },
+    negative: { icon: '📉', label: 'Негативное', cls: 'neg' },
+    neutral:  { icon: '➡️',  label: 'Нейтральное', cls: 'neu' }
+  };
+  const sent = sentimentMap[ex.sentiment] || sentimentMap.neutral;
+
+  const sentimentBlock = ex.sentimentReason ? `
+    <div class="ai-sentiment-row">
+      <span class="ai-sent-badge ai-sent-${sent.cls}">${sent.icon} ${sent.label}</span>
+      <span class="ai-sent-reason">${ex.sentimentReason}</span>
+    </div>` : '';
+
+  const summaryBlock = ex.summary ? `
+    <div class="ai-detail-block">
+      <span class="ai-detail-label">📋 Суть</span>
+      <p class="ai-detail-text">${ex.summary}</p>
+    </div>` : '';
+
+  const marketBlock = ex.marketEffect ? `
+    <div class="ai-detail-block">
+      <span class="ai-detail-label">💹 Влияние на рынок</span>
+      <p class="ai-detail-text">${ex.marketEffect}</p>
+    </div>` : '';
+
+  const risksBlock = ex.risks ? `
+    <div class="ai-detail-block ai-detail-risks">
+      <span class="ai-detail-label">⚠️ Риски</span>
+      <p class="ai-detail-text">${ex.risks}</p>
+    </div>` : '';
+
+  const hasExtra = ex.summary || ex.marketEffect || ex.risks;
+  const detailsToggle = hasExtra ? `
+    <div class="ai-details-toggle" onclick="toggleAIDetails('aidetails_${msgId}', this)">
+      <span>Подробный анализ</span><i class="ti ti-chevron-down" style="font-size:10px;transition:transform .2s;"></i>
+    </div>
+    <div id="aidetails_${msgId}" class="ai-details-body" style="display:none;">
+      ${summaryBlock}${marketBlock}${risksBlock}
+    </div>` : '';
+
   wrapEl.innerHTML = `
     <div class="impact-header">
       <span class="impact-label">${t('impactLabel')}</span>
@@ -3572,6 +3641,8 @@ function renderImpactBar(cardEl, msgId, score, reason) {
       <div class="impact-fill impact-fill-${cls}" style="width:0%" id="fill_${msgId}"></div>
     </div>
     ${reason ? `<p style="font-size:10px;color:#555;margin-top:4px;">${reason}</p>` : ''}
+    ${sentimentBlock}
+    ${detailsToggle}
   `;
   requestAnimationFrame(() => {
     setTimeout(() => {
@@ -3579,6 +3650,19 @@ function renderImpactBar(cardEl, msgId, score, reason) {
       if(fill) fill.style.width = score + '%';
     }, 80);
   });
+}
+
+function toggleAIDetails(id, btn) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const icon = btn.querySelector('.ti-chevron-down');
+  if(el.style.display === 'none') {
+    el.style.display = 'block';
+    if(icon) icon.style.transform = 'rotate(180deg)';
+  } else {
+    el.style.display = 'none';
+    if(icon) icon.style.transform = '';
+  }
 }
 
 async function loadFeed() {
@@ -3691,7 +3775,13 @@ async function loadFeed() {
       renderImpactBar(card, msg.id, msg.aiScore, msg.aiReason + (affected ? ' ' + affected : ''));
     } else {
       analyzeImpact(msg.id, msg.text).then(result => {
-        renderImpactBar(card, msg.id, result.score, result.reason);
+        renderImpactBar(card, msg.id, result.score, result.reason, {
+          sentiment: result.sentiment,
+          sentimentReason: result.sentimentReason,
+          summary: result.summary,
+          marketEffect: result.marketEffect,
+          risks: result.risks
+        });
         if(result.score >= 60) { card.style.borderColor='#e0525244'; card.style.background='#1f1818'; }
         else if(result.score >= 30) { card.style.borderColor='#d49a2e33'; }
       });
