@@ -3268,6 +3268,8 @@ function paymentConfirmed(packs) {
   payPollInterval=null;
   currentPaymentId=null;
   purchasedPacks=packs||[...selectedPacks];
+  // Haptic feedback — успешная оплата
+  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
 
   const screen=document.getElementById('payPendingScreen');
   screen.innerHTML=`
@@ -3380,21 +3382,37 @@ function renderChannelList() {
         </div>
       </div>
       <button class="ch-del-trigger" style="width:100%;margin-top:10px;padding:9px;border-radius:9px;border:.5px solid #e0525244;background:#2a1010;color:#e05252;font-size:13px;font-weight:500;cursor:pointer;text-align:center;">${t('delete')}</button>
+      <button class="ch-weekly-btn" style="width:100%;margin-top:6px;padding:9px;border-radius:9px;border:.5px solid #5b5bdc44;background:#1a1a2e;color:#a0a0e8;font-size:13px;font-weight:500;cursor:pointer;text-align:center;display:none;">📋 ${lt('Что важного за неделю?','Що важливо за тиждень?','Co bylo důležité tento týden?','What happened this week?')}</button>
+      <div class="ch-weekly-result" style="display:none;width:100%;margin-top:8px;"></div>
     `;
 
-    const trigger  = div.querySelector('.ch-del-trigger');
-    const confirm  = div.querySelector('.ch-confirm-box');
-    const yesBtn   = div.querySelector('.yes-del');
-    const noBtn    = div.querySelector('.no-del');
+    const trigger     = div.querySelector('.ch-del-trigger');
+    const confirm     = div.querySelector('.ch-confirm-box');
+    const yesBtn      = div.querySelector('.yes-del');
+    const noBtn       = div.querySelector('.no-del');
+    const weeklyBtn   = div.querySelector('.ch-weekly-btn');
+    const weeklyResult = div.querySelector('.ch-weekly-result');
 
     trigger.style.display = 'none';
 
     div.addEventListener('click', function(e) {
       if (e.target === trigger || confirm.contains(e.target)) return;
+      if (weeklyBtn && (e.target === weeklyBtn || weeklyResult.contains(e.target))) return;
       const isVisible = trigger.style.display !== 'none';
       document.querySelectorAll('.ch-del-trigger').forEach(b => b.style.display = 'none');
       document.querySelectorAll('.ch-confirm-box').forEach(b => b.style.display = 'none');
-      if (!isVisible) trigger.style.display = 'block';
+      document.querySelectorAll('.ch-weekly-btn').forEach(b => b.style.display = 'none');
+      document.querySelectorAll('.ch-weekly-result').forEach(b => { b.style.display = 'none'; b.innerHTML = ''; });
+      if (!isVisible) {
+        trigger.style.display = 'block';
+        if (weeklyBtn) weeklyBtn.style.display = 'block';
+      }
+    });
+
+    weeklyBtn && weeklyBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      openChannelWeeklySummary(ch.username, weeklyResult, weeklyBtn);
     });
 
     trigger.addEventListener('click', function(e) {
@@ -3588,6 +3606,8 @@ async function confirmAddChannel() {
   renderChannelList();
   syncNotifScreen();
   if(document.getElementById('vProfile').style.transform==='translateX(0px)') renderProfileScreen();
+  // Haptic feedback — добавление канала
+  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
   showMainToast(t('channelAdded'));
 }
 
@@ -3596,6 +3616,60 @@ function showMainToast(msg) {
   if(!el){el=document.createElement('div');el.id='mainToast';el.className='toast';el.style.zIndex='300';document.querySelector('.app-container').appendChild(el);}
   el.textContent=msg;el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+async function openChannelWeeklySummary(username, resultEl, btn) {
+  if (!currentUserId || !username) return;
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = `<div style="padding:10px 0;text-align:center;"><div class="impact-dot-pulse" style="display:inline-block;margin:0 auto;"></div><span style="font-size:12px;color:#555;margin-left:8px;">${lt('Анализирует неделю…','Аналізує тиждень…','Analyzuje týden…','Analysing the week…')}</span></div>`;
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+
+  try {
+    const resp = await apiFetch('/api/channel/weekly', 'POST', {
+      user_id: currentUserId,
+      username: username,
+    });
+
+    if (!resp || resp.error) {
+      resultEl.innerHTML = `<p style="font-size:12px;color:#e05252;padding:6px 0;">${lt('Ошибка загрузки. Попробуйте позже.','Помилка. Спробуйте пізніше.','Chyba načítání.','Error loading. Try again.')}</p>`;
+      return;
+    }
+
+    if (resp.empty) {
+      resultEl.innerHTML = `<p style="font-size:12px;color:#555;padding:6px 0;">⏳ ${lt('За последние 7 дней сообщений не найдено.','За 7 днів повідомлень не знайдено.','Za 7 dní žádné zprávy.','No messages found in the last 7 days.')}</p>`;
+      return;
+    }
+
+    const sentMap = { bullish:'📈', bearish:'📉', neutral:'➡️', mixed:'↔️' };
+    const sentIcon = sentMap[resp.sentiment] || '➡️';
+    const sentColors = { bullish:'#3aaa6e', bearish:'#e05252', neutral:'#888', mixed:'#d49a2e' };
+    const sentColor = sentColors[resp.sentiment] || '#888';
+
+    const coinsHtml = (resp.top_coins||[]).length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${(resp.top_coins||[]).map(c=>`<span style="font-size:10px;padding:2px 7px;border-radius:6px;background:#1e1e30;color:#b0a8ff;border:.5px solid #5b5bdc44;">#${c}</span>`).join('')}</div>` : '';
+
+    const eventsHtml = (resp.key_events||[]).length
+      ? `<ul style="margin:6px 0 0;padding-left:16px;">${(resp.key_events||[]).map(e=>`<li style="font-size:12px;color:#c0c0d0;margin-bottom:3px;line-height:1.4;">${e}</li>`).join('')}</ul>` : '';
+
+    resultEl.innerHTML = `
+      <div style="background:#111118;border:.5px solid #2a2a38;border-radius:11px;padding:12px;margin-top:4px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.5px;">${lt('ИТОГИ НЕДЕЛИ','ПІДСУМКИ ТИЖНЯ','VÝSLEDKY TÝDNE','WEEK IN REVIEW')}</span>
+          <span style="font-size:11px;font-weight:600;color:${sentColor};">${sentIcon} ${resp.sentiment}</span>
+        </div>
+        ${resp.headline ? `<p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0 0 6px;line-height:1.4;">${resp.headline}</p>` : ''}
+        ${eventsHtml}
+        ${resp.market_impact ? `<p style="font-size:12px;color:#888;margin:8px 0 0;line-height:1.5;">💹 ${resp.market_impact}</p>` : ''}
+        ${coinsHtml}
+        <p style="font-size:10px;color:#444;margin:8px 0 0;">${lt('На основе','На основі','Na základě','Based on')} ${resp.msg_count} ${lt('сообщений','повідомлень','zpráv','messages')}</p>
+      </div>`;
+  } catch(err) {
+    resultEl.innerHTML = `<p style="font-size:12px;color:#e05252;padding:6px 0;">${lt('Ошибка. Попробуйте позже.','Помилка. Спробуйте пізніше.','Chyba.','Error. Try again.')}</p>`;
+  } finally {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
 }
 
 let currentTab='channels';
@@ -5824,6 +5898,8 @@ function planPaymentConfirmed(planId) {
   const plan = PLANS[planId];
   currentPlan = planId;
   if (_planPayCheckInterval) { clearInterval(_planPayCheckInterval); _planPayCheckInterval = null; }
+  // Haptic feedback — успешная оплата тарифа
+  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
 
   // Show confirmation screen (reuse payPendingScreen)
   const screen = document.getElementById('payPendingScreen');
