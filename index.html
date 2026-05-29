@@ -3691,7 +3691,8 @@ async function loadFeed() {
     if(isTwitter) { card.style.borderColor = '#1d9bf033'; }
 
     if(hasServerAI) {
-      card.style.borderColor = direction === 'up' ? '#6b6bff33' : direction === 'down' ? '#e0525233' : '#2a2a34';
+      const d = msg.aiDirection || 'neutral';
+      card.style.borderColor = d === 'up' ? '#6b6bff33' : d === 'down' ? '#e0525233' : '#2a2a34';
     }
 
     const dirIcon = { up:'📈', down:'📉', neutral:'➡️' }[msg.aiDirection] || '➡️';
