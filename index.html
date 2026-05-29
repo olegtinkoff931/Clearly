@@ -78,6 +78,10 @@
     #vTheme, #vNotif, #vSettings { background:#111114; display:flex; flex-direction:column; position:absolute; inset:0; overflow-y:auto; transform:translateX(100%); opacity:0; pointer-events:none; transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s; }
     #vTheme.visible, #vNotif.visible, #vSettings.visible { transform:translateX(0); opacity:1; pointer-events:auto; }
 
+    /* vProfile: hidden by default, never intercepts clicks unless .active */
+    #vProfile { pointer-events:none !important; }
+    #vProfile.active { pointer-events:auto !important; }
+
     .top-bar { padding:10px 16px 12px; border-bottom:.5px solid #222228; }
     .screen-header { padding:12px 16px; border-bottom:.5px solid #222228; display:flex; align-items:center; gap:10px; }
     .back-btn { width:30px; height:30px; border-radius:8px; background:#1c1c22; border:.5px solid #2e2e38; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .15s; }
@@ -290,8 +294,8 @@
     .impact-dot-pulse { width:6px; height:6px; border-radius:50%; background:#6b6bff; animation:dotPulse 1.2s ease-in-out infinite; flex-shrink:0; }
     @keyframes dotPulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
 
-    #vFeed { background:#111114; display:none; flex-direction:column; position:absolute; top:0; left:0; right:0; bottom:62px; z-index:15; }
-    #vFeed.visible { display:flex; }
+    #vFeed { background:#111114; display:none; flex-direction:column; position:absolute; top:0; left:0; right:0; bottom:62px; z-index:15; pointer-events:none; }
+    #vFeed.visible { display:flex; pointer-events:auto; }
     .feed-topbar { padding:12px 16px; border-bottom:.5px solid #222228; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
     .feed-title { font-size:15px; font-weight:600; color:#e8e8f0; }
     .feed-ai-badge { font-size:9px; background:#1e1e30; color:#a78bfa; border:.5px solid #6b6bff44; border-radius:8px; padding:3px 8px; display:flex; align-items:center; gap:4px; }
@@ -638,6 +642,10 @@
     #tutorialOverlay.active { opacity: 1; pointer-events: auto; }
     #tutorialOverlay .tut-curtain {
       position: absolute; background: rgba(0,0,0,0.78); transition: all .4s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    #tutorialOverlay.active .tut-curtain {
+      pointer-events: auto;
     }
     #tut-top    { top:0; left:0; right:0; }
     #tut-bottom { left:0; right:0; bottom:0; }
@@ -1069,6 +1077,44 @@
           <div style="text-align:center;"><p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p><p style="font-size:10px;color:#555;margin:0;" data-i18n="profPerMonth">Per month</p></div>
         </div>
       </div>
+      <!-- ══ P&L WIDGET ══ -->
+      <div id="profilePnlWidget" style="margin:0 16px 16px;display:none;">
+        <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid #272730;border-radius:16px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0;">📈 <span data-i18n="profPnlTitle">PORTFOLIO P&amp;L</span></p>
+            <span id="profilePnlBadge" style="font-size:9px;padding:2px 8px;border-radius:6px;font-weight:600;background:#1e2e1e;color:#3aaa6e;border:.5px solid #3aaa6e44;">+0.00%</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:12px;">
+            <p id="profilePnlValue" style="font-size:24px;font-weight:700;margin:0;color:#3aaa6e;">$0.00</p>
+            <p id="profilePnlPct" style="font-size:13px;font-weight:500;margin:0 0 3px;color:#3aaa6e;">+0.00%</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnlInvested">INVESTED</p>
+              <p id="profilePnlCost" style="font-size:13px;font-weight:600;color:#aaa;margin:0;">$0.00</p>
+            </div>
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnlCurrent">CURRENT VALUE</p>
+              <p id="profilePnlTotal" style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;">$0.00</p>
+            </div>
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnl24h">24H CHANGE</p>
+              <p id="profilePnl24h" style="font-size:13px;font-weight:600;margin:0;color:#aaa;">0.00%</p>
+            </div>
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnlPositions">POSITIONS</p>
+              <p id="profilePnlPositions" style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;">0</p>
+            </div>
+          </div>
+          <div style="margin-top:10px;text-align:right;">
+            <button onclick="switchTab('market');setMarketMode('portfolio');" style="background:none;border:none;color:#6b6bff;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:0;">
+              <span data-i18n="profPnlSeeAll">View portfolio</span> <i class="ti ti-arrow-right" style="font-size:11px;"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- ══ END P&L WIDGET ══ -->
+
       <div style="margin:0 16px 16px;">
         <button onclick="openReferralScreen()" style="width:100%;background:#1a1a20;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:14px;padding:13px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
           <i class="ti ti-users" style="font-size:16px;"></i>
@@ -1103,7 +1149,7 @@
     </div>
   </div>
 
-  <div id="vMarket" style="background:#111114;display:none;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:62px;z-index:15;overflow-y:auto;">
+  <div id="vMarket" style="background:#111114;display:none;pointer-events:none;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:62px;z-index:15;overflow-y:auto;">
     <div class="feed-topbar" style="flex-shrink:0;position:sticky;top:0;background:#111114;z-index:5;flex-direction:column;align-items:stretch;gap:8px;padding-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
         <div style="display:flex;align-items:center;gap:8px;">
@@ -1409,6 +1455,7 @@ const i18n = {
     profChannelsLabel:'Channels', profPlansLabel:'Bundles', profPerMonth:'Per month',
     profActivePlan:'Active Plan', profActiveLabel:'● Active', profNoPlans:'',
     profActivBtn:'✓ Purchased', profAddBtn:'+ Add', profUpToDate:'Plan is up to date', profChangePlan:'Pay now', profPartnerBtn:'🤝 Partner Program',
+    profPnlTitle:'PORTFOLIO P&L', profPnlInvested:'INVESTED', profPnlCurrent:'CURRENT VALUE', profPnl24h:'24H CHANGE', profPnlPositions:'POSITIONS', profPnlSeeAll:'View portfolio',
     refTitle:'Partner Program', refHeadline:'Invite friends and earn', refSubDesc:'Earn 5% from every referral who pays for a plan.',
     refAvailable:'Available to withdraw', refActiveRefs:'Active referrals', refCommission:'Commission rate', refMinWithdraw:'Min. withdrawal',
     refYourLink:'YOUR LINK', refCopy:'Copy',
@@ -1644,6 +1691,7 @@ const i18n = {
     profMyProfile:'👤 МІЙ ПРОФІЛЬ', profMyPlans:'📦 НАБОРИ', profStats:'📊 СТАТИСТИКА',
     profChannelsLabel:'Канали', profPlansLabel:'Набори', profPerMonth:'На місяць',
     profActivePlan:'Активний план', profActiveLabel:'● Активний', profNoPlans:'', profPartnerBtn:'🤝 Партнерська програма',
+    profPnlTitle:'P&L ПОРТФЕЛЯ', profPnlInvested:'ВКЛАДЕНО', profPnlCurrent:'ПОТОЧНА ВАРТІСТЬ', profPnl24h:'ЗМІНА 24Г', profPnlPositions:'ПОЗИЦІЇ', profPnlSeeAll:'Переглянути портфель',
     refTitle:'Партнерська програма', refHeadline:'Запрошуй друзів та отримуй', refSubDesc:'Отримуй 5% від кожного реферала, який оплатив тариф.',
     refAvailable:'Доступно для виведення', refActiveRefs:'Активних рефералів', refCommission:'Комісія з тарифу', refMinWithdraw:'Мін. виведення',
     refYourLink:'ТВОЄ ПОСИЛАННЯ', refCopy:'Скопіювати',
@@ -1907,6 +1955,7 @@ const i18n = {
     profUpToDate:'Tarif je aktuální',
     profChangePlan:'Zaplatit',
     profPartnerBtn:'🤝 Partnerský program',
+    profPnlTitle:'P&L PORTFOLIA', profPnlInvested:'INVESTOVÁNO', profPnlCurrent:'AKTUÁLNÍ HODNOTA', profPnl24h:'ZMĚNA 24H', profPnlPositions:'POZICE', profPnlSeeAll:'Zobrazit portfolio',
     refTitle:'Partnerský program',
     refHeadline:'Pozvěte přátele a vydělávejte',
     refSubDesc:'Získejte 5 % z každého referrala, který zaplatí tarif.',
@@ -2178,6 +2227,7 @@ const i18n = {
     profMyProfile:'👤 МОЙ ПРОФИЛЬ', profMyPlans:'📦 НАБОРЫ', profStats:'📊 СТАТИСТИКА',
     profChannelsLabel:'Каналы', profPlansLabel:'Наборы', profPerMonth:'В месяц',
     profActivePlan:'Активный план', profActiveLabel:'● Активен', profNoPlans:'', profPartnerBtn:'🤝 Партнёрская программа',
+    profPnlTitle:'P&L ПОРТФЕЛЯ', profPnlInvested:'ВЛОЖЕНО', profPnlCurrent:'ТЕКУЩАЯ СТОИМОСТЬ', profPnl24h:'ИЗМЕНЕНИЕ 24Ч', profPnlPositions:'ПОЗИЦИИ', profPnlSeeAll:'Посмотреть портфель',
     refTitle:'Партнёрская программа', refHeadline:'Приглашай друзей и получай', refSubDesc:'Получай 5% от каждого реферала, который оплатил тариф.',
     refAvailable:'Доступно к выводу', refActiveRefs:'Активных рефералов', refCommission:'Комиссия с тарифа', refMinWithdraw:'Минимальный вывод',
     refYourLink:'ТВОЯ ССЫЛКА', refCopy:'Скопировать',
@@ -3811,10 +3861,12 @@ function switchTab(tab) {
   const marketEl=document.getElementById('vMarket');
   if(tab==='market'){
     marketEl.style.display='flex';
+    marketEl.style.pointerEvents='auto';
     if (_marketMode === 'portfolio') setMarketMode('portfolio');
     else setMarketMode('signals');
   } else {
     marketEl.style.display='none';
+    marketEl.style.pointerEvents='none';
     document.getElementById('portfolioFab').style.display='none';
   }
   if(tab==='profile'){openProfileScreen();}
@@ -4133,6 +4185,7 @@ function openProfileScreen() {
   vp.style.transform='translateX(0)';
   vp.style.opacity='1';
   vp.style.pointerEvents='auto';
+  vp.classList.add('active');
   const mn=document.getElementById('mainBottomNav');
   if(mn) mn.style.display='none';
   _applyAccentToProfileNav();
@@ -4154,12 +4207,15 @@ function _applyAccentToProfileNav() {
     if(el){ el.style.color=''; const icon=el.querySelector('.niv'); if(icon) icon.style.color=''; }
   });
 }
-function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.style.transform='translateX(100%)';vp.style.opacity='0';vp.style.pointerEvents='none'; const mn=document.getElementById('mainBottomNav'); if(mn) mn.style.display=''; }
+function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.style.transform='translateX(100%)';vp.style.opacity='0';vp.style.pointerEvents='none';vp.classList.remove('active'); const mn=document.getElementById('mainBottomNav'); if(mn) mn.style.display=''; }
 
 function renderProfileScreen() {
   profileSelectedPacks=[...purchasedPacks];
   const tgUser=tg?.initDataUnsafe?.user;
   const vip = isVipUser();
+
+  // Refresh P&L widget with cached portfolio data
+  if (typeof _portfolioData !== 'undefined') _updateProfilePnlWidget(_portfolioData);
 
   // Name
   const nameEl = document.getElementById('profileName');
@@ -5000,6 +5056,54 @@ function _renderPortfolio(data) {
       <i class="ti ti-refresh"></i> ${t('marketRefresh')}
     </button>
   `;
+  // Update P&L widget shown in Profile tab
+  _updateProfilePnlWidget(data);
+}
+
+// ── Profile P&L Widget ─────────────────────────────────────────────
+function _updateProfilePnlWidget(data) {
+  const widget = document.getElementById('profilePnlWidget');
+  if (!widget) return;
+
+  if (!data || !data.positions || data.positions.length === 0) {
+    widget.style.display = 'none';
+    return;
+  }
+
+  widget.style.display = 'block';
+
+  const pnl = data.pnl_usd || 0;
+  const pnlPct = data.pnl_pct || 0;
+  const isPos = pnl >= 0;
+  const col = isPos ? '#3aaa6e' : '#e05252';
+  const badgeBg = isPos ? '#0c1f16' : '#2a1010';
+  const badgeBorder = isPos ? '#3aaa6e44' : '#e0525244';
+  const sign = isPos ? '+' : '';
+
+  const pnlVal = document.getElementById('profilePnlValue');
+  const pnlPctEl = document.getElementById('profilePnlPct');
+  const badge = document.getElementById('profilePnlBadge');
+  const cost = document.getElementById('profilePnlCost');
+  const total = document.getElementById('profilePnlTotal');
+  const ch24 = document.getElementById('profilePnl24h');
+  const positions = document.getElementById('profilePnlPositions');
+
+  if (pnlVal) { pnlVal.textContent = (isPos ? '+' : '') + _fmtUsd(pnl); pnlVal.style.color = col; }
+  if (pnlPctEl) { pnlPctEl.textContent = sign + _fmtPct(pnlPct); pnlPctEl.style.color = col; }
+  if (badge) {
+    badge.textContent = sign + _fmtPct(pnlPct);
+    badge.style.color = col;
+    badge.style.background = badgeBg;
+    badge.style.border = `.5px solid ${badgeBorder}`;
+  }
+  if (cost) cost.textContent = _fmtUsd(data.total_cost || 0);
+  if (total) total.textContent = _fmtUsd(data.total_value || 0);
+  if (ch24) {
+    const c24 = data.change_24h_pct || 0;
+    ch24.textContent = (c24 >= 0 ? '+' : '') + _fmtPct(c24);
+    ch24.style.color = _pnlColor(c24);
+  }
+  if (positions) positions.textContent = data.positions.length;
 }
 
 function openPortfolioModal(editId) {
@@ -6752,7 +6856,20 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   function tutDone() {
     localStorage.setItem(TUT_KEY, '1');
     const ov = document.getElementById('tutorialOverlay');
-    if (ov) { ov.style.opacity = '0'; setTimeout(() => { ov.classList.remove('active'); ov.style.opacity = ''; }, 380); }
+    if (ov) {
+      ov.style.opacity = '0';
+      setTimeout(() => {
+        ov.classList.remove('active');
+        ov.style.opacity = '';
+        // Reset all curtains so they don't block touches
+        ['tut-top','tut-bottom','tut-left','tut-right'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.cssText = 'height:0;width:0;';
+        });
+        const spotlight = document.getElementById('tutSpotlight');
+        if (spotlight) spotlight.style.cssText = 'opacity:0;width:0;height:0;';
+      }, 400);
+    }
   }
 
   function tutRender() {
