@@ -2613,6 +2613,7 @@ function renderThemes() {
 }
 
 function applyTheme() {
+  haptic('success');
   currentTheme=tempTheme;
   _applyThemeById(currentTheme);
   const marketEl=document.getElementById('vMarket');
@@ -2623,6 +2624,21 @@ function applyTheme() {
   showToast('themeToast',t('themeApplied',{name:themeDisplayName(th)}));
   if(currentUserId) apiFetch('/api/theme','POST',{user_id:currentUserId,theme:currentTheme});
   closeThemeScreen();
+}
+
+// ── Haptic Feedback helpers ───────────────────────────────────────
+function haptic(type = 'medium') {
+  try {
+    const hf = window.Telegram?.WebApp?.HapticFeedback ?? window.tg?.HapticFeedback;
+    if (!hf) return;
+    if (type === 'success' || type === 'error' || type === 'warning') {
+      hf.notificationOccurred(type);
+    } else if (type === 'selection') {
+      hf.selectionChanged();
+    } else {
+      hf.impactOccurred(type); // light / medium / heavy / rigid / soft
+    }
+  } catch(e) {}
 }
 
 async function apiFetch(path, method='GET', body=null) {
@@ -3364,7 +3380,7 @@ function paymentConfirmed(packs) {
   currentPaymentId=null;
   purchasedPacks=packs||[...selectedPacks];
   // Haptic feedback — успешная оплата
-  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
+  haptic('success');
 
   const screen=document.getElementById('payPendingScreen');
   screen.innerHTML=`
@@ -3641,6 +3657,7 @@ function closeAddChannel() { document.getElementById('addChannelModal').classLis
 function closeAddChannelOutside(e) { if(e.target===document.getElementById('addChannelModal')) closeAddChannel(); }
 
 function selectPrio(prio) {
+  haptic('selection');
   addChPrio=prio;
   document.getElementById('prioHigh').className='prio-btn'+(prio==='high'?' sel-high':'');
   document.getElementById('prioMid').className ='prio-btn'+(prio==='mid' ?' sel-mid' :'');
@@ -3702,7 +3719,7 @@ async function confirmAddChannel() {
   syncNotifScreen();
   if(document.getElementById('vProfile').style.transform==='translateX(0px)') renderProfileScreen();
   // Haptic feedback — добавление канала
-  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
+  haptic('success');
   showMainToast(t('channelAdded'));
 }
 
@@ -3771,6 +3788,7 @@ async function openChannelWeeklySummary(username, resultEl, btn) {
 let currentTab='channels';
 
 function switchTab(tab) {
+  haptic('light');
   currentTab=tab;
   ['channels','market','feed','profile'].forEach(tt=>{
     const el=document.getElementById('nav'+tt.charAt(0).toUpperCase()+tt.slice(1));
@@ -4351,9 +4369,9 @@ function setAIFabVisible(visible) {
   fab.style.pointerEvents = visible ? 'auto' : 'none';
 }
 
-function openThemeScreen()  { renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); setAIFabVisible(false); }
+function openThemeScreen()  { haptic('light'); renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); setAIFabVisible(false); }
 function closeThemeScreen() { document.getElementById('vTheme').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
-function openNotifScreen()  { syncNotifScreen(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); setAIFabVisible(false); }
+function openNotifScreen()  { haptic('light'); syncNotifScreen(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); setAIFabVisible(false); }
 function closeNotifScreen() { document.getElementById('vNotif').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function toggleRow(idx,checkbox,channelId) {
@@ -4539,12 +4557,13 @@ function updateCount() {
   setTimeout(()=>el.style.animation='popIn .3s cubic-bezier(0.34,1.56,0.64,1) both',10);
 }
 
-function saveNotif() { showToast('notifToast',t('settingsSaved')); }
+function saveNotif() { haptic('success'); showToast('notifToast',t('settingsSaved')); }
 
-function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); updateImpactThresholdPreview(impactThreshold); updateQuietHoursUI(); updateKwUI(); }
+function openSettingsScreen()  { haptic('light'); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); updateImpactThresholdPreview(impactThreshold); updateQuietHoursUI(); updateKwUI(); }
 function closeSettingsScreen() { document.getElementById('vSettings').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function setLang(lang) {
+  haptic('selection');
   currentLang=lang;
   onboardingLangChoice = lang;
   syncSettingsLangPills(lang);
@@ -5088,8 +5107,10 @@ async function savePortfolioPosition() {
     document.getElementById('portfolioContent').style.display = 'flex';
     document.getElementById('portfolioFab').style.display = 'flex';
     closePortfolioModal();
+    haptic('success');
     showMainToast(t('portfolioSaved'));
   } catch (e) {
+    haptic('error');
     showMainToast(t('portfolioError'));
   }
   if (btn) { btn.disabled = false; btn.textContent = t('portfolioSaveBtn'); }
@@ -5106,8 +5127,10 @@ async function deletePortfolioPosition(id, symbol) {
     document.getElementById('portfolioEmpty').style.display = hasPos ? 'none' : 'flex';
     document.getElementById('portfolioContent').style.display = hasPos ? 'flex' : 'none';
     document.getElementById('portfolioFab').style.display = hasPos ? 'flex' : 'none';
+    haptic('success');
     showMainToast(t('portfolioDeleted'));
   } catch (e) {
+    haptic('error');
     showMainToast(t('portfolioError'));
   }
 }
@@ -6138,7 +6161,7 @@ function planPaymentConfirmed(planId) {
   currentPlan = planId;
   if (_planPayCheckInterval) { clearInterval(_planPayCheckInterval); _planPayCheckInterval = null; }
   // Haptic feedback — успешная оплата тарифа
-  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
+  haptic('success');
 
   // Show confirmation screen (reuse payPendingScreen)
   const screen = document.getElementById('payPendingScreen');
