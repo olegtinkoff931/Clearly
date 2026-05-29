@@ -158,6 +158,33 @@
     .lang-pill-tag { font-size:9px; color:#555; }
     .lang-pill.active .lang-pill-tag { color:#7c7cdc; }
 
+    /* ── PRICE ALERTS ────────────────────────────────────────── */
+    .pa-list { display:flex; flex-direction:column; gap:7px; margin-top:8px; }
+    .pa-item { display:flex; align-items:center; gap:10px; background:#111114; border:.5px solid #2e2e38; border-radius:11px; padding:9px 11px; animation:slideIn .3s ease both; position:relative; }
+    .pa-item.triggered { border-color:#3aaa6e55; }
+    .pa-coin { font-size:12px; font-weight:700; color:#b0a8ff; min-width:34px; }
+    .pa-dir { font-size:11px; color:#555; min-width:16px; text-align:center; }
+    .pa-price { font-size:13px; font-weight:600; color:#e8e8f0; flex:1; }
+    .pa-badge { font-size:9px; padding:2px 7px; border-radius:6px; font-weight:500; }
+    .pa-badge-above { background:#0c1f16; color:#3aaa6e; border:.5px solid #3aaa6e44; }
+    .pa-badge-below { background:#2a1010; color:#e05252; border:.5px solid #e0525244; }
+    .pa-del { background:none; border:none; color:#444; font-size:16px; cursor:pointer; padding:0 0 0 6px; line-height:1; transition:color .15s; }
+    .pa-del:hover { color:#e05252; }
+    .pa-add-row { display:flex; gap:6px; margin-top:8px; }
+    .pa-add-coin { flex:0 0 64px; background:#111114; border:.5px solid #2e2e38; border-radius:9px; padding:8px 8px; font-size:12px; color:#e8e8f0; outline:none; text-transform:uppercase; text-align:center; }
+    .pa-add-coin::placeholder { color:#444; text-transform:none; }
+    .pa-add-coin:focus { border-color:#6b6bff88; }
+    .pa-add-price { flex:1; background:#111114; border:.5px solid #2e2e38; border-radius:9px; padding:8px 10px; font-size:12px; color:#e8e8f0; outline:none; }
+    .pa-add-price:focus { border-color:#6b6bff88; }
+    .pa-dir-toggle { display:flex; border-radius:9px; overflow:hidden; border:.5px solid #2e2e38; flex-shrink:0; }
+    .pa-dir-btn { padding:8px 10px; background:#111114; border:none; color:#555; font-size:11px; cursor:pointer; transition:background .15s, color .15s; }
+    .pa-dir-btn.sel-above { background:#0c1f16; color:#3aaa6e; }
+    .pa-dir-btn.sel-below { background:#2a1010; color:#e05252; }
+    .pa-add-btn { background:linear-gradient(135deg,#6b6bff,#a78bfa); color:#fff; border:none; border-radius:9px; padding:8px 12px; font-size:12px; font-weight:600; cursor:pointer; flex-shrink:0; transition:opacity .15s; }
+    .pa-add-btn:hover { opacity:.88; }
+    .pa-empty { font-size:12px; color:#444; text-align:center; padding:10px 0 4px; }
+    /* ── END PRICE ALERTS ─────────────────────────────────── */
+
     .toast { position:absolute; bottom:20px; left:50%; transform:translateX(-50%) translateY(10px); background:#1e1e2a; border:.5px solid #5b5bdc55; border-radius:10px; padding:8px 16px; font-size:12px; color:#c0c0e0; white-space:nowrap; opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; z-index:99; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
@@ -963,6 +990,30 @@
         </div>
       </div>
     </div>
+    <p class="settings-section" data-i18n="settingsPaSection">PRICE ALERTS</p>
+    <div class="settings-card">
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;">
+        <div style="display:flex;align-items:flex-start;gap:12px;width:100%;">
+          <div class="settings-row-icon" style="background:#1a2030;">🔔</div>
+          <div class="settings-row-info">
+            <p class="settings-row-title" data-i18n="settingsPaTitle">Price Alerts</p>
+            <p class="settings-row-sub" data-i18n="settingsPaSub">Get notified when a coin hits your target price.</p>
+          </div>
+        </div>
+        <div style="width:100%;margin-top:10px;">
+          <div class="pa-add-row">
+            <input class="pa-add-coin" id="paAddCoin" type="text" maxlength="10" placeholder="BTC">
+            <div class="pa-dir-toggle">
+              <button class="pa-dir-btn sel-above" id="paDirAbove" onclick="paDirSelect('above')" data-i18n="settingsPaAbove">↑</button>
+              <button class="pa-dir-btn" id="paDirBelow" onclick="paDirSelect('below')" data-i18n="settingsPaBelow">↓</button>
+            </div>
+            <input class="pa-add-price" id="paAddPrice" type="number" inputmode="decimal" placeholder="70000">
+            <button class="pa-add-btn" onclick="paAddAlert()" data-i18n="settingsPaAdd">+</button>
+          </div>
+          <div class="pa-list" id="paList"></div>
+        </div>
+      </div>
+    </div>
     <p class="settings-section" data-i18n="supportSection">SUPPORT</p>
     <div class="settings-card" style="margin:0 12px 8px;">
       <div class="settings-row" onclick="window.open('https://t.me/clearly_support_bot','_blank')" style="cursor:pointer;align-items:center;">
@@ -1529,6 +1580,19 @@ const i18n = {
     portfolioDeleteConfirm:'Remove {symbol}?',
     minsAgo:'{n}m ago',
     hoursAgo:'{n}h ago',
+    settingsPaSection:'PRICE ALERTS',
+    settingsPaTitle:'Price Alerts',
+    settingsPaSub:'Get notified when a coin hits your target price.',
+    settingsPaAbove:'↑',
+    settingsPaBelow:'↓',
+    settingsPaAdd:'+',
+    settingsPaAboveLabel:'above',
+    settingsPaBelowLabel:'below',
+    settingsPaEmpty:'No alerts yet. Add your first target above.',
+    settingsPaAdded:'🔔 Alert added',
+    settingsPaDeleted:'Alert removed',
+    settingsPaHitAbove:'🚀 {coin} broke above ${price}!',
+    settingsPaHitBelow:'🔴 {coin} dropped below ${price}!',
     supportSection:'SUPPORT',
     bugTitle:'Found a bug?',
     bugSub:'Bot acting unstable? Write to us → @clearly_support_bot',
@@ -1764,6 +1828,19 @@ const i18n = {
     portfolioDeleteConfirm:'Видалити {symbol}?',
     minsAgo:'{n} хв тому',
     hoursAgo:'{n} год тому',
+    settingsPaSection:'ЦІНОВІ АЛЕРТИ',
+    settingsPaTitle:'Цінові алерти',
+    settingsPaSub:'Отримуйте сповіщення, коли монета досягне цільової ціни.',
+    settingsPaAbove:'↑',
+    settingsPaBelow:'↓',
+    settingsPaAdd:'+',
+    settingsPaAboveLabel:'вище',
+    settingsPaBelowLabel:'нижче',
+    settingsPaEmpty:'Алертів ще немає. Додайте перший ціль вище.',
+    settingsPaAdded:'🔔 Алерт додано',
+    settingsPaDeleted:'Алерт видалено',
+    settingsPaHitAbove:'🚀 {coin} пробив ${price}!',
+    settingsPaHitBelow:'🔴 {coin} впав нижче ${price}!',
     supportSection:'ПІДТРИМКА',
     bugTitle:'Помітили баг?',
     bugSub:'Бот працює нестабільно? Напишіть нам → @clearly_support_bot',
@@ -2065,6 +2142,19 @@ const i18n = {
     portfolioDeleteConfirm:'Odstranit {symbol}?',
     minsAgo:'před {n} min',
     hoursAgo:'před {n} h',
+    settingsPaSection:'CENOVÉ ALERTY',
+    settingsPaTitle:'Cenové alerty',
+    settingsPaSub:'Dostávejte upozornění, když coin dosáhne cílové ceny.',
+    settingsPaAbove:'↑',
+    settingsPaBelow:'↓',
+    settingsPaAdd:'+',
+    settingsPaAboveLabel:'nad',
+    settingsPaBelowLabel:'pod',
+    settingsPaEmpty:'Zatím žádné alerty. Přidejte první cíl výše.',
+    settingsPaAdded:'🔔 Alert přidán',
+    settingsPaDeleted:'Alert odebrán',
+    settingsPaHitAbove:'🚀 {coin} prorazil ${price}!',
+    settingsPaHitBelow:'🔴 {coin} klesl pod ${price}!',
     supportSection:'PODPORA',
     bugTitle:'Našli jste chybu?',
     bugSub:'Nestabilní chování bota? Napište nám → @clearly_support_bot',
@@ -2300,6 +2390,19 @@ const i18n = {
     portfolioDeleteConfirm:'Удалить {symbol}?',
     minsAgo:'{n} мин назад',
     hoursAgo:'{n} ч назад',
+    settingsPaSection:'ЦЕНОВЫЕ АЛЕРТЫ',
+    settingsPaTitle:'Ценовые алерты',
+    settingsPaSub:'Получайте уведомление, когда монета достигнет целевой цены.',
+    settingsPaAbove:'↑',
+    settingsPaBelow:'↓',
+    settingsPaAdd:'+',
+    settingsPaAboveLabel:'выше',
+    settingsPaBelowLabel:'ниже',
+    settingsPaEmpty:'Алертов пока нет. Добавьте первую цель выше.',
+    settingsPaAdded:'🔔 Алерт добавлен',
+    settingsPaDeleted:'Алерт удалён',
+    settingsPaHitAbove:'🚀 {coin} пробил ${price}!',
+    settingsPaHitBelow:'🔴 {coin} упал ниже ${price}!',
     supportSection:'ПОДДЕРЖКА',
     bugTitle:'Заметили баг?',
     bugSub:'Нестабильная работа бота? Напишите нам → @clearly_support_bot',
@@ -2613,7 +2716,6 @@ function renderThemes() {
 }
 
 function applyTheme() {
-  haptic('success');
   currentTheme=tempTheme;
   _applyThemeById(currentTheme);
   const marketEl=document.getElementById('vMarket');
@@ -2624,21 +2726,6 @@ function applyTheme() {
   showToast('themeToast',t('themeApplied',{name:themeDisplayName(th)}));
   if(currentUserId) apiFetch('/api/theme','POST',{user_id:currentUserId,theme:currentTheme});
   closeThemeScreen();
-}
-
-// ── Haptic Feedback helpers ───────────────────────────────────────
-function haptic(type = 'medium') {
-  try {
-    const hf = window.Telegram?.WebApp?.HapticFeedback ?? window.tg?.HapticFeedback;
-    if (!hf) return;
-    if (type === 'success' || type === 'error' || type === 'warning') {
-      hf.notificationOccurred(type);
-    } else if (type === 'selection') {
-      hf.selectionChanged();
-    } else {
-      hf.impactOccurred(type); // light / medium / heavy / rigid / soft
-    }
-  } catch(e) {}
 }
 
 async function apiFetch(path, method='GET', body=null) {
@@ -3380,7 +3467,7 @@ function paymentConfirmed(packs) {
   currentPaymentId=null;
   purchasedPacks=packs||[...selectedPacks];
   // Haptic feedback — успешная оплата
-  haptic('success');
+  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
 
   const screen=document.getElementById('payPendingScreen');
   screen.innerHTML=`
@@ -3657,7 +3744,6 @@ function closeAddChannel() { document.getElementById('addChannelModal').classLis
 function closeAddChannelOutside(e) { if(e.target===document.getElementById('addChannelModal')) closeAddChannel(); }
 
 function selectPrio(prio) {
-  haptic('selection');
   addChPrio=prio;
   document.getElementById('prioHigh').className='prio-btn'+(prio==='high'?' sel-high':'');
   document.getElementById('prioMid').className ='prio-btn'+(prio==='mid' ?' sel-mid' :'');
@@ -3719,7 +3805,7 @@ async function confirmAddChannel() {
   syncNotifScreen();
   if(document.getElementById('vProfile').style.transform==='translateX(0px)') renderProfileScreen();
   // Haptic feedback — добавление канала
-  haptic('success');
+  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
   showMainToast(t('channelAdded'));
 }
 
@@ -3788,7 +3874,6 @@ async function openChannelWeeklySummary(username, resultEl, btn) {
 let currentTab='channels';
 
 function switchTab(tab) {
-  haptic('light');
   currentTab=tab;
   ['channels','market','feed','profile'].forEach(tt=>{
     const el=document.getElementById('nav'+tt.charAt(0).toUpperCase()+tt.slice(1));
@@ -4369,9 +4454,9 @@ function setAIFabVisible(visible) {
   fab.style.pointerEvents = visible ? 'auto' : 'none';
 }
 
-function openThemeScreen()  { haptic('light'); renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); setAIFabVisible(false); }
+function openThemeScreen()  { renderThemes(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vTheme').classList.add('visible'); setAIFabVisible(false); }
 function closeThemeScreen() { document.getElementById('vTheme').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
-function openNotifScreen()  { haptic('light'); syncNotifScreen(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); setAIFabVisible(false); }
+function openNotifScreen()  { syncNotifScreen(); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vNotif').classList.add('visible'); updateCount(); setAIFabVisible(false); }
 function closeNotifScreen() { document.getElementById('vNotif').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function toggleRow(idx,checkbox,channelId) {
@@ -4557,13 +4642,12 @@ function updateCount() {
   setTimeout(()=>el.style.animation='popIn .3s cubic-bezier(0.34,1.56,0.64,1) both',10);
 }
 
-function saveNotif() { haptic('success'); showToast('notifToast',t('settingsSaved')); }
+function saveNotif() { showToast('notifToast',t('settingsSaved')); }
 
-function openSettingsScreen()  { haptic('light'); document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); updateImpactThresholdPreview(impactThreshold); updateQuietHoursUI(); updateKwUI(); }
+function openSettingsScreen()  { document.getElementById('vMain').style.opacity='.5'; document.getElementById('vSettings').classList.add('visible'); setAIFabVisible(false); updateImpactThresholdPreview(impactThreshold); updateQuietHoursUI(); updateKwUI(); }
 function closeSettingsScreen() { document.getElementById('vSettings').classList.remove('visible'); document.getElementById('vMain').style.opacity='1'; setAIFabVisible(true); }
 
 async function setLang(lang) {
-  haptic('selection');
   currentLang=lang;
   onboardingLangChoice = lang;
   syncSettingsLangPills(lang);
@@ -5107,10 +5191,8 @@ async function savePortfolioPosition() {
     document.getElementById('portfolioContent').style.display = 'flex';
     document.getElementById('portfolioFab').style.display = 'flex';
     closePortfolioModal();
-    haptic('success');
     showMainToast(t('portfolioSaved'));
   } catch (e) {
-    haptic('error');
     showMainToast(t('portfolioError'));
   }
   if (btn) { btn.disabled = false; btn.textContent = t('portfolioSaveBtn'); }
@@ -5127,10 +5209,8 @@ async function deletePortfolioPosition(id, symbol) {
     document.getElementById('portfolioEmpty').style.display = hasPos ? 'none' : 'flex';
     document.getElementById('portfolioContent').style.display = hasPos ? 'flex' : 'none';
     document.getElementById('portfolioFab').style.display = hasPos ? 'flex' : 'none';
-    haptic('success');
     showMainToast(t('portfolioDeleted'));
   } catch (e) {
-    haptic('error');
     showMainToast(t('portfolioError'));
   }
 }
@@ -6161,7 +6241,7 @@ function planPaymentConfirmed(planId) {
   currentPlan = planId;
   if (_planPayCheckInterval) { clearInterval(_planPayCheckInterval); _planPayCheckInterval = null; }
   // Haptic feedback — успешная оплата тарифа
-  haptic('success');
+  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e){}
 
   // Show confirmation screen (reuse payPendingScreen)
   const screen = document.getElementById('payPendingScreen');
@@ -6728,8 +6808,171 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
 
 
 <script>
+// ══ PRICE ALERTS ═══════════════════════════════════════════════
+(function() {
+  const PA_KEY = 'clearly_price_alerts';
+  let _paAlerts = [];    // [{id, coin, dir, price}]
+  let _paDir = 'above';  // current direction toggle state
+  let _paCheckInterval = null;
 
+  /* ─── Storage ─────────────────────────────────────────────── */
+  function paLoad() {
+    try { _paAlerts = JSON.parse(localStorage.getItem(PA_KEY) || '[]'); } catch(e) { _paAlerts = []; }
+  }
+  function paSave() {
+    try { localStorage.setItem(PA_KEY, JSON.stringify(_paAlerts)); } catch(e) {}
+  }
 
+  /* ─── Direction toggle ────────────────────────────────────── */
+  window.paDirSelect = function(dir) {
+    _paDir = dir;
+    const btnA = document.getElementById('paDirAbove');
+    const btnB = document.getElementById('paDirBelow');
+    if (!btnA || !btnB) return;
+    btnA.className = 'pa-dir-btn' + (dir==='above' ? ' sel-above' : '');
+    btnB.className = 'pa-dir-btn' + (dir==='below' ? ' sel-below' : '');
+  };
+
+  /* ─── Render list ─────────────────────────────────────────── */
+  function paRender() {
+    const list = document.getElementById('paList');
+    if (!list) return;
+    list.innerHTML = '';
+    if (_paAlerts.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'pa-empty';
+      empty.setAttribute('data-i18n','settingsPaEmpty');
+      empty.textContent = t('settingsPaEmpty');
+      list.appendChild(empty);
+      return;
+    }
+    _paAlerts.forEach(al => {
+      const row = document.createElement('div');
+      row.className = 'pa-item';
+      row.id = 'paItem_' + al.id;
+      const dirLabel = al.dir === 'above' ? t('settingsPaAboveLabel') : t('settingsPaBelowLabel');
+      const badgeCls = al.dir === 'above' ? 'pa-badge-above' : 'pa-badge-below';
+      const arrow = al.dir === 'above' ? '↑' : '↓';
+      row.innerHTML = `
+        <span class="pa-coin">${al.coin}</span>
+        <span class="pa-dir" style="color:${al.dir==='above'?'#3aaa6e':'#e05252'}">${arrow}</span>
+        <span class="pa-price">$${Number(al.price).toLocaleString()}</span>
+        <span class="pa-badge ${badgeCls}">${dirLabel}</span>
+        <button class="pa-del" onclick="paDeleteAlert('${al.id}')" title="Remove">✕</button>`;
+      list.appendChild(row);
+    });
+  }
+
+  /* ─── Add alert ───────────────────────────────────────────── */
+  window.paAddAlert = function() {
+    const coinEl  = document.getElementById('paAddCoin');
+    const priceEl = document.getElementById('paAddPrice');
+    if (!coinEl || !priceEl) return;
+    const coin  = (coinEl.value || '').trim().toUpperCase();
+    const price = parseFloat(priceEl.value);
+    if (!coin || isNaN(price) || price <= 0) return;
+
+    _paAlerts.push({ id: Date.now().toString(36), coin, dir: _paDir, price });
+    paSave();
+    paRender();
+    coinEl.value = '';
+    priceEl.value = '';
+
+    // Send to bot backend
+    if (window.currentUserId) {
+      apiFetch('/api/price-alert', 'POST', { user_id: currentUserId, coin, dir: _paDir, price }).catch(()=>{});
+    }
+
+    // Toast
+    const toast = document.getElementById('settingsToast');
+    if (toast) {
+      toast.textContent = t('settingsPaAdded');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+  };
+
+  /* ─── Delete alert ────────────────────────────────────────── */
+  window.paDeleteAlert = function(id) {
+    _paAlerts = _paAlerts.filter(a => a.id !== id);
+    paSave();
+    paRender();
+    const toast = document.getElementById('settingsToast');
+    if (toast) {
+      toast.textContent = t('settingsPaDeleted');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+  };
+
+  /* ─── Price polling (client-side check every 30s) ─────────── */
+  async function paFetchPrice(coin) {
+    try {
+      const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${coin.toUpperCase()}USDT`);
+      const d = await r.json();
+      return d.price ? parseFloat(d.price) : null;
+    } catch(e) { return null; }
+  }
+
+  async function paCheckAlerts() {
+    if (_paAlerts.length === 0) return;
+    const coins = [...new Set(_paAlerts.map(a => a.coin))];
+    const prices = {};
+    await Promise.all(coins.map(async c => { prices[c] = await paFetchPrice(c); }));
+
+    const triggered = [];
+    _paAlerts = _paAlerts.filter(al => {
+      const cur = prices[al.coin];
+      if (!cur) return true;
+      const hit = al.dir === 'above' ? cur >= al.price : cur <= al.price;
+      if (hit) { triggered.push(al); return false; }
+      return true;
+    });
+
+    if (triggered.length > 0) {
+      paSave();
+      paRender();
+      triggered.forEach(al => {
+        const key = al.dir === 'above' ? 'settingsPaHitAbove' : 'settingsPaHitBelow';
+        const msg = t(key).replace('{coin}', al.coin).replace('{price}', Number(al.price).toLocaleString());
+        // Telegram notification via bot
+        if (window.currentUserId) {
+          apiFetch('/api/price-alert/trigger', 'POST', { user_id: currentUserId, coin: al.coin, dir: al.dir, price: al.price }).catch(()=>{});
+        }
+        // In-app toast
+        const toast = document.getElementById('settingsToast');
+        if (toast) {
+          toast.textContent = msg;
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+      });
+    }
+  }
+
+  /* ─── Init ─────────────────────────────────────────────────── */
+  function paInit() {
+    paLoad();
+    paRender();
+    if (_paCheckInterval) clearInterval(_paCheckInterval);
+    _paCheckInterval = setInterval(paCheckAlerts, 30000);
+  }
+
+  // Re-render when settings screen opens (in case lang changed)
+  document.addEventListener('DOMContentLoaded', () => {
+    // Hook into openSettingsScreen if it exists
+    const origOpen = window.openSettingsScreen;
+    window.openSettingsScreen = function() {
+      if (origOpen) origOpen.apply(this, arguments);
+      setTimeout(() => { paLoad(); paRender(); paDirSelect(_paDir); }, 80);
+    };
+    paInit();
+  });
+
+  // Also expose paInit globally for re-init after login
+  window.paInit = paInit;
+})();
+// ══ END PRICE ALERTS ════════════════════════════════════════════
 </script>
 </body>
 </html>
