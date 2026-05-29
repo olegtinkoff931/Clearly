@@ -628,6 +628,71 @@
     }
     #offlineBanner.show { transform: translateY(0); }
     .ob-dot { width: 6px; height: 6px; border-radius: 50%; background: #d49a2e; flex-shrink: 0; animation: dotPulse 1.2s ease-in-out infinite; }
+
+    /* ══ TUTORIAL OVERLAY ══════════════════════════════════════════ */
+    #tutorialOverlay {
+      position: fixed; inset: 0; z-index: 99990;
+      pointer-events: none;
+      opacity: 0; transition: opacity .35s ease;
+    }
+    #tutorialOverlay.active { opacity: 1; pointer-events: auto; }
+    #tutorialOverlay .tut-curtain {
+      position: absolute; background: rgba(0,0,0,0.78); transition: all .4s cubic-bezier(.4,0,.2,1);
+    }
+    #tut-top    { top:0; left:0; right:0; }
+    #tut-bottom { left:0; right:0; bottom:0; }
+    #tut-left   { left:0; }
+    #tut-right  { right:0; }
+    #tutSpotlight {
+      position: absolute; border-radius: 16px;
+      border: 2px solid #a78bfa;
+      box-shadow: 0 0 0 4px #6b6bff22, 0 0 28px #6b6bff44;
+      pointer-events: none;
+      transition: all .4s cubic-bezier(.4,0,.2,1);
+      animation: tutGlow 2s ease-in-out infinite;
+    }
+    @keyframes tutGlow {
+      0%,100% { box-shadow: 0 0 0 4px #6b6bff22, 0 0 20px #6b6bff33; }
+      50%      { box-shadow: 0 0 0 6px #6b6bff33, 0 0 36px #a78bfa55; }
+    }
+    #tutTooltip {
+      position: absolute;
+      background: #1a1a28; border: 1px solid #a78bfa55; border-radius: 18px;
+      padding: 18px 18px 14px;
+      width: calc(100vw - 40px); max-width: 340px;
+      left: 50%; transform: translateX(-50%);
+      box-shadow: 0 8px 32px rgba(0,0,0,.7), 0 0 0 1px #6b6bff22;
+      transition: top .4s cubic-bezier(.4,0,.2,1), opacity .3s;
+      pointer-events: auto;
+    }
+    .tut-step-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: linear-gradient(135deg,#6b6bff22,#a78bfa22);
+      border: .5px solid #a78bfa55; border-radius: 20px; padding: 3px 10px;
+      font-size: 10px; font-weight: 700; color: #a78bfa; letter-spacing: .5px; margin-bottom: 10px;
+    }
+    .tut-emoji { font-size: 28px; margin-bottom: 6px; display: block; }
+    .tut-title { font-size: 15px; font-weight: 700; color: #e8e8f0; margin: 0 0 5px; }
+    .tut-desc  { font-size: 12px; color: #888; line-height: 1.55; margin: 0 0 14px; }
+    .tut-dots  { display: flex; gap: 5px; justify-content: center; margin-bottom: 12px; }
+    .tut-dot   { width: 20px; height: 3px; border-radius: 2px; background: #2e2e44; transition: background .3s, width .3s; }
+    .tut-dot.active { background: linear-gradient(90deg,#6b6bff,#a78bfa); width: 28px; }
+    .tut-dot.done   { background: #5b5bdc55; }
+    .tut-actions { display: flex; gap: 8px; align-items: center; }
+    .tut-skip {
+      font-size: 12px; color: #555; background: none; border: none;
+      cursor: pointer; padding: 8px 4px; flex-shrink: 0; transition: color .2s;
+    }
+    .tut-skip:hover { color: #888; }
+    .tut-next {
+      flex: 1; background: linear-gradient(135deg,#6b6bff,#a78bfa);
+      color: #fff; border: none; border-radius: 12px;
+      padding: 11px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: opacity .15s, transform .1s;
+    }
+    .tut-next:hover { opacity: .88; }
+    .tut-next:active { transform: scale(.97); }
+    /* ══ END TUTORIAL ══════════════════════════════════════════════ */
   </style>
 </head>
 <body>
@@ -801,12 +866,12 @@
       <div class="qa">
         <div class="qb" onclick="openNotifScreen()"><i class="ti ti-bell" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navNotif">Alerts</span></div>
         <div class="qb" onclick="openThemeScreen()"><i class="ti ti-palette" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navTheme">Theme</span></div>
-        <div class="qb" onclick="openSettingsScreen()"><i class="ti ti-settings" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navSettings">Settings</span></div>
+        <div class="qb" id="navNotifBtn" onclick="openSettingsScreen()"><i class="ti ti-settings" style="font-size:16px;color:#7c7cdc;"></i><span class="ql" data-i18n="navSettings">Settings</span></div>
       </div>
     </div>
     <p class="sl" data-i18n="myChannels">MY CHANNELS</p>
     <div class="cl" id="channelList"></div>
-    <div class="fab" onclick="openAddChannel()"><i class="ti ti-plus"></i> <span data-i18n="newChannel">New Channel</span></div>
+    <div class="fab" id="mainBottomFab" onclick="openAddChannel()"><i class="ti ti-plus"></i> <span data-i18n="newChannel">New Channel</span></div>
     <div class="bn" id="mainBottomNav" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
       <div class="ni ac" id="navChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
       <div class="ni" id="navMarket" onclick="switchTab('market')"><i class="ti ti-chart-line niv"></i><span data-i18n="navMarket">Market</span></div>
@@ -1004,6 +1069,44 @@
           <div style="text-align:center;"><p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;" id="profileSpend">$0.00</p><p style="font-size:10px;color:#555;margin:0;" data-i18n="profPerMonth">Per month</p></div>
         </div>
       </div>
+      <!-- ══ P&L WIDGET ══ -->
+      <div id="profilePnlWidget" style="margin:0 16px 16px;display:none;">
+        <div style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid #272730;border-radius:16px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0;">📈 <span data-i18n="profPnlTitle">PORTFOLIO P&amp;L</span></p>
+            <span id="profilePnlBadge" style="font-size:9px;padding:2px 8px;border-radius:6px;font-weight:600;background:#1e2e1e;color:#3aaa6e;border:.5px solid #3aaa6e44;">+0.00%</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:12px;">
+            <p id="profilePnlValue" style="font-size:24px;font-weight:700;margin:0;color:#3aaa6e;">$0.00</p>
+            <p id="profilePnlPct" style="font-size:13px;font-weight:500;margin:0 0 3px;color:#3aaa6e;">+0.00%</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnlInvested">INVESTED</p>
+              <p id="profilePnlCost" style="font-size:13px;font-weight:600;color:#aaa;margin:0;">$0.00</p>
+            </div>
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnlCurrent">CURRENT VALUE</p>
+              <p id="profilePnlTotal" style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;">$0.00</p>
+            </div>
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnl24h">24H CHANGE</p>
+              <p id="profilePnl24h" style="font-size:13px;font-weight:600;margin:0;color:#aaa;">0.00%</p>
+            </div>
+            <div style="background:#12121a;border-radius:10px;padding:8px 10px;">
+              <p style="font-size:9px;color:#444;margin:0 0 3px;letter-spacing:.5px;" data-i18n="profPnlPositions">POSITIONS</p>
+              <p id="profilePnlPositions" style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;">0</p>
+            </div>
+          </div>
+          <div style="margin-top:10px;text-align:right;">
+            <button onclick="switchTab('market');setMarketMode('portfolio');" style="background:none;border:none;color:#6b6bff;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:0;">
+              <span data-i18n="profPnlSeeAll">View portfolio</span> <i class="ti ti-arrow-right" style="font-size:11px;"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- ══ END P&L WIDGET ══ -->
+
       <div style="margin:0 16px 16px;">
         <button onclick="openReferralScreen()" style="width:100%;background:#1a1a20;border:.5px solid #6b6bff44;color:#a78bfa;border-radius:14px;padding:13px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
           <i class="ti ti-users" style="font-size:16px;"></i>
@@ -1344,6 +1447,7 @@ const i18n = {
     profChannelsLabel:'Channels', profPlansLabel:'Bundles', profPerMonth:'Per month',
     profActivePlan:'Active Plan', profActiveLabel:'● Active', profNoPlans:'',
     profActivBtn:'✓ Purchased', profAddBtn:'+ Add', profUpToDate:'Plan is up to date', profChangePlan:'Pay now', profPartnerBtn:'🤝 Partner Program',
+    profPnlTitle:'PORTFOLIO P&L', profPnlInvested:'INVESTED', profPnlCurrent:'CURRENT VALUE', profPnl24h:'24H CHANGE', profPnlPositions:'POSITIONS', profPnlSeeAll:'View portfolio',
     refTitle:'Partner Program', refHeadline:'Invite friends and earn', refSubDesc:'Earn 5% from every referral who pays for a plan.',
     refAvailable:'Available to withdraw', refActiveRefs:'Active referrals', refCommission:'Commission rate', refMinWithdraw:'Min. withdrawal',
     refYourLink:'YOUR LINK', refCopy:'Copy',
@@ -1579,6 +1683,7 @@ const i18n = {
     profMyProfile:'👤 МІЙ ПРОФІЛЬ', profMyPlans:'📦 НАБОРИ', profStats:'📊 СТАТИСТИКА',
     profChannelsLabel:'Канали', profPlansLabel:'Набори', profPerMonth:'На місяць',
     profActivePlan:'Активний план', profActiveLabel:'● Активний', profNoPlans:'', profPartnerBtn:'🤝 Партнерська програма',
+    profPnlTitle:'P&L ПОРТФЕЛЯ', profPnlInvested:'ВКЛАДЕНО', profPnlCurrent:'ПОТОЧНА ВАРТІСТЬ', profPnl24h:'ЗМІНА 24Г', profPnlPositions:'ПОЗИЦІЇ', profPnlSeeAll:'Переглянути портфель',
     refTitle:'Партнерська програма', refHeadline:'Запрошуй друзів та отримуй', refSubDesc:'Отримуй 5% від кожного реферала, який оплатив тариф.',
     refAvailable:'Доступно для виведення', refActiveRefs:'Активних рефералів', refCommission:'Комісія з тарифу', refMinWithdraw:'Мін. виведення',
     refYourLink:'ТВОЄ ПОСИЛАННЯ', refCopy:'Скопіювати',
@@ -1842,6 +1947,7 @@ const i18n = {
     profUpToDate:'Tarif je aktuální',
     profChangePlan:'Zaplatit',
     profPartnerBtn:'🤝 Partnerský program',
+    profPnlTitle:'P&L PORTFOLIA', profPnlInvested:'INVESTOVÁNO', profPnlCurrent:'AKTUÁLNÍ HODNOTA', profPnl24h:'ZMĚNA 24H', profPnlPositions:'POZICE', profPnlSeeAll:'Zobrazit portfolio',
     refTitle:'Partnerský program',
     refHeadline:'Pozvěte přátele a vydělávejte',
     refSubDesc:'Získejte 5 % z každého referrala, který zaplatí tarif.',
@@ -2113,6 +2219,7 @@ const i18n = {
     profMyProfile:'👤 МОЙ ПРОФИЛЬ', profMyPlans:'📦 НАБОРЫ', profStats:'📊 СТАТИСТИКА',
     profChannelsLabel:'Каналы', profPlansLabel:'Наборы', profPerMonth:'В месяц',
     profActivePlan:'Активный план', profActiveLabel:'● Активен', profNoPlans:'', profPartnerBtn:'🤝 Партнёрская программа',
+    profPnlTitle:'P&L ПОРТФЕЛЯ', profPnlInvested:'ВЛОЖЕНО', profPnlCurrent:'ТЕКУЩАЯ СТОИМОСТЬ', profPnl24h:'ИЗМЕНЕНИЕ 24Ч', profPnlPositions:'ПОЗИЦИИ', profPnlSeeAll:'Посмотреть портфель',
     refTitle:'Партнёрская программа', refHeadline:'Приглашай друзей и получай', refSubDesc:'Получай 5% от каждого реферала, который оплатил тариф.',
     refAvailable:'Доступно к выводу', refActiveRefs:'Активных рефералов', refCommission:'Комиссия с тарифа', refMinWithdraw:'Минимальный вывод',
     refYourLink:'ТВОЯ ССЫЛКА', refCopy:'Скопировать',
@@ -3372,6 +3479,8 @@ async function goToMain() {
   renderProfileScreen();
   const fab = document.getElementById('aiFab');
   if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
+  // launch tutorial on first entry
+  setTimeout(() => { if (typeof tutStart === 'function') tutStart(); }, 600);
 }
 
 let channels=[];
@@ -4093,6 +4202,9 @@ function renderProfileScreen() {
   profileSelectedPacks=[...purchasedPacks];
   const tgUser=tg?.initDataUnsafe?.user;
   const vip = isVipUser();
+
+  // Refresh P&L widget with cached portfolio data
+  if (typeof _portfolioData !== 'undefined') _updateProfilePnlWidget(_portfolioData);
 
   // Name
   const nameEl = document.getElementById('profileName');
@@ -4933,6 +5045,54 @@ function _renderPortfolio(data) {
       <i class="ti ti-refresh"></i> ${t('marketRefresh')}
     </button>
   `;
+  // Update P&L widget shown in Profile tab
+  _updateProfilePnlWidget(data);
+}
+
+// ── Profile P&L Widget ─────────────────────────────────────────────
+function _updateProfilePnlWidget(data) {
+  const widget = document.getElementById('profilePnlWidget');
+  if (!widget) return;
+
+  if (!data || !data.positions || data.positions.length === 0) {
+    widget.style.display = 'none';
+    return;
+  }
+
+  widget.style.display = 'block';
+
+  const pnl = data.pnl_usd || 0;
+  const pnlPct = data.pnl_pct || 0;
+  const isPos = pnl >= 0;
+  const col = isPos ? '#3aaa6e' : '#e05252';
+  const badgeBg = isPos ? '#0c1f16' : '#2a1010';
+  const badgeBorder = isPos ? '#3aaa6e44' : '#e0525244';
+  const sign = isPos ? '+' : '';
+
+  const pnlVal = document.getElementById('profilePnlValue');
+  const pnlPctEl = document.getElementById('profilePnlPct');
+  const badge = document.getElementById('profilePnlBadge');
+  const cost = document.getElementById('profilePnlCost');
+  const total = document.getElementById('profilePnlTotal');
+  const ch24 = document.getElementById('profilePnl24h');
+  const positions = document.getElementById('profilePnlPositions');
+
+  if (pnlVal) { pnlVal.textContent = (isPos ? '+' : '') + _fmtUsd(pnl); pnlVal.style.color = col; }
+  if (pnlPctEl) { pnlPctEl.textContent = sign + _fmtPct(pnlPct); pnlPctEl.style.color = col; }
+  if (badge) {
+    badge.textContent = sign + _fmtPct(pnlPct);
+    badge.style.color = col;
+    badge.style.background = badgeBg;
+    badge.style.border = `.5px solid ${badgeBorder}`;
+  }
+  if (cost) cost.textContent = _fmtUsd(data.total_cost || 0);
+  if (total) total.textContent = _fmtUsd(data.total_value || 0);
+  if (ch24) {
+    const c24 = data.change_24h_pct || 0;
+    ch24.textContent = (c24 >= 0 ? '+' : '') + _fmtPct(c24);
+    ch24.style.color = _pnlColor(c24);
+  }
+  if (positions) positions.textContent = data.positions.length;
 }
 
 function openPortfolioModal(editId) {
@@ -6600,5 +6760,161 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
 // ══ END OFFLINE ════════════════════════════════════════════════
 </script>
 
+  <!-- ══ TUTORIAL OVERLAY ══════════════════════════════════════════ -->
+  <div id="tutorialOverlay">
+    <div class="tut-curtain" id="tut-top"></div>
+    <div class="tut-curtain" id="tut-bottom"></div>
+    <div class="tut-curtain" id="tut-left"></div>
+    <div class="tut-curtain" id="tut-right"></div>
+    <div id="tutSpotlight"></div>
+    <div id="tutTooltip">
+      <div class="tut-step-badge">✦ STEP <span id="tutStepNum">1</span> OF 3</div>
+      <span class="tut-emoji" id="tutEmoji">📡</span>
+      <p class="tut-title" id="tutTitle">Add your first channel</p>
+      <p class="tut-desc" id="tutDesc">Tap the purple button below to add a Telegram or Twitter/X channel to track.</p>
+      <div class="tut-dots">
+        <div class="tut-dot active" id="tutDot0"></div>
+        <div class="tut-dot" id="tutDot1"></div>
+        <div class="tut-dot" id="tutDot2"></div>
+      </div>
+      <div class="tut-actions">
+        <button class="tut-skip" onclick="tutSkip()">Skip</button>
+        <button class="tut-next" id="tutNextBtn" onclick="tutNext()">Got it →</button>
+      </div>
+    </div>
+  </div>
+  <!-- ══ END TUTORIAL ══════════════════════════════════════════════ -->
+
+<script>
+
+// ══ TUTORIAL ═══════════════════════════════════════════════════
+(function() {
+  const STEPS = [
+    {
+      targetId: 'mainBottomFab',
+      fallbackQuery: '.fab',
+      emoji: '📡',
+      badge: 'STEP 1 OF 3',
+      title: 'Add your first channel',
+      desc: 'Tap the + New Channel button to add a Telegram or X/Twitter channel you want to track.',
+      next: 'Got it →',
+      tooltipPos: 'above',
+    },
+    {
+      targetId: 'navNotifBtn',
+      fallbackQuery: '[onclick="openSettingsScreen()"]',
+      emoji: '⚙️',
+      badge: 'STEP 2 OF 3',
+      title: 'Set your signal threshold',
+      desc: 'Open Settings and adjust the Impact Threshold — only news above that score will trigger an alert.',
+      next: 'Got it →',
+      tooltipPos: 'below',
+    },
+    {
+      targetId: null,
+      fallbackQuery: '#channelList',
+      emoji: '🎯',
+      badge: 'STEP 3 OF 3',
+      title: 'Your first signal is on its way',
+      desc: "That's it! Clearly will now monitor your channels and send you a concise summary the moment something important happens.",
+      next: 'Start now 🚀',
+      tooltipPos: 'center',
+    },
+  ];
+
+  let tutStep = 0;
+  const TUT_KEY = 'clearly_tutorial_done';
+
+  window.tutStart = function() {
+    if (localStorage.getItem(TUT_KEY)) return;
+    tutStep = 0;
+    const ov = document.getElementById('tutorialOverlay');
+    if (!ov) return;
+    ov.classList.add('active');
+    tutRender();
+  };
+
+  window.tutNext = function() {
+    tutStep++;
+    if (tutStep >= STEPS.length) { tutDone(); return; }
+    tutRender();
+  };
+
+  window.tutSkip = tutDone;
+
+  function tutDone() {
+    localStorage.setItem(TUT_KEY, '1');
+    const ov = document.getElementById('tutorialOverlay');
+    if (ov) { ov.style.opacity = '0'; setTimeout(() => { ov.classList.remove('active'); ov.style.opacity = ''; }, 380); }
+  }
+
+  function tutRender() {
+    const step = STEPS[tutStep];
+    // update text
+    document.getElementById('tutStepNum').textContent = tutStep + 1;
+    document.getElementById('tutEmoji').textContent = step.emoji;
+    document.getElementById('tutTitle').textContent = step.title;
+    document.getElementById('tutDesc').textContent = step.desc;
+    document.getElementById('tutNextBtn').textContent = step.next;
+    // dots
+    for (let i = 0; i < 3; i++) {
+      const d = document.getElementById('tutDot' + i);
+      d.className = 'tut-dot' + (i === tutStep ? ' active' : i < tutStep ? ' done' : '');
+    }
+    // spotlight
+    let target = step.targetId ? document.getElementById(step.targetId) : null;
+    if (!target && step.fallbackQuery) target = document.querySelector(step.fallbackQuery);
+
+    const PAD = 10;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const spotlight = document.getElementById('tutSpotlight');
+    const tooltip   = document.getElementById('tutTooltip');
+
+    if (!target || step.tooltipPos === 'center') {
+      // no spotlight — dim everything, center tooltip
+      ['tut-top','tut-bottom','tut-left','tut-right'].forEach(id => {
+        const el = document.getElementById(id);
+        if (id === 'tut-top') { el.style.height = '100%'; el.style.top = '0'; }
+        else { el.style.height = '0'; }
+        el.style.left = '0'; el.style.right = '0';
+      });
+      spotlight.style.opacity = '0';
+      tooltip.style.top = '50%';
+      tooltip.style.transform = 'translateX(-50%) translateY(-50%)';
+      return;
+    }
+
+    const r = target.getBoundingClientRect();
+    const sx = r.left - PAD, sy = r.top - PAD, sw = r.width + PAD*2, sh = r.height + PAD*2;
+
+    // curtains
+    document.getElementById('tut-top').style.cssText    = `top:0;left:0;right:0;height:${sy}px;`;
+    document.getElementById('tut-bottom').style.cssText = `bottom:0;left:0;right:0;height:${vh - sy - sh}px;`;
+    document.getElementById('tut-left').style.cssText   = `top:${sy}px;left:0;width:${sx}px;height:${sh}px;`;
+    document.getElementById('tut-right').style.cssText  = `top:${sy}px;right:0;width:${vw - sx - sw}px;height:${sh}px;`;
+
+    // spotlight ring
+    spotlight.style.cssText = `left:${sx}px;top:${sy}px;width:${sw}px;height:${sh}px;opacity:1;border-radius:${r.height > 50 ? 16 : 12}px;`;
+
+    // tooltip position
+    tooltip.style.transform = 'translateX(-50%)';
+    if (step.tooltipPos === 'above') {
+      const tipTop = sy - 16;
+      const tipH = 200; // approx
+      tooltip.style.top = Math.max(10, tipTop - tipH) + 'px';
+    } else {
+      tooltip.style.top = (sy + sh + 16) + 'px';
+    }
+  }
+
+  // Recalculate on resize
+  window.addEventListener('resize', () => {
+    const ov = document.getElementById('tutorialOverlay');
+    if (ov && ov.classList.contains('active')) tutRender();
+  });
+})();
+// ══ END TUTORIAL ═══════════════════════════════════════════════
+
+</script>
 </body>
 </html>
