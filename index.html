@@ -4575,11 +4575,10 @@ const channelCatalog = [
   { source: 'telegram', username: '@cointelegraph', name: 'Cointelegraph',
     desc: { en: 'Crypto analytics and reports', ru: 'Аналитика и репортажи о криптовалютах', uk: 'Аналітика та репортажі про криптовалюти' },
     emoji: '📡', category: 'Crypto', prio: 'mid', featured: false },
-  { source: 'telegram', username: '@durov', name: 'Pavel Durov',
-    desc: { en: 'Official channel of Telegram founder', ru: 'Официальный канал основателя Telegram', uk: 'Офіційний канал засновника Telegram' },
-    emoji: '✈️', category: 'Tech', prio: 'mid', featured: false },
 
-
+  { source: 'twitter', username: '@clearlycrypto26', name: 'Clearly Crypto',
+    desc: { en: '🏠 Our official channel — signals, analysis, alpha on X', ru: '🏠 Наш официальный канал — сигналы, аналитика, альфа в X', uk: '🏠 Наш офіційний канал — сигнали, аналітика, альфа в X' },
+    emoji: '💎', category: 'Alpha', prio: 'high', featured: true, ours: true },
   { source: 'twitter', username: '@financialjuice', name: 'Financial Juice',
     desc: { en: 'Macro & FED news on X', ru: 'Макро и ФРС в X', uk: 'Макро та ФРС в X' },
     emoji: '🍊', category: 'Macro', prio: 'high', featured: false },
@@ -4636,26 +4635,31 @@ function renderCatalog() {
       };
       const pc = prioColors[ch.prio];
       const card = document.createElement('div');
-      card.style.cssText = `background:#1a1a20;border:.5px solid ${ch.featured ? th.accent+'44' : '#272730'};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;`;
-      if (ch.featured) {
+      const isOurs = !!ch.ours;
+      const oursBorder = isOurs ? '1.5px solid #a78bfa88' : (ch.featured ? th.accent+'44' : '#272730');
+      const oursBg = isOurs ? 'linear-gradient(135deg,#1a1a28,#1e1828)' : '#1a1a20';
+      card.style.cssText = `background:${oursBg};border:${oursBorder};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;${isOurs ? 'box-shadow:0 0 16px #6b6bff18;' : ''}`;
+      if (isOurs) {
+        card.innerHTML += `<div style="position:absolute;top:0;right:0;background:linear-gradient(135deg,#6b6bff,#a78bfa);font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:700;letter-spacing:.4px;">🏠 OUR CHANNEL</div>`;
+      } else if (ch.featured) {
         card.innerHTML += `<div style="position:absolute;top:0;right:0;background:${th.gradient};font-size:9px;color:#fff;padding:3px 10px;border-radius:0 0 0 10px;font-weight:600;">★ FEATURED</div>`;
       }
       card.innerHTML += `
-        <div style="width:44px;height:44px;border-radius:12px;background:${ch.featured ? th.gradient : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden;">
+        <div style="width:44px;height:44px;border-radius:12px;background:${isOurs ? 'linear-gradient(135deg,#6b6bff,#a78bfa)' : ch.featured ? th.gradient : '#1e1e2a'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden;">
           <img data-avatar-channel="${ch.username.replace('@','')}" alt=""
             style="width:100%;height:100%;object-fit:cover;border-radius:12px;position:absolute;inset:0;display:none;">
           <span class="av-fallback" style="position:relative;z-index:1;">${ch.emoji}</span>
         </div>
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
-            <p style="font-size:13px;font-weight:600;color:#e8e8f0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ch.name}</p>
+            <p style="font-size:13px;font-weight:600;color:${isOurs ? '#c8b8ff' : '#e8e8f0'};margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ch.name}</p>
             <span style="font-size:9px;background:${pc.bg};color:${pc.color};border:.5px solid ${pc.border};border-radius:6px;padding:2px 6px;white-space:nowrap;">${ch.category}</span>
           </div>
-          <p style="font-size:11px;color:#555;margin:0 0 2px;">${ch.username}</p>
+          <p style="font-size:11px;color:${isOurs ? '#8888cc' : '#555'};margin:0 0 2px;">${ch.username}</p>
           <p style="font-size:11px;color:#666;margin:0;line-height:1.4;">${(ch.desc&&ch.desc[currentLang])||ch.desc&&ch.desc.en||''}</p>
         </div>
         <button onclick="addFromCatalog('${ch.username}','${ch.prio}','${ch.emoji}','${ch.source}')" ${alreadyAdded ? 'disabled' : ''}
-          style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : th.gradient};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
+          style="flex-shrink:0;background:${alreadyAdded ? '#1a1a20' : (isOurs ? 'linear-gradient(135deg,#6b6bff,#a78bfa)' : th.gradient)};color:${alreadyAdded ? '#555' : '#fff'};border:${alreadyAdded ? '.5px solid #2e2e38' : 'none'};border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:${alreadyAdded ? 'default' : 'pointer'};white-space:nowrap;transition:all .2s;">
           ${alreadyAdded ? t('catalogAdded') : t('catalogAdd')}
         </button>`;
       list.appendChild(card);
