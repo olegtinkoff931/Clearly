@@ -1162,6 +1162,7 @@ const PLANS = {
 };
 
 let currentPlan = null;
+let currentSubEnd = null; // ISO date string of subscription end
 
 function getPlan() { return currentPlan ? PLANS[currentPlan] : null; }
 function getMaxChannels() { const p=getPlan(); return p ? p.maxChannels : 0; }
@@ -1375,6 +1376,7 @@ const i18n = {
     telegramAddSub:'Enter the Telegram channel username and choose priority',
     aiAnalyzing:'Analyzing with AI…',
     subBtnCurrent:'✓ Current plan',
+    subBtnRenew:'🔄 Renew subscription',
     subBtnChoosePro:'Choose Pro →',
     subBtnChooseMax:'Choose Maximum →',
     subBtnStart:'Start →',
@@ -1597,6 +1599,7 @@ const i18n = {
     telegramAddSub:'Введіть username каналу і оберіть важливість',
     aiAnalyzing:'Аналізує AI…',
     subBtnCurrent:'✓ Поточний тариф',
+    subBtnRenew:'🔄 Продовжити підписку',
     subBtnChoosePro:'Обрати Про →',
     subBtnChooseMax:'Обрати Максимум →',
     subBtnStart:'Почати →',
@@ -1884,6 +1887,7 @@ const i18n = {
     telegramAddSub:'Zadejte username kanálu a zvolte prioritu',
     aiAnalyzing:'Analyzuje AI…',
     subBtnCurrent:'✓ Aktuální tarif',
+    subBtnRenew:'🔄 Obnovit předplatné',
     subBtnChoosePro:'Vybrat Pro →',
     subBtnChooseMax:'Vybrat Maximum →',
     subBtnStart:'Začít →',
@@ -2107,6 +2111,7 @@ const i18n = {
     telegramAddSub:'Введите username канала и выберите важность',
     aiAnalyzing:'Анализирует AI…',
     subBtnCurrent:'✓ Текущий тариф',
+    subBtnRenew:'🔄 Продлить подписку',
     subBtnChoosePro:'Выбрать Про →',
     subBtnChooseMax:'Выбрать Максимум →',
     subBtnStart:'Начать →',
@@ -2473,12 +2478,14 @@ async function init() {
     const subData = await apiFetch('/api/subscription/' + currentUserId, 'GET');
     if (subData && subData.active) {
       currentPlan = subData.plan || null;
+      currentSubEnd = subData.subscription_end || null;
       // Also restore purchasedPacks from subscription if available
       if (subData.packs && subData.packs.length > 0) {
         purchasedPacks = subData.packs;
       }
     } else {
       currentPlan = userData.subscription_plan || null;
+      currentSubEnd = null;
     }
   } catch(e) {
     currentPlan = userData.subscription_plan || null;
@@ -5422,8 +5429,16 @@ function renderSubscriptionPlans(highlightId) {
       `<div class="sub-plan-feature"><span class="fcheck">✓</span><span>${f}</span></div>`
     ).join('');
 
+    // Check if subscription expires in ≤3 days (show Renew button instead of Current plan)
+    const isExpiringSoon = isActive && currentSubEnd && (() => {
+      const daysLeft = Math.ceil((new Date(currentSubEnd) - new Date()) / 86400000);
+      return daysLeft <= 3;
+    })();
+
     let btnClass, btnText, btnOnclick;
-    if (isActive) {
+    if (isActive && isExpiringSoon) {
+      btnClass = 'btn-gradient'; btnText = t('subBtnRenew'); btnOnclick = `onclick="renewCurrentPlan()"`;
+    } else if (isActive) {
       btnClass = 'btn-active'; btnText = lbl.current; btnOnclick = '';
     } else if (planId === 'pro') {
       btnClass = 'btn-gradient'; btnText = lbl.choosePro; btnOnclick = `onclick="selectPlan('pro')"`;
@@ -5743,6 +5758,12 @@ function checkAIAccess() {
 function openChangePlan() {
   closeProfileScreen();
   showSubscriptionScreen(currentPlan || null, { returnTo: 'profile' });
+}
+
+function renewCurrentPlan() {
+  // Renew the currently active plan (called from 'Продлить подписку' button)
+  if (!currentPlan) return;
+  openCryptoPayModalForPlan(currentPlan);
 }
 
 function openRenewPayModal() {
