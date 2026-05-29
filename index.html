@@ -542,9 +542,118 @@
     @keyframes vipStarSpin {
       0%,100% { opacity: 1; } 50% { opacity: .5; }
     }
+
+    /* ══ OFFLINE SCREEN ═══════════════════════════════════════════ */
+    #vOffline {
+      position: fixed; inset: 0; z-index: 99999;
+      background: #0e0e10;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 32px 28px; text-align: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    #vOffline.visible { opacity: 1; pointer-events: auto; }
+    .off-orbit {
+      position: relative; width: 96px; height: 96px; margin-bottom: 28px;
+    }
+    .off-planet {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #2a2a3a, #111118);
+      border: 2px solid #2e2e40;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px;
+      box-shadow: 0 0 0 12px #1a1a2244, 0 0 0 24px #1a1a2212;
+    }
+    .off-satellite {
+      position: absolute; top: -6px; right: -6px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #1e1e2c; border: 1.5px solid #3a3a52;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      animation: orbitSpin 4s linear infinite;
+      transform-origin: -20px 54px;
+    }
+    @keyframes orbitSpin {
+      from { transform: rotate(0deg) translateX(0); }
+      to   { transform: rotate(360deg) translateX(0); }
+    }
+    .off-title {
+      font-size: 20px; font-weight: 700; color: #e8e8f0; margin: 0 0 8px;
+    }
+    .off-sub {
+      font-size: 13px; color: #555; line-height: 1.65; margin: 0 0 20px;
+    }
+    .off-cache-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #1a1a24; border: .5px solid #2e2e42;
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 11px; color: #7878aa; margin-bottom: 24px;
+      animation: cacheBadgePulse 2.5s ease-in-out infinite;
+    }
+    .off-cache-badge.hidden { display: none; }
+    @keyframes cacheBadgePulse {
+      0%,100% { border-color: #2e2e42; box-shadow: none; }
+      50%      { border-color: #5b5bdc55; box-shadow: 0 0 10px #5b5bdc22; }
+    }
+    .off-dot { width: 7px; height: 7px; border-radius: 50%; background: #5b5bdc; flex-shrink: 0; animation: dotPulse 1.4s ease-in-out infinite; }
+    .off-retry-btn {
+      width: 100%; max-width: 280px;
+      background: linear-gradient(135deg, #6b6bff, #a78bfa);
+      color: #fff; border: none; border-radius: 14px;
+      padding: 13px 0; font-size: 14px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .15s, transform .1s;
+    }
+    .off-retry-btn:active { opacity: .85; transform: scale(.97); }
+    .off-retry-btn.spinning .off-retry-icon { animation: retrySpin .7s linear infinite; }
+    @keyframes retrySpin { to { transform: rotate(360deg); } }
+    .off-retry-icon { display: inline-block; font-size: 16px; line-height: 1; }
+    .off-notice {
+      margin-top: 14px; font-size: 11px; color: #333; line-height: 1.5;
+    }
+    /* Thin top bar shown while online but briefly reconnecting */
+    #offlineBanner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 99998;
+      background: linear-gradient(90deg, #1a1a2c, #2e1a4a);
+      border-bottom: .5px solid #5b5bdc44;
+      padding: 8px 16px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; color: #9090cc;
+      transform: translateY(-100%); transition: transform .3s ease;
+      pointer-events: none;
+    }
+    #offlineBanner.show { transform: translateY(0); }
+    .ob-dot { width: 6px; height: 6px; border-radius: 50%; background: #d49a2e; flex-shrink: 0; animation: dotPulse 1.2s ease-in-out infinite; }
   </style>
 </head>
 <body>
+
+<!-- ══ OFFLINE SCREEN ═══════════════════════════════════════════ -->
+<div id="vOffline">
+  <div class="off-orbit">
+    <div class="off-planet">📡</div>
+    <div class="off-satellite">🛸</div>
+  </div>
+  <p class="off-title" id="offTitle">Нет подключения</p>
+  <p class="off-sub" id="offSub">Проверьте соединение с интернетом.<br>Данные из кэша могут быть устаревшими.</p>
+  <div class="off-cache-badge hidden" id="offCacheBadge">
+    <div class="off-dot"></div>
+    <span id="offCacheText">Показаны данные из кэша</span>
+  </div>
+  <button class="off-retry-btn" id="offRetryBtn" onclick="offlineRetry()">
+    <span class="off-retry-icon">↺</span>
+    <span id="offRetryLabel">Повторить попытку</span>
+  </button>
+  <p class="off-notice" id="offNotice">Приложение автоматически обновится при восстановлении связи</p>
+</div>
+
+<!-- Thin reconnecting banner (shown on top of existing UI) -->
+<div id="offlineBanner">
+  <div class="ob-dot"></div>
+  <span id="offBannerText">Нет сети — данные из кэша</span>
+</div>
+
 <div class="app-container">
 
   <div id="vLoading">
@@ -6087,6 +6196,202 @@ function copyRefLink() {
 }
 function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
 // ══ END REFERRAL ═══════════════════════════════════════════════
+
+// ══ OFFLINE SCREEN ═════════════════════════════════════════════
+(function() {
+  const CACHE_KEY  = 'clearly_user_cache';
+  const CACHE_TTL  = 24 * 60 * 60 * 1000; // 24 h
+
+  // ── i18n helpers ────────────────────────────────────────────
+  const offI18n = {
+    en: {
+      title:   'No connection',
+      sub:     'Check your internet connection.\nCached data may be outdated.',
+      cache:   'Showing cached data',
+      retry:   'Retry',
+      notice:  'App will refresh automatically when connection is restored',
+      banner:  'Offline — showing cached data',
+    },
+    ru: {
+      title:   'Нет подключения',
+      sub:     'Проверьте соединение с интернетом.\nДанные из кэша могут быть устаревшими.',
+      cache:   'Показаны данные из кэша',
+      retry:   'Повторить попытку',
+      notice:  'Приложение обновится автоматически при восстановлении связи',
+      banner:  'Нет сети — данные из кэша',
+    },
+    uk: {
+      title:   'Немає з\'єднання',
+      sub:     'Перевірте підключення до інтернету.\nКешовані дані можуть бути застарілими.',
+      cache:   'Показано дані з кешу',
+      retry:   'Повторити спробу',
+      notice:  'Застосунок оновиться автоматично при відновленні зв\'язку',
+      banner:  'Офлайн — дані з кешу',
+    },
+  };
+
+  function offTxt(key) {
+    const lang = (typeof currentLang !== 'undefined' && currentLang) || 'ru';
+    const d = offI18n[lang] || offI18n.ru;
+    return d[key] || offI18n.ru[key] || '';
+  }
+
+  function updateOfflineTexts() {
+    const el = (id) => document.getElementById(id);
+    el('offTitle')       && (el('offTitle').textContent       = offTxt('title'));
+    el('offSub')         && (el('offSub').innerHTML            = offTxt('sub').replace('\n','<br>'));
+    el('offCacheText')   && (el('offCacheText').textContent    = offTxt('cache'));
+    el('offRetryLabel')  && (el('offRetryLabel').textContent   = offTxt('retry'));
+    el('offNotice')      && (el('offNotice').textContent       = offTxt('notice'));
+    el('offBannerText')  && (el('offBannerText').textContent   = offTxt('banner'));
+  }
+
+  // ── Cache helpers ───────────────────────────────────────────
+  window.offlineSaveCache = function(data) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    } catch(e) {}
+  };
+
+  window.offlineLoadCache = function() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (Date.now() - obj.ts > CACHE_TTL) return null;
+      return obj.data;
+    } catch(e) { return null; }
+  };
+
+  // ── Show / hide ─────────────────────────────────────────────
+  let _offlineVisible = false;
+  let _hasCachedData  = false;
+
+  function showOfflineScreen(hasCached) {
+    if (_offlineVisible) return;
+    _offlineVisible = true;
+    _hasCachedData  = !!hasCached;
+    updateOfflineTexts();
+    const el = document.getElementById('vOffline');
+    const badge = document.getElementById('offCacheBadge');
+    if (!el) return;
+    if (badge) badge.classList.toggle('hidden', !hasCached);
+    el.classList.add('visible');
+  }
+
+  function hideOfflineScreen() {
+    if (!_offlineVisible) return;
+    _offlineVisible = false;
+    const el = document.getElementById('vOffline');
+    if (el) el.classList.remove('visible');
+  }
+
+  function showOfflineBanner() {
+    const el = document.getElementById('offlineBanner');
+    if (el) { updateOfflineTexts(); el.classList.add('show'); }
+  }
+  function hideOfflineBanner() {
+    const el = document.getElementById('offlineBanner');
+    if (el) el.classList.remove('show');
+  }
+
+  // ── Retry button ─────────────────────────────────────────────
+  window.offlineRetry = function() {
+    const btn = document.getElementById('offRetryBtn');
+    if (btn) btn.classList.add('spinning');
+    setTimeout(() => {
+      if (btn) btn.classList.remove('spinning');
+      if (navigator.onLine) {
+        hideOfflineScreen();
+        hideOfflineBanner();
+        // Re-run init if it exists
+        if (typeof init === 'function') {
+          document.getElementById('vLoading') && (document.getElementById('vLoading').style.opacity = '1');
+          document.getElementById('vLoading') && document.getElementById('vLoading').classList.remove('fadeout');
+          init().catch(console.error);
+        } else {
+          location.reload();
+        }
+      } else {
+        // Still offline – pulse the button to signal failure
+        if (btn) {
+          btn.style.background = 'linear-gradient(135deg,#e05252,#ff7b7b)';
+          setTimeout(() => { btn.style.background = ''; }, 1000);
+        }
+      }
+    }, 900);
+  };
+
+  // ── Network event listeners ──────────────────────────────────
+  let _wasOffline = !navigator.onLine;
+
+  window.addEventListener('offline', () => {
+    _wasOffline = true;
+    const cached = offlineLoadCache();
+    // If app is loaded (main view visible), show banner; otherwise show full screen
+    const mainVisible = (() => {
+      const vm = document.getElementById('vMain');
+      return vm && getComputedStyle(vm).display !== 'none' && !vm.classList.contains('hidden');
+    })();
+    if (mainVisible) {
+      showOfflineBanner();
+    } else {
+      showOfflineScreen(!!cached);
+    }
+  });
+
+  window.addEventListener('online', () => {
+    if (!_wasOffline) return;
+    _wasOffline = false;
+    hideOfflineBanner();
+    if (_offlineVisible) {
+      hideOfflineScreen();
+      if (typeof init === 'function') {
+        init().catch(console.error);
+      }
+    }
+  });
+
+  // ── Patch apiFetch to cache responses & handle offline ───────
+  document.addEventListener('DOMContentLoaded', () => {
+    const origFetch = window.apiFetch;
+    if (typeof origFetch !== 'function') return;
+
+    window.apiFetch = async function(path, method = 'GET', body = null) {
+      // If offline before even trying
+      if (!navigator.onLine) {
+        const cached = offlineLoadCache();
+        if (cached && method === 'GET') return cached;
+        return null;
+      }
+      try {
+        const result = await origFetch(path, method, body);
+        // Cache successful user data GET responses
+        if (result && method === 'GET' && path.startsWith('/api/user/')) {
+          offlineSaveCache(result);
+        }
+        return result;
+      } catch(e) {
+        // Network failure mid-session
+        const cached = offlineLoadCache();
+        if (cached && method === 'GET') {
+          showOfflineBanner();
+          return cached;
+        }
+        return null;
+      }
+    };
+  });
+
+  // ── Initial offline check ────────────────────────────────────
+  if (!navigator.onLine) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const cached = offlineLoadCache();
+      showOfflineScreen(!!cached);
+    });
+  }
+})();
+// ══ END OFFLINE ════════════════════════════════════════════════
 </script>
 
 </body>
