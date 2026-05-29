@@ -253,25 +253,39 @@
     .method-tag { font-size:10px; color:#555; }
     .method-row.active .method-tag { color:#7c7cdc; }
 
-    .impact-bar-wrap { margin-top:8px; }
-    .impact-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
-    .impact-label { font-size:10px; color:#555; letter-spacing:.4px; display:flex; align-items:center; gap:4px; }
-    .impact-pct { font-size:11px; font-weight:700; }
-    .impact-bar { height:3px; border-radius:2px; background:#1e1e28; overflow:hidden; }
-    .impact-fill { height:100%; border-radius:2px; transition:width .8s cubic-bezier(.4,0,.2,1); }
-    .impact-low  { color:#3aaa6e; }
-    .impact-mid  { color:#d49a2e; }
-    .impact-high { color:#e05252; }
-    .impact-fill-low  { background:linear-gradient(90deg,#1a6e44,#3aaa6e); }
-    .impact-fill-mid  { background:linear-gradient(90deg,#7a5a10,#d49a2e); }
-    .impact-fill-high { background:linear-gradient(90deg,#8a2020,#e05252); }
-    .impact-tag { font-size:9px; padding:2px 7px; border-radius:5px; font-weight:600; margin-left:4px; }
-    .impact-tag-low  { background:#0c1f16; color:#3aaa6e; border:.5px solid #3aaa6e44; }
-    .impact-tag-mid  { background:#221a08; color:#d49a2e; border:.5px solid #d49a2e44; }
-    .impact-tag-high { background:#2a1010; color:#e05252; border:.5px solid #e0525244; }
-    .impact-analyzing { font-size:10px; color:#555; display:flex; align-items:center; gap:5px; }
+    /* ── Feed card new design ── */
+    .impact-bar-wrap { margin-top:0; }
+    .impact-analyzing { font-size:10px; color:#555; display:flex; align-items:center; gap:5px; padding:8px 0 2px; }
     .impact-dot-pulse { width:6px; height:6px; border-radius:50%; background:#6b6bff; animation:dotPulse 1.2s ease-in-out infinite; flex-shrink:0; }
     @keyframes dotPulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
+
+    /* card redesign */
+    .feed-card { background:#1c1c22; border:.5px solid #2a2a34; border-radius:18px; padding:0; animation:slideIn .35s ease both; overflow:hidden; }
+    .feed-card-header { display:flex; align-items:center; gap:10px; padding:14px 14px 10px; border-bottom:.5px solid #242430; }
+    .feed-ch-avatar { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; overflow:hidden; position:relative; }
+    .feed-ch-name { font-size:13px; font-weight:600; color:#d0d0e0; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .feed-ch-time { font-size:11px; color:#44445a; flex-shrink:0; }
+
+    .feed-card-body { padding:12px 14px 0; }
+    .feed-news-title { font-size:14px; font-weight:700; color:#e8e8f4; line-height:1.4; margin-bottom:12px; display:flex; align-items:flex-start; gap:8px; }
+    .feed-news-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+    .feed-news-dot-up { background:#6b6bff; }
+    .feed-news-dot-down { background:#e05252; }
+    .feed-news-dot-neutral { background:#888; }
+
+    .feed-meta-row { display:flex; align-items:flex-start; gap:8px; margin-bottom:9px; }
+    .feed-meta-icon { font-size:13px; flex-shrink:0; margin-top:1px; line-height:1; }
+    .feed-meta-text { font-size:13px; color:#c0c0d0; line-height:1.45; }
+    .feed-meta-label { font-weight:700; color:#d8d8e8; }
+
+    .feed-card-footer { padding:10px 14px 12px; border-top:.5px solid #242430; margin-top:12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:background .15s; }
+    .feed-card-footer:hover { background:#222230; }
+    .feed-ask-ai { font-size:12px; color:#55556a; }
+    .feed-ask-arrow { font-size:14px; color:#55556a; }
+
+    .feed-text { display:none; }
+    .feed-translate-btn { display:none; }
+    .feed-translated-badge { display:none; }
 
     #vFeed { background:#111114; display:none; flex-direction:column; position:absolute; top:0; left:0; right:0; bottom:62px; z-index:15; }
     #vFeed.visible { display:flex; }
@@ -3558,27 +3572,68 @@ function getImpactLabel(score) {
   return t('impactLow');
 }
 
-function renderImpactBar(cardEl, msgId, score, reason) {
-  const cls = getImpactClass(score);
-  const label = getImpactLabel(score);
-  const wrapEl = cardEl.querySelector('.impact-bar-wrap');
-  if(!wrapEl) return;
-  wrapEl.innerHTML = `
-    <div class="impact-header">
-      <span class="impact-label">${t('impactLabel')}</span>
-      <span class="impact-pct impact-${cls}">${score}%<span class="impact-tag impact-tag-${cls}">${label}</span></span>
+function renderImpactBar(cardEl, msgId, score, reason, affected, direction, rawText, twitterLink) {
+  affected  = affected  || [];
+  direction = direction || 'neutral';
+
+  const bodyEl = cardEl.querySelector('#feedbody_' + msgId) || cardEl.querySelector('.feed-card-body');
+  if(!bodyEl) return;
+
+  const dotCls = direction === 'up' ? 'feed-news-dot-up' : direction === 'down' ? 'feed-news-dot-down' : 'feed-news-dot-neutral';
+  const impactLabel = direction === 'up' ? 'Positive' : direction === 'down' ? 'Negative' : 'Neutral';
+  const impactColor = direction === 'up' ? '#6b6bff' : direction === 'down' ? '#e05252' : '#888';
+
+  const scoreStr = Math.round(score / 10) + '/10';
+
+  // First line of text as "title", rest as body
+  const titleText = rawText ? rawText.split('\n')[0].replace(/<[^>]+>/g,'').trim().substring(0, 120) : (reason || '');
+
+  const affectedStr = affected.length
+    ? affected.slice(0,5).map(a => '#' + a).join(' · ')
+    : '';
+
+  const risksText = score >= 60
+    ? 'High volatility possible. Watch market reaction.'
+    : score >= 30
+    ? 'Moderate impact. Monitor price action.'
+    : 'Low impact expected.';
+
+  const twitterEl = twitterLink
+    ? `<div style="margin-top:10px;">${twitterLink}</div>`
+    : '';
+
+  bodyEl.innerHTML = `
+    <div class="feed-news-title">
+      <div class="feed-news-dot ${dotCls}"></div>
+      <span>${titleText}</span>
     </div>
-    <div class="impact-bar">
-      <div class="impact-fill impact-fill-${cls}" style="width:0%" id="fill_${msgId}"></div>
+
+    <div class="feed-meta-row">
+      <span class="feed-meta-icon">↗</span>
+      <span class="feed-meta-text"><span class="feed-meta-label">Importance:</span> ${scoreStr}</span>
     </div>
-    ${reason ? `<p style="font-size:10px;color:#555;margin-top:4px;">${reason}</p>` : ''}
+
+    <div class="feed-meta-row">
+      <span class="feed-meta-icon" style="color:${impactColor};">↝</span>
+      <span class="feed-meta-text"><span class="feed-meta-label">Impact:</span> <span style="color:${impactColor};">${impactLabel}</span></span>
+    </div>
+
+    <div class="feed-meta-row">
+      <span class="feed-meta-icon">▤</span>
+      <span class="feed-meta-text"><span class="feed-meta-label">What it means:</span><br>${reason || '—'}</span>
+    </div>
+
+    ${affectedStr ? `<div class="feed-meta-row">
+      <span class="feed-meta-icon">◎</span>
+      <span class="feed-meta-text"><span class="feed-meta-label">Market:</span> <span style="color:#8888bb;">${affectedStr}</span></span>
+    </div>` : ''}
+
+    <div class="feed-meta-row">
+      <span class="feed-meta-icon" style="color:#d49a2e;">△</span>
+      <span class="feed-meta-text"><span class="feed-meta-label">Risks:</span><br>${risksText}</span>
+    </div>
+    ${twitterEl}
   `;
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      const fill = document.getElementById('fill_' + msgId);
-      if(fill) fill.style.width = score + '%';
-    }, 80);
-  });
 }
 
 async function loadFeed() {
@@ -3636,8 +3691,7 @@ async function loadFeed() {
     if(isTwitter) { card.style.borderColor = '#1d9bf033'; }
 
     if(hasServerAI) {
-      if(msg.aiScore >= 60) { card.style.borderColor='#e0525244'; card.style.background='#1f1818'; }
-      else if(msg.aiScore >= 30 && !isTwitter) { card.style.borderColor='#d49a2e33'; }
+      card.style.borderColor = direction === 'up' ? '#6b6bff33' : direction === 'down' ? '#e0525233' : '#2a2a34';
     }
 
     const dirIcon = { up:'📈', down:'📉', neutral:'➡️' }[msg.aiDirection] || '➡️';
@@ -3657,24 +3711,23 @@ async function loadFeed() {
       <div class="feed-card-header">
         <div class="feed-ch-avatar" style="${avStyle};position:relative;overflow:hidden;">
           <img data-avatar-channel="${msg.channelUsername.replace('@','')}" alt=""
-            style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none;border-radius:9px;">
+            style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none;border-radius:10px;">
           <span style="position:relative;z-index:1;">${initials}</span>
-          <span style="position:absolute;bottom:-3px;right:-3px;font-size:10px;z-index:2;">${msg.channelEmoji}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:2px;">
+        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:0;">
           <span class="feed-ch-name">${msg.channelUsername}</span>
           ${platformBadge}
         </div>
         <span class="feed-ch-time">${formatMsgTime(msg.ts)}</span>
       </div>
-      <p class="feed-text" id="feedtext_${msg.id}">${msg.text || `<i style="color:#555">${t('mediaMessage')}</i>`}</p>
-      ${msg.text ? `<span id="feedtransbtn_${msg.id}" class="feed-translate-btn" data-translated="0" data-msgid="${msg.id}" onclick="toggleFeedTranslate(this)">${t('feedTranslate')}</span><div id="feedtransbadge_${msg.id}" class="feed-translated-badge" style="display:none;"></div>` : ''}
-      ${twitterLink}
-      <div class="impact-bar-wrap" style="margin-top:10px;border-top:.5px solid #222228;padding-top:8px;">
-        ${hasServerAI
-          ? '' 
-          : `<div class="impact-analyzing"><div class="impact-dot-pulse"></div> ${t('aiAnalyzing')}</div>`
-        }
+      <div class="feed-card-body" id="feedbody_${msg.id}">
+        <div class="impact-bar-wrap" style="padding:4px 0 0;">
+          <div class="impact-analyzing"><div class="impact-dot-pulse"></div> ${t('aiAnalyzing')}</div>
+        </div>
+      </div>
+      <div class="feed-card-footer" onclick="openFeedChat && openFeedChat('${msg.id}')">
+        <span class="feed-ask-ai">Ask AI about this news</span>
+        <span class="feed-ask-arrow">→</span>
       </div>
     `;
     scroll.appendChild(card);
@@ -3685,14 +3738,11 @@ async function loadFeed() {
     }
 
     if(hasServerAI) {
-      const affected = msg.aiAffected.length
-        ? '<br>🎯 ' + msg.aiAffected.slice(0,5).map(a => '#'+a).join(' · ')
-        : '';
-      renderImpactBar(card, msg.id, msg.aiScore, msg.aiReason + (affected ? ' ' + affected : ''));
+      renderImpactBar(card, msg.id, msg.aiScore, msg.aiReason, msg.aiAffected, msg.aiDirection, msg.text, twitterLink);
     } else {
       analyzeImpact(msg.id, msg.text).then(result => {
-        renderImpactBar(card, msg.id, result.score, result.reason);
-        if(result.score >= 60) { card.style.borderColor='#e0525244'; card.style.background='#1f1818'; }
+        renderImpactBar(card, msg.id, result.score, result.reason, [], result.direction || 'neutral', msg.text, twitterLink);
+        if(result.score >= 60) { card.style.borderColor='#e0525244'; }
         else if(result.score >= 30) { card.style.borderColor='#d49a2e33'; }
       });
     }
