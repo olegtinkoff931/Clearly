@@ -1524,6 +1524,12 @@ const i18n = {
     refActive:'Active',
     refNotPaid:'Not paid',
     profPlanLabel:'Plan',
+    offTitle:'No connection',
+    offSub:'Check your internet connection.\nCached data may be outdated.',
+    offCache:'Showing cached data',
+    offRetry:'Retry',
+    offNotice:'App will refresh automatically when connection is restored',
+    offBanner:'Offline — showing cached data',
   },
   uk: {
     aiGreetOpen:'Привіт! 👋 Я Clearly AI — допоможу розібратися з ботом і відповім на питання з крипти.',
@@ -1748,6 +1754,12 @@ const i18n = {
     refActive:'Активний',
     refNotPaid:'Не оплатив',
     profPlanLabel:'Тариф',
+    offTitle:'Немає з\'єднання',
+    offSub:'Перевірте підключення до інтернету.\nКешовані дані можуть бути застарілими.',
+    offCache:'Показано дані з кешу',
+    offRetry:'Повторити спробу',
+    offNotice:'Застосунок оновиться автоматично при відновленні зв\'язку',
+    offBanner:'Офлайн — дані з кешу',
   },
   cs: {
     aiGreetOpen:'Ahoj! 👋 Jsem Clearly AI — pomohu s aplikací a zodpovím otázky o kryptu.',
@@ -2036,6 +2048,12 @@ const i18n = {
     refNotPaid:'Nezaplatil',
     profPlanLabel:'Tarif',
     subFooterPay:'Platba kryptem. Správa tarifu v sekci Profil.',
+    offTitle:'Žádné připojení',
+    offSub:'Zkontrolujte připojení k internetu.\nData z mezipaměti mohou být zastaralá.',
+    offCache:'Zobrazena data z mezipaměti',
+    offRetry:'Zkusit znovu',
+    offNotice:'Aplikace se automaticky obnoví po obnovení připojení',
+    offBanner:'Offline — data z mezipaměti',
   },
   ru: {
     aiGreetOpen:'Привет! 👋 Я Clearly AI — помогу разобраться с ботом и отвечу на вопросы по крипте.',
@@ -2259,6 +2277,12 @@ const i18n = {
     refActive:'Активен',
     refNotPaid:'Не оплатил',
     profPlanLabel:'Тариф',
+    offTitle:'Нет подключения',
+    offSub:'Проверьте соединение с интернетом.\nДанные из кэша могут быть устаревшими.',
+    offCache:'Показаны данные из кэша',
+    offRetry:'Повторить попытку',
+    offNotice:'Приложение обновится автоматически при восстановлении связи',
+    offBanner:'Нет сети — данные из кэша',
   }
 };
 function t(key, vars={}) {
@@ -2280,6 +2304,7 @@ function applyI18n() {
   });
   if (document.getElementById('vTheme')?.classList.contains('visible')) renderThemes();
   updateCount();
+  if (typeof window._offlineUpdateTexts === 'function') window._offlineUpdateTexts();
 }
 
 function syncSettingsLangPills(lang = currentLang) {
@@ -6202,49 +6227,17 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   const CACHE_KEY  = 'clearly_user_cache';
   const CACHE_TTL  = 24 * 60 * 60 * 1000; // 24 h
 
-  // ── i18n helpers ────────────────────────────────────────────
-  const offI18n = {
-    en: {
-      title:   'No connection',
-      sub:     'Check your internet connection.\nCached data may be outdated.',
-      cache:   'Showing cached data',
-      retry:   'Retry',
-      notice:  'App will refresh automatically when connection is restored',
-      banner:  'Offline — showing cached data',
-    },
-    ru: {
-      title:   'Нет подключения',
-      sub:     'Проверьте соединение с интернетом.\nДанные из кэша могут быть устаревшими.',
-      cache:   'Показаны данные из кэша',
-      retry:   'Повторить попытку',
-      notice:  'Приложение обновится автоматически при восстановлении связи',
-      banner:  'Нет сети — данные из кэша',
-    },
-    uk: {
-      title:   'Немає з\'єднання',
-      sub:     'Перевірте підключення до інтернету.\nКешовані дані можуть бути застарілими.',
-      cache:   'Показано дані з кешу',
-      retry:   'Повторити спробу',
-      notice:  'Застосунок оновиться автоматично при відновленні зв\'язку',
-      banner:  'Офлайн — дані з кешу',
-    },
-  };
-
-  function offTxt(key) {
-    const lang = (typeof currentLang !== 'undefined' && currentLang) || 'ru';
-    const d = offI18n[lang] || offI18n.ru;
-    return d[key] || offI18n.ru[key] || '';
-  }
-
+  // ── Update texts using the main i18n t() function ─────────────
   function updateOfflineTexts() {
     const el = (id) => document.getElementById(id);
-    el('offTitle')       && (el('offTitle').textContent       = offTxt('title'));
-    el('offSub')         && (el('offSub').innerHTML            = offTxt('sub').replace('\n','<br>'));
-    el('offCacheText')   && (el('offCacheText').textContent    = offTxt('cache'));
-    el('offRetryLabel')  && (el('offRetryLabel').textContent   = offTxt('retry'));
-    el('offNotice')      && (el('offNotice').textContent       = offTxt('notice'));
-    el('offBannerText')  && (el('offBannerText').textContent   = offTxt('banner'));
+    el('offTitle')       && (el('offTitle').textContent        = t('offTitle'));
+    el('offSub')         && (el('offSub').innerHTML            = t('offSub').replace('\n','<br>'));
+    el('offCacheText')   && (el('offCacheText').textContent    = t('offCache'));
+    el('offRetryLabel')  && (el('offRetryLabel').textContent   = t('offRetry'));
+    el('offNotice')      && (el('offNotice').textContent       = t('offNotice'));
+    el('offBannerText')  && (el('offBannerText').textContent   = t('offBanner'));
   }
+  window._offlineUpdateTexts = updateOfflineTexts;
 
   // ── Cache helpers ───────────────────────────────────────────
   window.offlineSaveCache = function(data) {
