@@ -479,8 +479,12 @@
     .sub-plan-features { display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
     .sub-plan-feature { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:rgba(255,248,230,.9); line-height:1.4; }
     .sub-plan-feature .fcheck { color:#7ee081; font-size:13px; flex-shrink:0; margin-top:1px; }
-    .sub-plan-btn { width:100%; padding:13px; border:none; border-radius:14px; font-size:14px; font-weight:800; cursor:pointer; transition:transform .15s,opacity .15s,box-shadow .15s; }
+    .sub-plan-btn { width:100%; padding:13px; border:none; border-radius:14px; font-size:14px; font-weight:800; cursor:pointer; transition:transform .15s,opacity .15s,box-shadow .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
     .sub-plan-btn:active { transform:scale(.98); }
+    .renew-icon { width:18px; height:18px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; background:rgba(0,0,0,.18); border-radius:50%; padding:3px; }
+    .renew-icon svg { width:12px; height:12px; display:block; }
+    .sub-plan-btn.btn-gradient:hover .renew-icon svg { animation: renewSpin .6s cubic-bezier(.4,0,.2,1); }
+    @keyframes renewSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     .sub-plan-btn.btn-outline { background:rgba(0,0,0,.2); border:1.5px solid rgba(255,220,150,.35); color:#ffe8b0; }
     .sub-plan-btn.btn-outline:hover { border-color:#ffd54a; color:#fff; background:rgba(0,0,0,.3); }
     .sub-plan-btn.btn-gradient { background:linear-gradient(135deg,#ff6b35,#ffb347); color:#1a0a00; box-shadow:0 6px 18px rgba(255,120,40,.4); }
@@ -1376,7 +1380,7 @@ const i18n = {
     telegramAddSub:'Enter the Telegram channel username and choose priority',
     aiAnalyzing:'Analyzing with AI…',
     subBtnCurrent:'✓ Current plan',
-    subBtnRenew:'🔄 Renew subscription',
+    subBtnRenew:'<span class="renew-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></span> Renew subscription',
     subBtnChoosePro:'Choose Pro →',
     subBtnChooseMax:'Choose Maximum →',
     subBtnStart:'Start →',
@@ -1599,7 +1603,7 @@ const i18n = {
     telegramAddSub:'Введіть username каналу і оберіть важливість',
     aiAnalyzing:'Аналізує AI…',
     subBtnCurrent:'✓ Поточний тариф',
-    subBtnRenew:'🔄 Продовжити підписку',
+    subBtnRenew:'<span class="renew-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></span> Продовжити підписку',
     subBtnChoosePro:'Обрати Про →',
     subBtnChooseMax:'Обрати Максимум →',
     subBtnStart:'Почати →',
@@ -1887,7 +1891,7 @@ const i18n = {
     telegramAddSub:'Zadejte username kanálu a zvolte prioritu',
     aiAnalyzing:'Analyzuje AI…',
     subBtnCurrent:'✓ Aktuální tarif',
-    subBtnRenew:'🔄 Obnovit předplatné',
+    subBtnRenew:'<span class="renew-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></span> Obnovit předplatné',
     subBtnChoosePro:'Vybrat Pro →',
     subBtnChooseMax:'Vybrat Maximum →',
     subBtnStart:'Začít →',
@@ -2111,7 +2115,7 @@ const i18n = {
     telegramAddSub:'Введите username канала и выберите важность',
     aiAnalyzing:'Анализирует AI…',
     subBtnCurrent:'✓ Текущий тариф',
-    subBtnRenew:'🔄 Продлить подписку',
+    subBtnRenew:'<span class="renew-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></span> Продлить подписку',
     subBtnChoosePro:'Выбрать Про →',
     subBtnChooseMax:'Выбрать Максимум →',
     subBtnStart:'Начать →',
