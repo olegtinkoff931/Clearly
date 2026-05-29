@@ -3629,6 +3629,7 @@ async function openChannelWeeklySummary(username, resultEl, btn) {
     const resp = await apiFetch('/api/channel/weekly', 'POST', {
       user_id: currentUserId,
       username: username,
+      lang: currentLang,
     });
 
     if (!resp || resp.error) {
