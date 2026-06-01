@@ -217,6 +217,19 @@
     .ql { font-size:9px; color:#666; }
     .sl { padding:12px 16px 6px; font-size:11px; color:#555; letter-spacing:.8px; text-transform:uppercase; }
     .cl { padding:0 12px; display:flex; flex-direction:column; gap:8px; }
+    .ch-group-header { display:flex; align-items:center; gap:8px; margin:4px 0 2px; padding:0 2px; }
+    .ch-group-icon { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .ch-group-icon.tg { background:#1a2a3a; }
+    .ch-group-icon.tw { background:#0d1e2d; }
+    .ch-group-title { font-size:10px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; }
+    .ch-group-title.tg { color:#5ba3e0; }
+    .ch-group-title.tw { color:#1d9bf0; }
+    .ch-group-line { flex:1; height:.5px; border-radius:1px; }
+    .ch-group-line.tg { background:linear-gradient(90deg,#5ba3e044,transparent); }
+    .ch-group-line.tw { background:linear-gradient(90deg,#1d9bf044,transparent); }
+    .ch-group-count { font-size:9px; padding:2px 7px; border-radius:6px; font-weight:500; }
+    .ch-group-count.tg { background:#1a2a3a; color:#5ba3e0; }
+    .ch-group-count.tw { background:#0d1e2d; color:#1d9bf0; }
     .cc { background:#1a1a20; border-radius:14px; border:.5px solid; padding:11px 12px; display:flex; align-items:center; gap:10px; position:relative; flex-wrap:wrap; animation:slideIn .4s ease both; }
     .cc:nth-child(1){animation-delay:.05s;border-color:#e0525222}
     .cc:nth-child(2){animation-delay:.15s;border-color:#d49a2e22}
@@ -3545,18 +3558,43 @@ function renderChannelList() {
     </div>`;
     return;
   }
-  channels.forEach((ch, idx) => {
+
+  const tgChannels = channels.filter(ch => ch.source !== 'twitter');
+  const twChannels = channels.filter(ch => ch.source === 'twitter');
+
+  function makeGroupHeader(type, count) {
+    const isTw = type === 'twitter';
+    const cls = isTw ? 'tw' : 'tg';
+    const icon = isTw ? '𝕏' : '✈️';
+    const title = isTw ? 'Twitter / X' : 'Telegram';
+    const header = document.createElement('div');
+    header.className = 'ch-group-header';
+    header.innerHTML = `
+      <div class="ch-group-icon ${cls}">${icon}</div>
+      <span class="ch-group-title ${cls}">${title}</span>
+      <span class="ch-group-count ${cls}">${count}</span>
+      <div class="ch-group-line ${cls}"></div>`;
+    return header;
+  }
+
+  function renderCard(ch, idx) {
     const pc = prioConfig[ch.prio] || prioConfig['mid'];
     const label = t(pc.labelKey);
     const initials = ch.username.replace('@','').substring(0,2).toUpperCase();
+    const isTw = ch.source === 'twitter';
 
     const div = document.createElement('div');
     div.className = 'cc';
     div.style.borderColor = pc.border;
     div.style.animationDelay = (idx * 0.08) + 's';
     div.style.flexWrap = 'wrap';
+    if (isTw) div.style.borderLeftColor = '#1d9bf033';
 
     const chUsername = ch.username.replace('@','');
+    const sourceBadge = isTw
+      ? `<span style="font-size:9px;padding:2px 6px;border-radius:5px;background:#0d1e2d;color:#1d9bf0;font-weight:600;margin-left:4px;">𝕏</span>`
+      : `<span style="font-size:9px;padding:2px 6px;border-radius:5px;background:#1a2a3a;color:#5ba3e0;font-weight:600;margin-left:4px;">TG</span>`;
+
     div.innerHTML = `
       <div class="pd ${pc.dot}"></div>
       <div class="av ${pc.av}" style="position:relative;overflow:hidden;">
@@ -3566,8 +3604,8 @@ function renderChannelList() {
         <span class="eb" style="z-index:2;position:relative;">${ch.emoji}</span>
       </div>
       <div class="ci" style="flex:1;min-width:0;">
-        <p class="cn">${ch.username}</p>
-        <p class="cs2">${ch.source === 'twitter' ? '𝕏 Twitter/X' : t('telegramChannel')}</p>
+        <p class="cn">${ch.username}${sourceBadge}</p>
+        <p class="cs2">${isTw ? '𝕏 Twitter/X' : t('telegramChannel')}</p>
       </div>
       <span class="pb ${pc.badge}">${label}</span>
       <div style="width:100%;margin-top:10px;display:none;" class="ch-confirm-box">
@@ -3582,11 +3620,11 @@ function renderChannelList() {
       <div class="ch-weekly-result" style="display:none;width:100%;margin-top:8px;"></div>
     `;
 
-    const trigger     = div.querySelector('.ch-del-trigger');
-    const confirm     = div.querySelector('.ch-confirm-box');
-    const yesBtn      = div.querySelector('.yes-del');
-    const noBtn       = div.querySelector('.no-del');
-    const weeklyBtn   = div.querySelector('.ch-weekly-btn');
+    const trigger      = div.querySelector('.ch-del-trigger');
+    const confirm      = div.querySelector('.ch-confirm-box');
+    const yesBtn       = div.querySelector('.yes-del');
+    const noBtn        = div.querySelector('.no-del');
+    const weeklyBtn    = div.querySelector('.ch-weekly-btn');
     const weeklyResult = div.querySelector('.ch-weekly-result');
 
     trigger.style.display = 'none';
@@ -3627,7 +3665,8 @@ function renderChannelList() {
           channel_id: ch.id,
         });
       }
-      channels.splice(idx, 1);
+      const globalIdx = channels.indexOf(ch);
+      if (globalIdx !== -1) channels.splice(globalIdx, 1);
       renderChannelList();
       syncNotifScreen();
       if (document.getElementById('vProfile').style.transform === 'translateX(0px)') renderProfileScreen();
@@ -3641,11 +3680,30 @@ function renderChannelList() {
       trigger.style.display = 'block';
     });
 
-    list.appendChild(div);
-  });
+    return div;
+  }
+
+  // Render Telegram group
+  if (tgChannels.length > 0) {
+    list.appendChild(makeGroupHeader('telegram', tgChannels.length));
+    tgChannels.forEach((ch, i) => list.appendChild(renderCard(ch, i)));
+  }
+
+  // Spacer between groups
+  if (tgChannels.length > 0 && twChannels.length > 0) {
+    const spacer = document.createElement('div');
+    spacer.style.height = '4px';
+    list.appendChild(spacer);
+  }
+
+  // Render Twitter group
+  if (twChannels.length > 0) {
+    list.appendChild(makeGroupHeader('twitter', twChannels.length));
+    twChannels.forEach((ch, i) => list.appendChild(renderCard(ch, tgChannels.length + i)));
+  }
+
   loadChannelAvatars();
 }
-
 function syncNotifScreen() {
   const container=document.querySelector('.notif-channels');
   if(!container) return;
