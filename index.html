@@ -1336,15 +1336,7 @@
 <script>
 
 const API_BASE = 'https://166.1.227.170.sslip.io';
-const GROQ_API_KEYS = [
-  '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',
-  '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',
-  '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',
-  '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',
-];
-let _groqKeyIndex = 0;
-// для обратной совместимости
-const GROQ_API_KEY = GROQ_API_KEYS[0];
+// Groq API keys removed — all AI calls go through the backend proxy /api/groq
 
 const PLANS = {
   basic: {
@@ -5416,52 +5408,23 @@ const GROQ_ANALYSIS_MODELS_FE = [
   'qwen/qwen3-32b',
 ];
 
+// groqCallFE — proxies through backend; no API keys in the frontend
 async function groqCallFE(messages, modelList, maxTokens=500, temperature=0.7, responseFormat=null) {
   if (!modelList) modelList = GROQ_CHAT_MODELS_FE;
-  const numKeys = GROQ_API_KEYS.length;
-  let lastErr = null;
-  for (const model of modelList) {
-    for (let keyOffset = 0; keyOffset < numKeys; keyOffset++) {
-      const keyIdx = (_groqKeyIndex + keyOffset) % numKeys;
-      const apiKey = GROQ_API_KEYS[keyIdx];
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const body = { model, max_tokens: maxTokens, temperature, messages };
-          if (responseFormat) body.response_format = responseFormat;
-          const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-            body: JSON.stringify(body)
-          });
-          if (resp.status === 429) {
-            console.warn('groqCallFE: 429 key=' + keyIdx + ' model=' + model + ' — next key');
-            lastErr = new Error('429 on key ' + keyIdx + ' model ' + model);
-            _groqKeyIndex = (keyIdx + 1) % numKeys;
-            break; // try next key
-          }
-          if (!resp.ok) {
-            const txt = await resp.text();
-            lastErr = new Error('HTTP ' + resp.status + ': ' + txt.slice(0, 100));
-            if (attempt === 0) { await new Promise(r => setTimeout(r, 2000)); continue; }
-            break;
-          }
-          const data = await resp.json();
-          if (data.error) throw new Error(JSON.stringify(data.error));
-          const text = data.choices?.[0]?.message?.content || '';
-          if (!text) { lastErr = new Error('Empty response from ' + model); break; }
-          _groqKeyIndex = keyIdx;
-          if (keyOffset !== 0 || model !== modelList[0])
-            console.info('groqCallFE: ok key=' + keyIdx + ' model=' + model);
-          return text;
-        } catch(e) {
-          lastErr = e;
-          if (e.message?.includes('429')) { _groqKeyIndex = (keyIdx + 1) % numKeys; break; }
-          if (attempt === 0) await new Promise(r => setTimeout(r, 1000));
-        }
-      }
-    }
+  const body = { messages, model_list: modelList, max_tokens: maxTokens, temperature };
+  if (responseFormat) body.response_format = responseFormat;
+  const resp = await fetch(API_BASE + '/api/groq', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error('groq proxy error ' + resp.status + ': ' + txt.slice(0, 120));
   }
-  throw lastErr || new Error('All Groq keys and models failed');
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error);
+  return data.text;
 }
 
 async function loadMarket(forceRefresh) {
