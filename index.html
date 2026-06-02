@@ -1509,7 +1509,7 @@ const i18n = {
     copyBtn:'📋 Copy',
     cryptobotDesc:'For CryptoBot, an invoice will be generated in Telegram. Tap below to open the payment link.',
     cryptobotPayBtn:'🤖 Pay via CryptoBot',
-    nowpaymentsDesc:'A secure USDT invoice will be created via NOWPayments. Tap below to open the payment page.',
+    nowpaymentsDesc:'A payment page will open via NOWPayments. You can choose any convenient cryptocurrency to pay.',
     nowpaymentsPayBtn:'💚 Pay via NOWPayments',
     iPaidBtn:'💳 I Paid — Confirm',
     submittingBtn:'⏳ Submitting…',
@@ -1758,7 +1758,7 @@ const i18n = {
     copyBtn:'📋 Копіювати',
     cryptobotDesc:'Через CryptoBot буде створено інвойс у Telegram. Натисніть нижче щоб відкрити посилання.',
     cryptobotPayBtn:'🤖 Оплатити через CryptoBot',
-    nowpaymentsDesc:'Інвойс USDT буде створено через NOWPayments. Натисніть нижче щоб відкрити сторінку оплати.',
+    nowpaymentsDesc:'Відкриється сторінка оплати через NOWPayments. Ви можете обрати будь-яку зручну криптовалюту.',
     nowpaymentsPayBtn:'💚 Оплатити через NOWPayments',
     iPaidBtn:'💳 Я оплатив — підтвердити',
     submittingBtn:'⏳ Надсилаємо…',
@@ -2069,7 +2069,7 @@ const i18n = {
     copyBtn:'📋 Kopírovat',
     cryptobotDesc:'Přes CryptoBot bude v Telegramu vytvořena faktura. Klepněte níže pro otevření odkazu.',
     cryptobotPayBtn:'🤖 Zaplatit přes CryptoBot',
-    nowpaymentsDesc:'Faktura USDT bude vytvořena přes NOWPayments. Klepněte níže pro otevření platební stránky.',
+    nowpaymentsDesc:'Otevře se platební stránka přes NOWPayments. Můžete zvolit jakoukoli kryptoměnu dle vaší volby.',
     nowpaymentsPayBtn:'💚 Zaplatit přes NOWPayments',
     iPaidBtn:'💳 Zaplatil jsem — potvrdit',
     submittingBtn:'⏳ Odesílám…',
@@ -2324,7 +2324,7 @@ const i18n = {
     copyBtn:'📋 Копировать',
     cryptobotDesc:'Через CryptoBot будет создан инвойс в Telegram. Нажмите ниже чтобы открыть ссылку.',
     cryptobotPayBtn:'🤖 Оплатить через CryptoBot',
-    nowpaymentsDesc:'Инвойс USDT будет создан через NOWPayments. Нажмите ниже чтобы открыть страницу оплаты.',
+    nowpaymentsDesc:'Откроется страница оплаты через NOWPayments. Вы можете выбрать любую удобную криптовалюту.',
     nowpaymentsPayBtn:'💚 Оплатить через NOWPayments',
     iPaidBtn:'💳 Я оплатил — подтвердить',
     submittingBtn:'⏳ Отправляем…',
@@ -3104,7 +3104,7 @@ const packsData=[
 
 const paymentsData=[
   {id:'cryptobot',emoji:'🤖',name:'CryptoBot (Telegram)',tag:'Fast',asset:'USDT'},
-  {id:'POLYGON',emoji:'💚',name:'USDT (Polygon)',tag:'NOWPayments'},
+  {id:'POLYGON',emoji:'💚',name:'NOWPayments',tag:''},
   {id:'card',emoji:'💳',name:'Visa / Mastercard',tag:'Coming soon',disabled:true},
 ];
 
@@ -6328,7 +6328,11 @@ function selectPlanPayMethod(method, el) {
 
   const isNowPayments = (method === 'USDT_TRC20' || method === 'USDT' || method === 'USDT_POLYGON' || method === 'POLYGON');
   const nowSection = document.getElementById('planPayNOWSection');
-  if (nowSection) nowSection.style.display = isNowPayments ? 'block' : 'none';
+  if (nowSection) {
+    nowSection.style.display = isNowPayments ? 'block' : 'none';
+    const descSpan = nowSection.querySelector('[data-i18n="nowpaymentsDesc"]');
+    if (descSpan) descSpan.textContent = t('nowpaymentsDesc');
+  }
 }
 
 function copyPlanPayAddress() {
@@ -6556,14 +6560,14 @@ init();
         <span class="plan-pay-method-tag">Fast</span>
       </div>
       <div class="plan-pay-method" onclick="selectPlanPayMethod('POLYGON', this)">
-        <div class="plan-pay-method-left"><span style="font-size:20px;">💚</span> USDT (Polygon)</div>
+        <div class="plan-pay-method-left"><span style="font-size:20px;">💚</span> NOWPayments</div>
         <span class="plan-pay-method-tag">NOWPayments</span>
       </div>
     </div>
 
     <!-- NOWPayments description for plan payment -->
     <div id="planPayNOWSection" style="display:none;background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:#666;line-height:1.6;">
-      Инвойс USDT будет создан через NOWPayments. Нажмите «Оплатить» чтобы открыть страницу оплаты.
+      <span data-i18n="nowpaymentsDesc"></span>
     </div>
     <button id="planPayBtn" onclick="confirmPlanPayment()" style="width:100%;padding:14px;background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;opacity:.35;pointer-events:none;transition:opacity .2s;margin-bottom:10px;">
       Оплатить
