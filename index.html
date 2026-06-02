@@ -1321,10 +1321,10 @@
 
 
       <div id="payCryptobotSection" style="display:none;margin-top:4px;">
-        <div style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:#666;line-height:1.6;" data-i18n="cryptobotDesc">
+        <div id="invoiceMethodDesc" style="background:#111;border:.5px solid #2e2e38;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:#666;line-height:1.6;" data-i18n="cryptobotDesc">
           For CryptoBot, an invoice will be generated in Telegram. Tap below to open the payment link.
         </div>
-        <button class="manual-confirm-btn" id="cryptoBotPayBtn" onclick="openCryptoBotInvoice()" data-i18n="cryptobotPayBtn">
+        <button class="manual-confirm-btn" id="cryptoBotPayBtn" onclick="openCryptoBotInvoice()">
           🤖 Pay via CryptoBot
         </button>
       </div>
@@ -1509,6 +1509,8 @@ const i18n = {
     copyBtn:'📋 Copy',
     cryptobotDesc:'For CryptoBot, an invoice will be generated in Telegram. Tap below to open the payment link.',
     cryptobotPayBtn:'🤖 Pay via CryptoBot',
+    nowpaymentsDesc:'A secure USDT invoice will be created via NOWPayments. Tap below to open the payment page.',
+    nowpaymentsPayBtn:'💚 Pay via NOWPayments',
     iPaidBtn:'💳 I Paid — Confirm',
     submittingBtn:'⏳ Submitting…',
     creatingInvoice:'Creating invoice…',
@@ -1756,6 +1758,8 @@ const i18n = {
     copyBtn:'📋 Копіювати',
     cryptobotDesc:'Через CryptoBot буде створено інвойс у Telegram. Натисніть нижче щоб відкрити посилання.',
     cryptobotPayBtn:'🤖 Оплатити через CryptoBot',
+    nowpaymentsDesc:'Інвойс USDT буде створено через NOWPayments. Натисніть нижче щоб відкрити сторінку оплати.',
+    nowpaymentsPayBtn:'💚 Оплатити через NOWPayments',
     iPaidBtn:'💳 Я оплатив — підтвердити',
     submittingBtn:'⏳ Надсилаємо…',
     creatingInvoice:'Створюємо інвойс…',
@@ -2065,6 +2069,8 @@ const i18n = {
     copyBtn:'📋 Kopírovat',
     cryptobotDesc:'Přes CryptoBot bude v Telegramu vytvořena faktura. Klepněte níže pro otevření odkazu.',
     cryptobotPayBtn:'🤖 Zaplatit přes CryptoBot',
+    nowpaymentsDesc:'Faktura USDT bude vytvořena přes NOWPayments. Klepněte níže pro otevření platební stránky.',
+    nowpaymentsPayBtn:'💚 Zaplatit přes NOWPayments',
     iPaidBtn:'💳 Zaplatil jsem — potvrdit',
     submittingBtn:'⏳ Odesílám…',
     creatingInvoice:'Vytvářím fakturu…',
@@ -2318,6 +2324,8 @@ const i18n = {
     copyBtn:'📋 Копировать',
     cryptobotDesc:'Через CryptoBot будет создан инвойс в Telegram. Нажмите ниже чтобы открыть ссылку.',
     cryptobotPayBtn:'🤖 Оплатить через CryptoBot',
+    nowpaymentsDesc:'Инвойс USDT будет создан через NOWPayments. Нажмите ниже чтобы открыть страницу оплаты.',
+    nowpaymentsPayBtn:'💚 Оплатить через NOWPayments',
     iPaidBtn:'💳 Я оплатил — подтвердить',
     submittingBtn:'⏳ Отправляем…',
     creatingInvoice:'Создаём инвойс…',
@@ -3096,8 +3104,8 @@ const packsData=[
 
 const paymentsData=[
   {id:'cryptobot',emoji:'🤖',name:'CryptoBot (Telegram)',tag:'Fast',asset:'USDT'},
-  {id:'USDT',emoji:'💚',name:'USDT (TRC-20)',tag:'TRC-20',network:'Tron Network (TRC-20)',address:'TJVMbwEVTRf4n3rfvcZ9Le7trnsYFiaes7',warning:'Send only USDT via Tron (TRC-20) network. Wrong network = lost funds.'},
-  {id:'POLYGON',emoji:'🟣',name:'USDT (Polygon)',tag:'Polygon',network:'Polygon Network',address:'0x568b7480c1ee4d15ba13933852cbd1ccc1d08751',warning:'Send only USDT via Polygon network. Wrong network = lost funds.'},
+  {id:'USDT',emoji:'💚',name:'USDT (TRC-20)',tag:'NOWPayments'},
+  {id:'POLYGON',emoji:'🟣',name:'USDT (Polygon)',tag:'NOWPayments'},
   {id:'card',emoji:'💳',name:'Visa / Mastercard',tag:'Coming soon',disabled:true},
 ];
 
@@ -3295,27 +3303,22 @@ function selectCryptoMethod(idx) {
     ? PLANS[window._planPayId].price.toFixed(2)
     : (selectedPacks.length*0.80).toFixed(2);
 
-  if(pm.id==='cryptobot') {
+  const isNowPayments = (pm.id==='USDT'||pm.id==='USDT_TRC20'||pm.id==='POLYGON'||pm.id==='USDT_POLYGON');
+  if(pm.id==='cryptobot' || isNowPayments) {
     document.getElementById('payWalletSection').style.display='none';
     document.getElementById('payCryptobotSection').style.display='block';
-  } else {
-    const wallet=walletDetails[pm.id];
-    if(wallet) {
-      document.getElementById('payNetworkName').textContent=wallet.network;
-      document.getElementById('payAddressText').textContent=wallet.address;
-      document.getElementById('payNetWarning').textContent='⚠️ '+wallet.warning;
-      const qrContainer = document.getElementById('payQRContainer');
-      const embeddedQR = WALLET_QR[pm.id];
-      if (embeddedQR) {
-        qrContainer.innerHTML = '<img src="' + embeddedQR + '" alt="QR" style="width:140px;height:140px;border-radius:8px;display:block;object-fit:contain;" />';
-      } else {
-        const qrAddress = wallet.address;
-        const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(qrAddress)}&bgcolor=ffffff&color=000000&margin=4`;
-        qrContainer.innerHTML = `<img src="${qrSrc}" alt="QR" style="width:140px;height:140px;border-radius:8px;display:block;" />`;
-      }
-      document.getElementById('payCryptobotSection').style.display='none';
-      document.getElementById('payWalletSection').style.display='block';
+    const descEl = document.getElementById('invoiceMethodDesc');
+    const btnEl  = document.getElementById('cryptoBotPayBtn');
+    if(isNowPayments) {
+      descEl.textContent = t('nowpaymentsDesc');
+      btnEl.textContent  = t('nowpaymentsPayBtn');
+    } else {
+      descEl.textContent = t('cryptobotDesc');
+      btnEl.textContent  = t('cryptobotPayBtn');
     }
+  } else {
+    document.getElementById('payCryptobotSection').style.display='none';
+    document.getElementById('payWalletSection').style.display='none';
   }
 }
 
@@ -3328,6 +3331,8 @@ function copyPayAddress() {
 async function openCryptoBotInvoice() {
   if(cryptoPaySelectedIdx===null) return;
   const pm=paymentsData[cryptoPaySelectedIdx];
+  const isNowPayments=(pm.id==='USDT'||pm.id==='USDT_TRC20'||pm.id==='POLYGON'||pm.id==='USDT_POLYGON');
+  const payMethod = pm.id;
 
   document.getElementById('cryptoBotPayBtn').textContent=t('creatingInvoice');
   document.getElementById('cryptoBotPayBtn').style.opacity='0.7';
@@ -3338,7 +3343,7 @@ async function openCryptoBotInvoice() {
     resp = await apiFetch('/api/plan/buy','POST',{
       user_id: currentUserId,
       plan: window._planPayId,
-      method: 'cryptobot',
+      method: payMethod,
       amount: plan.price
     });
   } else {
@@ -3346,17 +3351,18 @@ async function openCryptoBotInvoice() {
     resp=await apiFetch('/api/payment','POST',{
       user_id: currentUserId,
       packs: selectedPacks,
-      method: 'cryptobot',
+      method: payMethod,
       amount: parseFloat(total)
     });
   }
 
-  document.getElementById('cryptoBotPayBtn').textContent=t('cryptobotPayBtn');
+  const btnLabel = isNowPayments ? t('nowpaymentsPayBtn') : t('cryptobotPayBtn');
+  document.getElementById('cryptoBotPayBtn').textContent=btnLabel;
   document.getElementById('cryptoBotPayBtn').style.opacity='1';
 
   if(resp && resp.ok && resp.pay_url) {
     currentPaymentId=resp.payment_id;
-    currentPaymentMethod='cryptobot';
+    currentPaymentMethod=payMethod;
     currentPaymentCreatedAt=new Date().toISOString();
     if(tg) tg.openLink(resp.pay_url);
     else window.open(resp.pay_url,'_blank');
@@ -3364,7 +3370,7 @@ async function openCryptoBotInvoice() {
     if (window._planPayMode && window._planPayId) {
       _pendingPlanId = window._planPayId;
       _pendingPlanPaymentId = resp.payment_id;
-      _planPaymentMethod = 'cryptobot';
+      _planPaymentMethod = payMethod;
       showPlanPayPendingScreen(true);
     } else {
       showPayPendingScreen(true);
@@ -3461,7 +3467,7 @@ async function pollPaymentStatus() {
     const total=(selectedPacks.length*0.80).toFixed(2);
     const checkResp=await apiFetch('/api/payment/check','POST',{
       payment_id: currentPaymentId,
-      method: 'cryptobot',
+      method: currentPaymentMethod||'cryptobot',
       amount: parseFloat(total),
       created_at: currentPaymentCreatedAt||new Date().toISOString()
     });
