@@ -2749,7 +2749,7 @@ function applyTheme() {
 
 async function apiFetch(path, method='GET', body=null) {
   const url = API_BASE + path;
-  const timeoutMs = path === '/api/chat' ? 20000 : (String(path).includes('/api/portfolio') ? 15000 : (path.includes('/api/payment') || path.includes('/api/plan') ? 20000 : 6000));
+  const timeoutMs = path === '/api/chat' ? 20000 : (String(path).includes('/api/portfolio') ? 15000 : 6000);
   const controller = new AbortController();
   const tid = setTimeout(() => controller.abort(), timeoutMs);
   const opts = {
@@ -2761,7 +2761,7 @@ async function apiFetch(path, method='GET', body=null) {
   try {
     const r = await fetch(url, opts);
     clearTimeout(tid);
-    if(!r.ok) { console.error('[API]', method, path, r.status); try { return await r.json(); } catch(e) { return null; } }
+    if(!r.ok) { console.error('[API]', method, path, r.status); return null; }
     return await r.json();
   } catch(e) {
     clearTimeout(tid);
@@ -3362,8 +3362,8 @@ async function openCryptoBotInvoice() {
     currentPaymentId=resp.payment_id;
     currentPaymentMethod=payMethod;
     currentPaymentCreatedAt=new Date().toISOString();
-    if(tg) tg.openLink(resp.pay_url, {try_instant_view: false});
-    else window.open(resp.pay_url, '_blank');
+    if(tg) tg.openLink(resp.pay_url);
+    else window.open(resp.pay_url,'_blank');
     closeCryptoPayModal();
     if (window._planPayMode && window._planPayId) {
       _pendingPlanId = window._planPayId;
@@ -3374,9 +3374,7 @@ async function openCryptoBotInvoice() {
       showPayPendingScreen(true);
     }
   } else {
-    const errMsg = resp?.error || resp?.detail || resp?.message || t('errorInvoice');
-    showMainToast('❌ ' + errMsg);
-    console.error('[NowPayments] resp:', JSON.stringify(resp));
+    showMainToast(t('errorInvoice'));
   }
 }
 
@@ -6358,7 +6356,7 @@ async function confirmPlanPayment() {
       // Open CryptoBot payment link
       _pendingPlanPaymentId = resp.payment_id;
       if (window.Telegram?.WebApp?.openLink) {
-        window.Telegram.WebApp.openLink(resp.pay_url, {try_instant_view: false});
+        window.Telegram.WebApp.openLink(resp.pay_url);
       } else {
         window.open(resp.pay_url, '_blank');
       }
