@@ -2749,7 +2749,7 @@ function applyTheme() {
 
 async function apiFetch(path, method='GET', body=null) {
   const url = API_BASE + path;
-  const timeoutMs = path === '/api/chat' ? 20000 : (String(path).includes('/api/portfolio') ? 15000 : 6000);
+  const timeoutMs = path === '/api/chat' ? 20000 : (String(path).includes('/api/portfolio') ? 15000 : (path.includes('/api/payment') || path.includes('/api/plan') ? 20000 : 6000));
   const controller = new AbortController();
   const tid = setTimeout(() => controller.abort(), timeoutMs);
   const opts = {
@@ -2761,7 +2761,7 @@ async function apiFetch(path, method='GET', body=null) {
   try {
     const r = await fetch(url, opts);
     clearTimeout(tid);
-    if(!r.ok) { console.error('[API]', method, path, r.status); return null; }
+    if(!r.ok) { console.error('[API]', method, path, r.status); try { return await r.json(); } catch(e) { return null; } }
     return await r.json();
   } catch(e) {
     clearTimeout(tid);
@@ -3374,7 +3374,9 @@ async function openCryptoBotInvoice() {
       showPayPendingScreen(true);
     }
   } else {
-    showMainToast(t('errorInvoice'));
+    const errMsg = resp?.error || resp?.detail || resp?.message || t('errorInvoice');
+    showMainToast('❌ ' + errMsg);
+    console.error('[NowPayments] resp:', JSON.stringify(resp));
   }
 }
 
