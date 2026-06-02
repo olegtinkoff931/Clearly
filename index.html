@@ -3362,8 +3362,8 @@ async function openCryptoBotInvoice() {
     currentPaymentId=resp.payment_id;
     currentPaymentMethod=payMethod;
     currentPaymentCreatedAt=new Date().toISOString();
-    if(tg) tg.openLink(resp.pay_url);
-    else window.open(resp.pay_url,'_blank');
+    if(tg) tg.openLink(resp.pay_url, {try_instant_view: false});
+    else window.open(resp.pay_url, '_blank');
     closeCryptoPayModal();
     if (window._planPayMode && window._planPayId) {
       _pendingPlanId = window._planPayId;
@@ -6356,7 +6356,7 @@ async function confirmPlanPayment() {
       // Open CryptoBot payment link
       _pendingPlanPaymentId = resp.payment_id;
       if (window.Telegram?.WebApp?.openLink) {
-        window.Telegram.WebApp.openLink(resp.pay_url);
+        window.Telegram.WebApp.openLink(resp.pay_url, {try_instant_view: false});
       } else {
         window.open(resp.pay_url, '_blank');
       }
