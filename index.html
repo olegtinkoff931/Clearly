@@ -3104,13 +3104,12 @@ const packsData=[
 
 const paymentsData=[
   {id:'cryptobot',emoji:'🤖',name:'CryptoBot (Telegram)',tag:'Fast',asset:'USDT'},
-  {id:'USDT',emoji:'💚',name:'USDT (TRC-20)',tag:'NOWPayments'},
+  {id:'POLYGON',emoji:'💚',name:'USDT (Polygon)',tag:'NOWPayments'},
   {id:'card',emoji:'💳',name:'Visa / Mastercard',tag:'Coming soon',disabled:true},
 ];
 
 const walletDetails={
   USDT:{network:'Tron Network (TRC-20)',address:'TJVMbwEVTRf4n3rfvcZ9Le7trnsYFiaes7',warning:'Send only USDT via Tron (TRC-20) network. Wrong network = lost funds.'},
-  POLYGON:{network:'Polygon Network',address:'0x568b7480c1ee4d15ba13933852cbd1ccc1d08751',warning:'Send only USDT via Polygon network. Wrong network = lost funds.'},
 };
 // Embedded QR codes
 const WALLET_QR = {
@@ -6555,8 +6554,8 @@ init();
         <div class="plan-pay-method-left"><span style="font-size:20px;">🤖</span> CryptoBot (Telegram)</div>
         <span class="plan-pay-method-tag">Fast</span>
       </div>
-      <div class="plan-pay-method" onclick="selectPlanPayMethod('USDT_TRC20', this)">
-        <div class="plan-pay-method-left"><span style="font-size:20px;">💚</span> USDT (TRC-20)</div>
+      <div class="plan-pay-method" onclick="selectPlanPayMethod('POLYGON', this)">
+        <div class="plan-pay-method-left"><span style="font-size:20px;">💚</span> USDT (Polygon)</div>
         <span class="plan-pay-method-tag">NOWPayments</span>
       </div>
     </div>
