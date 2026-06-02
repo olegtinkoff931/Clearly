@@ -3336,32 +3336,23 @@ async function openCryptoBotInvoice() {
   document.getElementById('cryptoBotPayBtn').style.opacity='0.7';
 
   let resp;
-  try {
-    if (window._planPayMode && window._planPayId) {
-      const plan = PLANS[window._planPayId];
-      resp = await apiFetch('/api/plan/buy','POST',{
-        user_id: currentUserId,
-        plan: window._planPayId,
-        method: payMethod,
-        amount: plan.price
-      });
-    } else {
-      const total=(selectedPacks.length*0.80).toFixed(2);
-      resp=await apiFetch('/api/payment','POST',{
-        user_id: currentUserId,
-        packs: selectedPacks,
-        method: payMethod,
-        amount: parseFloat(total)
-      });
-    }
-  } catch(fetchErr) {
-    alert('[DEBUG] fetch exception: ' + fetchErr.message);
-    document.getElementById('cryptoBotPayBtn').textContent=t('nowpaymentsPayBtn');
-    document.getElementById('cryptoBotPayBtn').style.opacity='1';
-    return;
+  if (window._planPayMode && window._planPayId) {
+    const plan = PLANS[window._planPayId];
+    resp = await apiFetch('/api/plan/buy','POST',{
+      user_id: currentUserId,
+      plan: window._planPayId,
+      method: payMethod,
+      amount: plan.price
+    });
+  } else {
+    const total=(selectedPacks.length*0.80).toFixed(2);
+    resp=await apiFetch('/api/payment','POST',{
+      user_id: currentUserId,
+      packs: selectedPacks,
+      method: payMethod,
+      amount: parseFloat(total)
+    });
   }
-
-  alert('[DEBUG] resp: ' + JSON.stringify(resp));
 
   const btnLabel = isNowPayments ? t('nowpaymentsPayBtn') : t('cryptobotPayBtn');
   document.getElementById('cryptoBotPayBtn').textContent=btnLabel;
@@ -3384,7 +3375,6 @@ async function openCryptoBotInvoice() {
     }
   } else {
     const errMsg = resp?.error || resp?.detail || resp?.message || t('errorInvoice');
-    alert('[DEBUG] ERROR: ' + errMsg);
     showMainToast('❌ ' + errMsg);
   }
 }
