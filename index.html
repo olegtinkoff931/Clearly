@@ -1005,34 +1005,6 @@
         </div>
       </div>
     </div>
-    <p class="settings-section" data-i18n="settingsPaSection">PRICE ALERTS</p>
-    <div class="settings-card">
-      <div class="settings-row" style="flex-direction:column;align-items:flex-start;">
-        <div style="display:flex;align-items:flex-start;gap:12px;width:100%;">
-          <div class="settings-row-icon" style="background:#1a2030;">🔔</div>
-          <div class="settings-row-info">
-            <p class="settings-row-title" data-i18n="settingsPaTitle">Price Alerts</p>
-            <p class="settings-row-sub" data-i18n="settingsPaSub">Get notified when a coin hits your target price.</p>
-          </div>
-        </div>
-        <div style="width:100%;margin-top:10px;">
-          <div class="pa-add-wrap">
-            <div class="pa-add-row1">
-              <input class="pa-add-coin" id="paAddCoin" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="10" placeholder="BTC / ETH…">
-              <div class="pa-dir-toggle">
-                <button type="button" class="pa-dir-btn sel-above" id="paDirAbove" onclick="paDirSelect('above')">↑</button>
-                <button type="button" class="pa-dir-btn" id="paDirBelow" onclick="paDirSelect('below')">↓</button>
-              </div>
-            </div>
-            <div class="pa-add-row2">
-              <input class="pa-add-price" id="paAddPrice" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Target price, e.g. 70000">
-              <button type="button" class="pa-add-btn" onclick="paAddAlert()">+</button>
-            </div>
-          </div>
-          <div class="pa-list" id="paList"></div>
-        </div>
-      </div>
-    </div>
     <p class="settings-section" data-i18n="supportSection">SUPPORT</p>
     <div class="settings-card" style="margin:0 12px 8px;">
       <div class="settings-row" onclick="window.open('https://t.me/clearly_support_bot','_blank')" style="cursor:pointer;align-items:center;">
@@ -1169,6 +1141,7 @@
       <div class="mkt-seg-bar" id="marketSegBar">
         <button type="button" id="segMarketSignals" class="mkt-seg-btn active" onclick="setMarketMode('signals')" data-i18n="marketTabSignals">Signals</button>
         <button type="button" id="segMarketPortfolio" class="mkt-seg-btn" onclick="setMarketMode('portfolio')" data-i18n="marketTabPortfolio">Portfolio</button>
+        <button type="button" id="segMarketWatchlist" class="mkt-seg-btn" onclick="setMarketMode('watchlist')">👁 Активы</button>
       </div>
     </div>
     <div id="marketLoading" class="mkt-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:18px;">
@@ -1210,7 +1183,59 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="portfolioModal" onclick="closePortfolioModalOutside(event)">
+  <!-- ══ WATCHLIST PANEL ═══════════════════════════════════════════ -->
+  <div id="watchlistPanel" style="display:none;flex-direction:column;padding:12px;gap:12px;padding-bottom:80px;">
+    <!-- Add asset input -->
+    <div style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:12px 14px;">
+      <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;">➕ ДОБАВИТЬ АКТИВ</p>
+      <div style="display:flex;gap:8px;">
+        <input id="watchlistInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10"
+          placeholder="BTC, ETH, SOL…"
+          style="flex:1;background:#111114;border:.5px solid #2e2e38;border-radius:9px;padding:10px 12px;font-size:13px;color:#e8e8f0;outline:none;text-transform:uppercase;"
+          onkeydown="if(event.key==='Enter')watchlistAdd()">
+        <button onclick="watchlistAdd()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
+      </div>
+    </div>
+    <!-- Asset list -->
+    <div id="watchlistEmpty" style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;">
+      <p style="font-size:32px;margin:0 0 12px;">👁</p>
+      <p style="font-size:15px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">Нет отслеживаемых активов</p>
+      <p style="font-size:12px;color:#555;margin:0;">Добавьте монеты выше — увидите прогнозы и новости</p>
+    </div>
+    <div id="watchlistItems" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+
+  <!-- Watchlist asset detail modal -->
+  <div class="modal-overlay" id="watchlistModal" onclick="closeWatchlistModal(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()" style="max-height:88vh;display:flex;flex-direction:column;">
+      <div class="modal-handle"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <p class="modal-title" id="watchlistModalTitle">BTC</p>
+        <button onclick="document.getElementById('watchlistModal').classList.remove('open')" style="background:none;border:none;color:#555;font-size:20px;cursor:pointer;line-height:1;">✕</button>
+      </div>
+      <p id="watchlistModalPrice" style="font-size:24px;font-weight:700;color:#e8e8f0;margin:0 0 16px;"></p>
+      <!-- Sentiment bar -->
+      <div id="watchlistModalSentiment" style="background:#1a1a20;border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+        <p style="font-size:10px;color:#555;letter-spacing:.7px;margin:0 0 8px;">📊 АНАЛИЗ НАСТРОЕНИЙ</p>
+        <div style="height:6px;border-radius:3px;background:#2e2e38;overflow:hidden;margin-bottom:8px;">
+          <div id="wlSentBar" style="height:100%;background:linear-gradient(90deg,#3aaa6e,#5b5bdc);border-radius:3px;width:67%;transition:width .5s;"></div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <span id="wlBullPct" style="font-size:12px;color:#3aaa6e;">🟢 Бычьи — 67%</span>
+          <span id="wlNeutPct" style="font-size:12px;color:#888;">⚪ Нейтральные — 26%</span>
+          <span id="wlBearPct" style="font-size:12px;color:#e05252;">🔴 Медвежьи — 7%</span>
+        </div>
+      </div>
+      <!-- AI Forecast -->
+      <div id="watchlistModalForecast" style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid #5b5bdc44;border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+        <p style="font-size:10px;color:#a78bfa;letter-spacing:.7px;margin:0 0 8px;">🤖 AI ПРОГНОЗ</p>
+        <p id="wlForecastText" style="font-size:13px;color:#c0c0d8;line-height:1.6;margin:0;">Загрузка...</p>
+      </div>
+      <!-- Top news -->
+      <p style="font-size:10px;color:#555;letter-spacing:.7px;margin:0 0 8px;">📰 ГЛАВНЫЕ НОВОСТИ</p>
+      <div id="watchlistModalNews" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;"></div>
+    </div>
+  </div>
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <p class="modal-title" id="portfolioModalTitle" data-i18n="portfolioModalAdd">Add position</p>
@@ -5175,14 +5200,17 @@ function setMarketMode(mode) {
   _marketMode = mode;
   const segSig = document.getElementById('segMarketSignals');
   const segPort = document.getElementById('segMarketPortfolio');
+  const segWatch = document.getElementById('segMarketWatchlist');
   if (segSig) segSig.classList.toggle('active', mode === 'signals');
   if (segPort) segPort.classList.toggle('active', mode === 'portfolio');
+  if (segWatch) segWatch.classList.toggle('active', mode === 'watchlist');
   const titleEl = document.getElementById('marketScreenTitle');
   const actions = document.getElementById('marketHeaderActions');
   const loadingEl = document.getElementById('marketLoading');
   const errorEl = document.getElementById('marketError');
   const contentEl = document.getElementById('marketContent');
   const portPanel = document.getElementById('portfolioPanel');
+  const watchPanel = document.getElementById('watchlistPanel');
   const liveDot = document.getElementById('marketLiveDot');
   const fab = document.getElementById('portfolioFab');
 
@@ -5194,12 +5222,26 @@ function setMarketMode(mode) {
     if (contentEl) contentEl.style.display = 'none';
     if (liveDot) liveDot.style.display = 'none';
     if (portPanel) portPanel.style.display = 'flex';
+    if (watchPanel) watchPanel.style.display = 'none';
     setAIFabVisible(false);
     loadPortfolio();
+  } else if (mode === 'watchlist') {
+    if (titleEl) titleEl.textContent = '👁 Мои активы';
+    if (actions) actions.style.display = 'none';
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'none';
+    if (liveDot) liveDot.style.display = 'none';
+    if (portPanel) portPanel.style.display = 'none';
+    if (watchPanel) watchPanel.style.display = 'flex';
+    if (fab) fab.style.display = 'none';
+    setAIFabVisible(false);
+    watchlistRender();
   } else {
     if (titleEl) titleEl.textContent = t('marketTitle');
     if (actions) actions.style.display = 'flex';
     if (portPanel) portPanel.style.display = 'none';
+    if (watchPanel) watchPanel.style.display = 'none';
     if (fab) fab.style.display = 'none';
     if (_marketLoaded && contentEl) {
       contentEl.style.display = 'flex';
@@ -7197,6 +7239,191 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   window.paInit = paInit;
 })();
 // ══ END PRICE ALERTS ════════════════════════════════════════════
+
+// ══ WATCHLIST ════════════════════════════════════════════════════
+(function() {
+  const STORAGE_KEY = 'clearly_watchlist_v1';
+
+  function wlLoad() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+  }
+  function wlSave(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  async function fetchPrice(coin) {
+    try {
+      const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${coin}USDT`, { cache: 'no-store' });
+      const d = await r.json();
+      if (d.lastPrice) return { price: parseFloat(d.lastPrice), change: parseFloat(d.priceChangePercent) };
+    } catch(e) {}
+    return null;
+  }
+
+  window.watchlistAdd = async function() {
+    const inp = document.getElementById('watchlistInput');
+    if (!inp) return;
+    const coin = inp.value.trim().toUpperCase().replace(/USDT$/,'');
+    if (!coin) return;
+    let list = wlLoad();
+    if (list.find(c => c === coin)) { inp.value = ''; return; }
+    list.push(coin);
+    wlSave(list);
+    inp.value = '';
+    watchlistRender();
+  };
+
+  window.watchlistRemove = function(coin) {
+    let list = wlLoad().filter(c => c !== coin);
+    wlSave(list);
+    watchlistRender();
+  };
+
+  window.watchlistRender = async function() {
+    const list = wlLoad();
+    const emptyEl = document.getElementById('watchlistEmpty');
+    const itemsEl = document.getElementById('watchlistItems');
+    if (!emptyEl || !itemsEl) return;
+
+    if (!list.length) {
+      emptyEl.style.display = 'flex';
+      itemsEl.innerHTML = '';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    // render skeleton first
+    itemsEl.innerHTML = list.map(coin => `
+      <div class="wl-card" id="wlCard_${coin}" onclick="openWatchlistModal('${coin}')" style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:12px 14px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1e1e30,#2a2a50);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#a78bfa;flex-shrink:0;">${coin.slice(0,3)}</div>
+        <div style="flex:1;min-width:0;">
+          <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${coin}/USDT</p>
+          <p id="wlPrice_${coin}" style="font-size:11px;color:#555;margin:0;">Загрузка…</p>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <p id="wlChange_${coin}" style="font-size:12px;font-weight:600;margin:0 0 4px;color:#888;">—</p>
+          <button onclick="event.stopPropagation();watchlistRemove('${coin}')" style="background:none;border:none;color:#3a3a44;font-size:13px;cursor:pointer;padding:0;line-height:1;" title="Удалить">✕</button>
+        </div>
+        <div style="flex-shrink:0;"><i class="ti ti-chevron-right" style="font-size:13px;color:#333;"></i></div>
+      </div>
+    `).join('');
+
+    // load prices async
+    for (const coin of list) {
+      const data = await fetchPrice(coin);
+      const priceEl = document.getElementById(`wlPrice_${coin}`);
+      const changeEl = document.getElementById(`wlChange_${coin}`);
+      if (data && priceEl && changeEl) {
+        priceEl.textContent = '$' + data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: data.price > 100 ? 2 : 4 });
+        const up = data.change >= 0;
+        changeEl.textContent = (up ? '+' : '') + data.change.toFixed(2) + '%';
+        changeEl.style.color = up ? '#3aaa6e' : '#e05252';
+      } else if (priceEl) {
+        priceEl.textContent = 'Нет данных (не на Binance)';
+      }
+    }
+  };
+
+  window.openWatchlistModal = async function(coin) {
+    const modal = document.getElementById('watchlistModal');
+    if (!modal) return;
+    document.getElementById('watchlistModalTitle').textContent = coin + '/USDT';
+    document.getElementById('watchlistModalPrice').textContent = 'Загрузка…';
+    document.getElementById('wlForecastText').textContent = 'Анализирую рынок…';
+    document.getElementById('watchlistModalNews').innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">Загрузка новостей…</p>';
+    modal.classList.add('open');
+
+    // Fetch price & sentiment
+    const data = await fetchPrice(coin);
+    if (data) {
+      const priceEl = document.getElementById('watchlistModalPrice');
+      priceEl.textContent = '$' + data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: data.price > 100 ? 2 : 4 });
+      priceEl.style.color = data.change >= 0 ? '#3aaa6e' : '#e05252';
+      // Simple synthetic sentiment based on change
+      const bull = Math.min(90, Math.max(20, 55 + data.change * 2));
+      const bear = Math.min(40, Math.max(5, 20 - data.change));
+      const neut = Math.max(5, 100 - bull - bear);
+      document.getElementById('wlSentBar').style.width = bull + '%';
+      document.getElementById('wlBullPct').textContent = `🟢 Бычьи — ${Math.round(bull)}%`;
+      document.getElementById('wlNeutPct').textContent = `⚪ Нейтральные — ${Math.round(neut)}%`;
+      document.getElementById('wlBearPct').textContent = `🔴 Медвежьи — ${Math.round(bear)}%`;
+    }
+
+    // AI Forecast via Anthropic API
+    try {
+      const priceInfo = data ? `Текущая цена: $${data.price.toFixed(4)}, изменение за 24ч: ${data.change.toFixed(2)}%` : '';
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: `Ты — профессиональный крипто-аналитик. Дай краткий прогноз по монете ${coin} на ближайшие 24-48 часов. ${priceInfo}. Ответь на русском, 2-3 предложения, без лишних заголовков. Укажи ключевые уровни поддержки/сопротивления и общий сентимент.`
+          }]
+        })
+      });
+      const d = await resp.json();
+      const text = d.content && d.content[0] && d.content[0].text;
+      document.getElementById('wlForecastText').textContent = text || 'Не удалось получить прогноз.';
+    } catch(e) {
+      document.getElementById('wlForecastText').textContent = 'Ошибка при получении прогноза.';
+    }
+
+    // News via Anthropic with web search
+    try {
+      const newsResp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          messages: [{
+            role: 'user',
+            content: `Найди 3 последние важные новости о криптовалюте ${coin} за последние 48 часов. Ответь ТОЛЬКО в формате JSON (без markdown, без комментариев): {"news":[{"title":"...","summary":"...","sentiment":"bullish|bearish|neutral","time":"..."}]}`
+          }]
+        })
+      });
+      const nd = await newsResp.json();
+      const rawText = (nd.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+      let parsed;
+      try {
+        const clean = rawText.replace(/```json|```/g, '').trim();
+        const start = clean.indexOf('{');
+        parsed = JSON.parse(clean.slice(start));
+      } catch(e) { parsed = null; }
+
+      const newsEl = document.getElementById('watchlistModalNews');
+      if (parsed && parsed.news && parsed.news.length) {
+        newsEl.innerHTML = parsed.news.map(n => {
+          const sentColor = n.sentiment === 'bullish' ? '#3aaa6e' : n.sentiment === 'bearish' ? '#e05252' : '#888';
+          const sentEmoji = n.sentiment === 'bullish' ? '🟢' : n.sentiment === 'bearish' ? '🔴' : '⚪';
+          return `<div style="background:#1a1a20;border-radius:11px;border:.5px solid #272730;padding:10px 12px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <span style="font-size:10px;">${sentEmoji}</span>
+              <span style="font-size:9px;color:${sentColor};font-weight:600;text-transform:uppercase;">${n.sentiment || 'neutral'}</span>
+              <span style="margin-left:auto;font-size:10px;color:#444;">${n.time || ''}</span>
+            </div>
+            <p style="font-size:12px;font-weight:600;color:#e8e8f0;margin:0 0 4px;line-height:1.4;">${n.title}</p>
+            <p style="font-size:11px;color:#666;margin:0;line-height:1.5;">${n.summary}</p>
+          </div>`;
+        }).join('');
+      } else {
+        newsEl.innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">Новости не найдены.</p>';
+      }
+    } catch(e) {
+      document.getElementById('watchlistModalNews').innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">Ошибка загрузки новостей.</p>';
+    }
+  };
+
+  window.closeWatchlistModal = function(e) {
+    if (e && e.currentTarget !== e.target) return;
+    document.getElementById('watchlistModal').classList.remove('open');
+  };
+})();
+// ══ END WATCHLIST ═════════════════════════════════════════════════
 </script>
 </body>
 </html>
