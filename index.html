@@ -1141,7 +1141,7 @@
       <div class="mkt-seg-bar" id="marketSegBar">
         <button type="button" id="segMarketSignals" class="mkt-seg-btn active" onclick="setMarketMode('signals')" data-i18n="marketTabSignals">Signals</button>
         <button type="button" id="segMarketPortfolio" class="mkt-seg-btn" onclick="setMarketMode('portfolio')" data-i18n="marketTabPortfolio">Portfolio</button>
-        <button type="button" id="segMarketWatchlist" class="mkt-seg-btn" onclick="setMarketMode('watchlist')">👁 Активы</button>
+        <button type="button" id="segMarketWatchlist" class="mkt-seg-btn" onclick="setMarketMode('watchlist')">Активы</button>
       </div>
     </div>
     <div id="marketLoading" class="mkt-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:18px;">
@@ -5226,7 +5226,7 @@ function setMarketMode(mode) {
     setAIFabVisible(false);
     loadPortfolio();
   } else if (mode === 'watchlist') {
-    if (titleEl) titleEl.textContent = '👁 Мои активы';
+    if (titleEl) titleEl.textContent = 'Мои активы';
     if (actions) actions.style.display = 'none';
     if (loadingEl) loadingEl.style.display = 'none';
     if (errorEl) errorEl.style.display = 'none';
@@ -7349,45 +7349,46 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
       document.getElementById('wlBearPct').textContent = `🔴 Медвежьи — ${Math.round(bear)}%`;
     }
 
-    // AI Forecast via Anthropic API
+    // AI Forecast via backend Groq proxy
     try {
       const priceInfo = data ? `Текущая цена: $${data.price.toFixed(4)}, изменение за 24ч: ${data.change.toFixed(2)}%` : '';
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{
+      const resp = await apiFetch('/api/groq', 'POST', {
+        messages: [
+          {
+            role: 'system',
+            content: 'Ты — профессиональный крипто-аналитик. Давай краткие чёткие прогнозы на русском языке.'
+          },
+          {
             role: 'user',
-            content: `Ты — профессиональный крипто-аналитик. Дай краткий прогноз по монете ${coin} на ближайшие 24-48 часов. ${priceInfo}. Ответь на русском, 2-3 предложения, без лишних заголовков. Укажи ключевые уровни поддержки/сопротивления и общий сентимент.`
-          }]
-        })
+            content: `Дай краткий прогноз по монете ${coin} на ближайшие 24-48 часов. ${priceInfo}. Ответь на русском, 2-3 предложения, без лишних заголовков. Укажи ключевые уровни поддержки/сопротивления и общий сентимент.`
+          }
+        ],
+        max_tokens: 400,
+        temperature: 0.4
       });
-      const d = await resp.json();
-      const text = d.content && d.content[0] && d.content[0].text;
+      const text = resp && resp.text;
       document.getElementById('wlForecastText').textContent = text || 'Не удалось получить прогноз.';
     } catch(e) {
       document.getElementById('wlForecastText').textContent = 'Ошибка при получении прогноза.';
     }
 
-    // News via Anthropic with web search
+    // News via backend Groq proxy
     try {
-      const newsResp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-          messages: [{
+      const newsResp = await apiFetch('/api/groq', 'POST', {
+        messages: [
+          {
+            role: 'system',
+            content: 'Ты — крипто-аналитик. Отвечай ТОЛЬКО валидным JSON без markdown и комментариев.'
+          },
+          {
             role: 'user',
-            content: `Найди 3 последние важные новости о криптовалюте ${coin} за последние 48 часов. Ответь ТОЛЬКО в формате JSON (без markdown, без комментариев): {"news":[{"title":"...","summary":"...","sentiment":"bullish|bearish|neutral","time":"..."}]}`
-          }]
-        })
+            content: `Сгенерируй 3 типичные важные новости о криптовалюте ${coin} за последние 48 часов (на основе общих знаний о рынке). Ответь ТОЛЬКО в формате JSON: {"news":[{"title":"...","summary":"...","sentiment":"bullish|bearish|neutral","time":"..."}]}`
+          }
+        ],
+        max_tokens: 600,
+        temperature: 0.3
       });
-      const nd = await newsResp.json();
-      const rawText = (nd.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+      const rawText = (newsResp && newsResp.text) || '';
       let parsed;
       try {
         const clean = rawText.replace(/```json|```/g, '').trim();
