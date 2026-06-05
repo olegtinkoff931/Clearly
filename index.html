@@ -1236,6 +1236,9 @@
       <div id="watchlistModalNews" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;"></div>
     </div>
   </div>
+
+  <!-- Portfolio position modal (was missing its modal-overlay wrapper — caused visible spinners) -->
+  <div class="modal-overlay" id="portfolioModal" onclick="if(event.target.id==='portfolioModal')closePortfolioModal()">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <p class="modal-title" id="portfolioModalTitle" data-i18n="portfolioModalAdd">Add position</p>
