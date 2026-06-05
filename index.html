@@ -1181,28 +1181,28 @@
         <i class="ti ti-plus" style="font-size:15px;"></i> <span data-i18n="portfolioAddBtn">Add</span>
       </button>
     </div>
-  </div>
 
-  <!-- ══ WATCHLIST PANEL ═══════════════════════════════════════════ -->
-  <div id="watchlistPanel" style="display:none;flex-direction:column;padding:12px;gap:12px;padding-bottom:80px;">
-    <!-- Add asset input -->
-    <div style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:12px 14px;">
-      <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;">➕ ДОБАВИТЬ АКТИВ</p>
-      <div style="display:flex;gap:8px;">
-        <input id="watchlistInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10"
-          placeholder="BTC, ETH, SOL…"
-          style="flex:1;background:#111114;border:.5px solid #2e2e38;border-radius:9px;padding:10px 12px;font-size:13px;color:#e8e8f0;outline:none;text-transform:uppercase;"
-          onkeydown="if(event.key==='Enter')watchlistAdd()">
-        <button onclick="watchlistAdd()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
+    <!-- ══ WATCHLIST PANEL (inside vMarket for correct visibility) ══ -->
+    <div id="watchlistPanel" style="display:none;flex-direction:column;padding:12px;gap:12px;padding-bottom:80px;">
+      <!-- Add asset input -->
+      <div style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:12px 14px;">
+        <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;">➕ ДОБАВИТЬ АКТИВ</p>
+        <div style="display:flex;gap:8px;">
+          <input id="watchlistInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10"
+            placeholder="BTC, ETH, SOL…"
+            style="flex:1;background:#111114;border:.5px solid #2e2e38;border-radius:9px;padding:10px 12px;font-size:13px;color:#e8e8f0;outline:none;text-transform:uppercase;"
+            onkeydown="if(event.key==='Enter')watchlistAdd()">
+          <button onclick="watchlistAdd()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
+        </div>
       </div>
+      <!-- Asset list -->
+      <div id="watchlistEmpty" style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;">
+        <p style="font-size:32px;margin:0 0 12px;">👁</p>
+        <p style="font-size:15px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">Нет отслеживаемых активов</p>
+        <p style="font-size:12px;color:#555;margin:0;">Добавьте монеты выше — увидите прогнозы и новости</p>
+      </div>
+      <div id="watchlistItems" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
-    <!-- Asset list -->
-    <div id="watchlistEmpty" style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;">
-      <p style="font-size:32px;margin:0 0 12px;">👁</p>
-      <p style="font-size:15px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">Нет отслеживаемых активов</p>
-      <p style="font-size:12px;color:#555;margin:0;">Добавьте монеты выше — увидите прогнозы и новости</p>
-    </div>
-    <div id="watchlistItems" style="display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 
   <!-- Watchlist asset detail modal -->
@@ -2871,27 +2871,26 @@ async function init() {
     currentPlan = userData.subscription_plan || null;
   }
 
-  if(userData.quiz_done) {
-    needsInitialLangChoice = false;
-    renderChannelList();
-    renderProfileScreen();
-    if (!hasPlan()) {
-      showSubscriptionScreen(null, { forced: true });
-    } else {
-      const vm = document.getElementById('vMain');
-      if (vm) {
-        vm.className = 'view';
-        vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
-      }
-      const nav = document.getElementById('mainBottomNav');
-      if (nav) { nav.style.display = ''; nav.style.opacity = '1'; }
-      const fab = document.getElementById('aiFab');
-      if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
-    }
+  // Always skip onboarding — go directly to main screen
+  needsInitialLangChoice = false;
+  renderChannelList();
+  renderProfileScreen();
+  if (!hasPlan()) {
+    showSubscriptionScreen(null, { forced: true });
   } else {
-    needsInitialLangChoice = true;
-    onboardingLangChoice = currentLang;
-    showView('vSplash');
+    const vm = document.getElementById('vMain');
+    if (vm) {
+      vm.className = 'view';
+      vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
+    }
+    const nav = document.getElementById('mainBottomNav');
+    if (nav) { nav.style.display = ''; nav.style.opacity = '1'; }
+    const fab = document.getElementById('aiFab');
+    if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
+  }
+  // Mark quiz done silently if not already done
+  if (!userData.quiz_done && currentUserId) {
+    apiFetch('/api/quiz', 'POST', { user_id: currentUserId, answers: {}, packs: purchasedPacks }).catch(() => {});
   }
 
   } catch(err) {
@@ -3983,6 +3982,7 @@ function switchTab(tab) {
     marketEl.style.display='flex';
     marketEl.style.pointerEvents='auto';
     if (_marketMode === 'portfolio') setMarketMode('portfolio');
+    else if (_marketMode === 'watchlist') setMarketMode('watchlist');
     else setMarketMode('signals');
   } else {
     marketEl.style.display='none';
