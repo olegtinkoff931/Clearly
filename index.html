@@ -1153,7 +1153,6 @@
     <div class="bn" id="mainBottomNav" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
       <div class="ni ac" id="navChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
       <div class="ni" id="navMarket" onclick="switchTab('market')"><i class="ti ti-chart-line niv"></i><span data-i18n="navMarket">Market</span></div>
-      <div class="ni" id="navAssets" onclick="switchTab('assets')"><i class="ti ti-coin niv"></i><span data-i18n="navAssets">Assets</span></div>
       <div class="ni" id="navFeed" onclick="switchTab('feed')"><i class="ti ti-bell niv"></i><span data-i18n="navFeed">Alerts</span></div>
       <div class="ni" id="navProfile" onclick="switchTab('profile')"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
     </div>
@@ -1475,7 +1474,7 @@
         <!-- Sentiment section -->
         <div class="wl-section-label">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="opacity:.5"><path d="M1 9l3-4 2 2 2-3 3 5" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          АНАЛИЗ НАСТРОЕНИЙ
+          <span data-i18n="watchlistSentimentLabel">АНАЛИЗ НАСТРОЕНИЙ</span>
         </div>
         <div class="wl-card" id="watchlistModalSentiment">
           <!-- hidden compat bar -->
@@ -1483,21 +1482,21 @@
           <!-- Bull row -->
           <div class="wl-sent-row">
             <span class="wl-sent-dot" style="background:#22C55E;box-shadow:0 0 6px rgba(34,197,94,.5);"></span>
-            <span class="wl-sent-label" id="wlBullPct">Бычьи</span>
+            <span class="wl-sent-label" id="wlBullPct" data-i18n="wlBullLabel">Бычьи</span>
             <div class="wl-sent-track"><div class="wl-sent-fill wl-fill-bull" id="wlBullBar" style="width:67%"></div></div>
             <span class="wl-sent-pct" id="wlBullPctNum">67%</span>
           </div>
           <!-- Neutral row -->
           <div class="wl-sent-row">
             <span class="wl-sent-dot" style="background:#64748B;"></span>
-            <span class="wl-sent-label" id="wlNeutPct">Нейтральные</span>
+            <span class="wl-sent-label" id="wlNeutPct" data-i18n="wlNeutLabel">Нейтральные</span>
             <div class="wl-sent-track"><div class="wl-sent-fill wl-fill-neut" id="wlNeutBar" style="width:26%"></div></div>
             <span class="wl-sent-pct" id="wlNeutPctNum">26%</span>
           </div>
           <!-- Bear row -->
           <div class="wl-sent-row">
             <span class="wl-sent-dot" style="background:#EF4444;box-shadow:0 0 6px rgba(239,68,68,.4);"></span>
-            <span class="wl-sent-label" id="wlBearPct">Медвежьи</span>
+            <span class="wl-sent-label" id="wlBearPct" data-i18n="wlBearLabel">Медвежьи</span>
             <div class="wl-sent-track"><div class="wl-sent-fill wl-fill-bear" id="wlBearBar" style="width:7%"></div></div>
             <span class="wl-sent-pct" id="wlBearPctNum">7%</span>
           </div>
@@ -1506,15 +1505,15 @@
         <!-- AI Forecast -->
         <div class="wl-section-label">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="opacity:.5"><circle cx="6" cy="6" r="4" stroke="#6366f1" stroke-width="1.5"/><path d="M4 6h4M6 4v4" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/></svg>
-          AI ПРОГНОЗ
+          <span data-i18n="watchlistForecastLabel">AI ПРОГНОЗ</span>
         </div>
         <div class="wl-ai-card" id="watchlistModalForecast">
           <div class="wl-ai-top">
             <div class="wl-ai-badge">
               <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.2 3.6H11L8.4 6.8l1 3.2L6 8.2 2.6 10l1-3.2L1 4.6h3.8L6 1z" fill="#818cf8"/></svg>
-              AI ПРОГНОЗ
+              <span data-i18n="watchlistForecastLabel">AI ПРОГНОЗ</span>
             </div>
-            <span class="wl-ai-horizon">24-48Ч</span>
+            <span class="wl-ai-horizon" data-i18n="wlForecastHorizon">24-48Ч</span>
           </div>
           <p class="wl-ai-text" id="wlForecastText" data-i18n="watchlistForecastLoading">Загрузка прогноза…</p>
         </div>
@@ -1522,7 +1521,7 @@
         <!-- News -->
         <div class="wl-section-label">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="opacity:.5"><rect x="1" y="2" width="10" height="8" rx="1.5" stroke="#6366f1" stroke-width="1.5"/><path d="M3.5 5h5M3.5 7.5h3" stroke="#6366f1" stroke-width="1.2" stroke-linecap="round"/></svg>
-          ГЛАВНЫЕ НОВОСТИ
+          <span data-i18n="watchlistNewsLabel">ГЛАВНЫЕ НОВОСТИ</span>
         </div>
         <div id="watchlistModalNews" class="wl-news-list"></div>
 
@@ -2004,6 +2003,13 @@ const i18n = {
     watchlistForecastError:'Error fetching forecast.',
     watchlistLoadingPrice:'Loading…',
     watchlistAnalyzing:'Analyzing the market…',
+    wlBullLabel:'Bullish',
+    wlNeutLabel:'Neutral',
+    wlBearLabel:'Bearish',
+    wlForecastHorizon:'24-48H',
+    newsBadgeBullish:'BULLISH',
+    newsBadgeBearish:'BEARISH',
+    newsBadgeNeutral:'NEUTRAL',
     watchlistRemoveTitle:'Remove',
   },
   uk: {
@@ -2273,6 +2279,13 @@ const i18n = {
     watchlistForecastError:'Помилка отримання прогнозу.',
     watchlistLoadingPrice:'Завантаження…',
     watchlistAnalyzing:'Аналізую ринок…',
+    wlBullLabel:'Бичачий',
+    wlNeutLabel:'Нейтральний',
+    wlBearLabel:'Ведмежий',
+    wlForecastHorizon:'24-48Г',
+    newsBadgeBullish:'БИЧАЧИЙ',
+    newsBadgeBearish:'ВЕДМЕЖИЙ',
+    newsBadgeNeutral:'НЕЙТРАЛЬНИЙ',
     watchlistRemoveTitle:'Видалити',
   },
   cs: {
@@ -2607,6 +2620,13 @@ const i18n = {
     watchlistForecastError:'Chyba načítání prognózy.',
     watchlistLoadingPrice:'Načítání…',
     watchlistAnalyzing:'Analyzuji trh…',
+    wlBullLabel:'Býčí',
+    wlNeutLabel:'Neutrální',
+    wlBearLabel:'Medvědí',
+    wlForecastHorizon:'24-48H',
+    newsBadgeBullish:'BÝČÍ',
+    newsBadgeBearish:'MEDVĚDÍ',
+    newsBadgeNeutral:'NEUTRÁLNÍ',
     watchlistRemoveTitle:'Odebrat',
   },
   ru: {
@@ -2875,6 +2895,13 @@ const i18n = {
     watchlistForecastError:'Ошибка при получении прогноза.',
     watchlistLoadingPrice:'Загрузка…',
     watchlistAnalyzing:'Анализирую рынок…',
+    wlBullLabel:'Бычьи',
+    wlNeutLabel:'Нейтральные',
+    wlBearLabel:'Медвежьи',
+    wlForecastHorizon:'24-48Ч',
+    newsBadgeBullish:'БЫЧИЙ',
+    newsBadgeBearish:'МЕДВЕЖИЙ',
+    newsBadgeNeutral:'НЕЙТРАЛЬНЫЙ',
     watchlistRemoveTitle:'Удалить',
   }
 };
@@ -7462,6 +7489,9 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   window.openWatchlistModal = async function(coin) {
     const modal = document.getElementById('watchlistModal');
     if (!modal) return;
+    // Hide AI FAB while coin modal is open
+    const aiFab = document.getElementById('aiFab');
+    if (aiFab) { aiFab.style.opacity = '0'; aiFab.style.pointerEvents = 'none'; }
     document.getElementById('watchlistModalTitle').textContent = coin + '/USDT';
     document.getElementById('watchlistModalPrice').textContent = t('watchlistLoadingPrice');
     document.getElementById('wlForecastText').textContent = t('watchlistAnalyzing');
@@ -7559,7 +7589,7 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
           const isBear = n.sentiment === 'bearish';
           const accentColor = isBull ? '#22C55E' : isBear ? '#EF4444' : '#64748B';
           const badgeCls = isBull ? 'bull' : isBear ? 'bear' : 'neut';
-          const label = isBull ? 'BULLISH' : isBear ? 'BEARISH' : 'NEUTRAL';
+          const label = isBull ? t('newsBadgeBullish') : isBear ? t('newsBadgeBearish') : t('newsBadgeNeutral');
           return `<div class="wl-news-card">
             <div class="wl-news-accent" style="background:${accentColor};opacity:.7;"></div>
             <div class="wl-news-body">
@@ -7583,6 +7613,9 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   window.closeWatchlistModal = function(e) {
     if (e && e.currentTarget !== e.target) return;
     document.getElementById('watchlistModal').classList.remove('open');
+    // Restore AI FAB if it was visible
+    const aiFab = document.getElementById('aiFab');
+    if (aiFab && aiFab.style.display !== 'none') { aiFab.style.opacity = '1'; aiFab.style.pointerEvents = 'auto'; }
   };
 })();
 // ══ END WATCHLIST ═════════════════════════════════════════════════
