@@ -446,7 +446,7 @@
     .mkt-loading-title { font-size:14px; font-weight:600; color:#aaa; margin:0 0 6px; }
     .mkt-loading-sub { font-size:11px; color:#484858; margin:0; letter-spacing:.3px; }
 
-    #aiFab { position:fixed; bottom:80px; right:16px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#6b6bff,#a78bfa); box-shadow:0 4px 20px #6b6bff55; display:flex; align-items:center; justify-content:center; cursor:grab; z-index:9998; transition:transform .2s, opacity .3s; opacity:0; pointer-events:none; touch-action:none; }
+    #aiFab { position:fixed; bottom:80px; right:16px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#6b6bff,#a78bfa); box-shadow:0 4px 20px #6b6bff55; display:flex; align-items:center; justify-content:center; cursor:grab; z-index:9998; transition:transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s ease; opacity:0; pointer-events:none; touch-action:none; transform:scale(0.6); }
     #aiFab.dragging { cursor:grabbing; transform:scale(1.12); box-shadow:0 8px 32px #6b6bff88; transition:box-shadow .15s, transform .15s; }
     #aiFab:not(.dragging):active { transform:scale(.93); }
     #aiFab .fp { position:absolute; inset:-3px; border-radius:50%; border:1.5px solid #a78bfa55; animation:fabRipple 2.4s ease-in-out infinite; pointer-events:none; }
@@ -4462,6 +4462,7 @@ function setAIFabVisible(visible) {
   const fab = document.getElementById('aiFab');
   if (!fab) return;
   fab.style.opacity = visible ? '1' : '0';
+  fab.style.transform = visible ? 'scale(1)' : 'scale(0.6)';
   fab.style.pointerEvents = visible ? 'auto' : 'none';
 }
 
