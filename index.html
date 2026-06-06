@@ -5818,7 +5818,6 @@ let _pendingPlanId = null;
 let _pendingPlanPaymentId = null;
 let _planPaymentMethod = null;
 let _planPayCheckInterval = null;
-let _pendingPlanCreatedAt = null;
 let _subReturnTo = null; // 'profile' | 'main' | null
 
 function restoreMainAppView() {
@@ -6093,7 +6092,6 @@ async function confirmPlanPayment() {
     } else if (resp.payment_id) {
       // Manual payment — close modal, show pending screen
       _pendingPlanPaymentId = resp.payment_id;
-      _pendingPlanCreatedAt = new Date().toISOString();
       closePlanPayModal();
       showPlanPayPendingScreen(false);
     } else {
@@ -6143,18 +6141,23 @@ function cancelPlanPendingPayment() {
 async function checkPlanPayment() {
   if (!_pendingPlanPaymentId) return;
   try {
+    const methodToSend = (_planPaymentMethod || 'NOWPAYMENTS').toUpperCase();
+    console.log('[Payment] Polling check: id=', _pendingPlanPaymentId, 'method=', methodToSend);
     const resp = await apiFetch('/api/payment/check', 'POST', {
       payment_id: _pendingPlanPaymentId,
-      method: _planPaymentMethod || 'nowpayments',
+      method: methodToSend,
       amount: PLANS[_pendingPlanId]?.price || 0,
       created_at: _pendingPlanCreatedAt || new Date().toISOString()
     });
-    if (resp.confirmed) {
+    console.log('[Payment] Check response:', resp);
+    if (resp && resp.confirmed) {
       clearInterval(_planPayCheckInterval);
       _planPayCheckInterval = null;
       planPaymentConfirmed(_pendingPlanId);
     }
-  } catch(e) { /* keep polling */ }
+  } catch(e) {
+    console.warn('[Payment] Poll error:', e);
+  }
 }
 
 function planPaymentConfirmed(planId) {
