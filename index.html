@@ -884,7 +884,6 @@
       border-radius: 16px;
       padding: 14px;
       position: relative;
-      overflow: hidden;
     }
     .wl-ai-card::before {
       content: '';
@@ -893,12 +892,15 @@
       border-radius: 16px;
       background: linear-gradient(135deg, rgba(99,102,241,.06), transparent 60%);
       pointer-events: none;
+      z-index: 0;
     }
     .wl-ai-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
     }
     .wl-ai-badge {
       display: inline-flex;
@@ -921,11 +923,11 @@
     }
     .wl-ai-text {
       font-size: 13px;
-      color: #94A3B8;
-      line-height: 1.65;
+      color: #CBD5E1;
+      line-height: 1.7;
       margin: 0;
       position: relative;
-      z-index: 1;
+      z-index: 2;
     }
     /* News list */
     .wl-news-list {
