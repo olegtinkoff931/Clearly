@@ -442,7 +442,7 @@
 
     /* ── Quick Watchlist Bar (above bottom nav) ─────────────────── */
     #quickWatchBar {
-      position:fixed; bottom:62px; left:0; right:0; z-index:49;
+      position:fixed; bottom:62px; left:0; right:0; z-index:51;
       background:linear-gradient(180deg,transparent 0%,rgba(17,17,20,.96) 16px,rgba(17,17,20,.98) 100%);
       border-top:.5px solid #1e1e26;
       padding:6px 0 6px;
@@ -7358,6 +7358,9 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   // Init on load
   document.addEventListener('DOMContentLoaded', () => {
     window.qwbRefresh();
+    // повторный вызов после полной отрисовки страницы
+    setTimeout(() => { window.qwbRefresh(); }, 500);
+    setTimeout(() => { window.qwbRefresh(); }, 1500);
   });
 })();
 // ══ END QUICK WATCHLIST BAR ═══════════════════════════════════════
