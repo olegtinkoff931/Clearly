@@ -6455,7 +6455,7 @@ function openReferralScreen() {
 function closeReferralScreen() {
   const el = document.getElementById('vReferral');
   if (el) el.style.display = 'none';
-  setAIFabVisible(true);
+  if (currentTab !== 'profile') setAIFabVisible(true);
 }
 async function loadReferralData() {
   function resolveUid() {
