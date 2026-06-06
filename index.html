@@ -5276,39 +5276,18 @@ async function loadMarket(forceRefresh) {
     } catch(e) {}
 
     let newsItems = [];
-    // Fetch from multiple RSS sources via rss2json (free, no key, CORS-friendly)
-    // Sources: CoinTelegraph, CoinDesk, Decrypt
-    const RSS_SOURCES = [
-      { url: 'https://cointelegraph.com/rss', name: 'CoinTelegraph' },
-      { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', name: 'CoinDesk' },
-      { url: 'https://decrypt.co/feed', name: 'Decrypt' }
-    ];
-    const rssResults = await Promise.allSettled(RSS_SOURCES.map(async src => {
-      const r = await fetch(
-        'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(src.url) + '&count=4',
-        { signal: AbortSignal.timeout(6000) }
-      );
-      const d = r.ok ? await r.json() : null;
-      if (d?.status === 'ok' && d.items?.length) {
-        return d.items.slice(0, 4).map(item => ({
-          title: item.title,
-          source: src.name,
-          url: item.link,
-          publishedAt: item.pubDate
-        }));
+    // Fetch real-time news from backend using Groq compound-beta (web search AI)
+    try {
+      const newsResp = await fetch(API_BASE + '/api/news?lang=' + lang, {
+        signal: AbortSignal.timeout(15000),
+        headers: { 'ngrok-skip-browser-warning': '1' }
+      });
+      const newsData = newsResp.ok ? await newsResp.json() : null;
+      if (newsData?.news?.length) {
+        newsItems = newsData.news;
       }
-      return [];
-    }));
-    const seen = new Set();
-    for (const res of rssResults) {
-      if (res.status === 'fulfilled' && res.value?.length) {
-        for (const item of res.value) {
-          if (!seen.has(item.title) && newsItems.length < 6) {
-            seen.add(item.title);
-            newsItems.push(item);
-          }
-        }
-      }
+    } catch(e) {
+      console.warn('api/news fetch failed:', e);
     }
 
     const realDataContext = `
@@ -5320,8 +5299,8 @@ REAL LIVE DATA (use these exact numbers in your response):
 - BTC Trend: ${btcTrend}
 - Today: ${today}
 
-REAL NEWS HEADLINES (translate/summarize for the user, assign impact and direction):
-${newsItems.map((n,i) => `${i+1}. "${n.title}" — ${n.source}`).join('\n') || 'No news available'}
+REAL NEWS HEADLINES (already fetched from the internet — use them as-is for top_news, do NOT invent new ones):
+${newsItems.length ? newsItems.map((n,i) => `${i+1}. title="${n.title}" source="${n.source}" impact="${n.impact||'medium'}" direction="${n.direction||'neutral'}"`).join('\n') : 'No news available — generate 5 realistic current crypto news headlines'}
 `;
 
     const marketMsgs = [
@@ -5343,11 +5322,8 @@ Based on the real data above, return ONLY this JSON (fill all fields, translate 
   "market_cap": "${totalMcap || 'N/A'}",
   "dominance_btc": "estimate BTC dominance % based on current trends",
   "top_news": [
-    {"title": "translated headline in ${lang}", "source": "Source Name", "impact": "high", "direction": "up"},
-    {"title": "translated headline in ${lang}", "source": "Source Name", "impact": "medium", "direction": "neutral"},
-    {"title": "translated headline in ${lang}", "source": "Source Name", "impact": "low", "direction": "down"},
-    {"title": "translated headline in ${lang}", "source": "Source Name", "impact": "medium", "direction": "up"},
-    {"title": "translated headline in ${lang}", "source": "Source Name", "impact": "low", "direction": "neutral"}
+    (USE the REAL NEWS HEADLINES provided above — copy title, source, impact, direction exactly as given. Do NOT invent. Return 5 items max.)
+    {"title": "real headline from above in ${lang}", "source": "real source", "impact": "high/medium/low", "direction": "up/down/neutral"}
   ],
   "upcoming": [
     {"event": "upcoming crypto event in ${lang}", "date": "specific date", "importance": "high or medium"},
