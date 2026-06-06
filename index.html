@@ -5336,9 +5336,9 @@ const GROQ_CHAT_MODELS_FE = [
   'qwen/qwen3-32b',
 ];
 const GROQ_ANALYSIS_MODELS_FE = [
-  'llama-3.1-8b-instant',
-  'meta-llama/llama-4-scout-17b-16e-instruct',
   'llama-3.3-70b-versatile',
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'llama-3.1-8b-instant',
   'qwen/qwen3-32b',
 ];
 
@@ -5377,10 +5377,10 @@ async function loadMarket(forceRefresh) {
   if (liveDot)   { liveDot.style.display = 'none'; }
 
   const loadMsgs = {
-    ru: ['📡 Получаю цены с бирж…','🤖 AI анализирует данные…','⚡ Почти готово…'],
-    uk: ['📡 Отримую ціни з бірж…','🤖 AI аналізує дані…','⚡ Майже готово…'],
-    en: ['📡 Fetching live prices…','🤖 AI analysing data…','⚡ Almost ready…'],
-    cs: ['📡 Načítám živé ceny…','🤖 AI analyzuje data…','⚡ Skoro hotovo…']
+    ru: ['📡 Получаю цены с бирж…','📰 Загружаю новости…','🤖 AI анализирует данные…','⚡ Почти готово…'],
+    uk: ['📡 Отримую ціни з бірж…','📰 Завантажую новини…','🤖 AI аналізує дані…','⚡ Майже готово…'],
+    en: ['📡 Fetching live prices…','📰 Loading news…','🤖 AI analysing data…','⚡ Almost ready…'],
+    cs: ['📡 Načítám živé ceny…','📰 Načítám novinky…','🤖 AI analyzuje data…','⚡ Skoro hotovo…']
   };
   const msgs = loadMsgs[currentLang] || loadMsgs.en;
   let msgIdx = 0;
@@ -5389,29 +5389,18 @@ async function loadMarket(forceRefresh) {
   const msgInterval = setInterval(() => {
     msgIdx = (msgIdx + 1) % msgs.length;
     if (msgEl) msgEl.textContent = msgs[msgIdx];
-  }, 2200);
+  }, 1800);
 
   try {
     const th = getTheme();
     const lang = apiLangName();
     const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
 
-    // ── PARALLEL fetch: prices + fear&greed + news all at once ──────
-    const [cgResp, fgRespRaw, newsRespRaw] = await Promise.allSettled([
-      fetch(
-        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true',
-        { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(7000) }
-      ),
-      fetch('https://api.alternative.me/fng/?limit=1', { signal: AbortSignal.timeout(5000) }),
-      fetch(API_BASE + '/api/news?lang=' + lang, {
-        signal: AbortSignal.timeout(12000),
-        headers: { 'ngrok-skip-browser-warning': '1' }
-      })
-    ]);
-
-    // Parse CoinGecko
-    let cgData = null;
-    try { if (cgResp.status === 'fulfilled' && cgResp.value.ok) cgData = await cgResp.value.json(); } catch(e) {}
+    const cgResp = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true',
+      { headers: { 'Accept': 'application/json' } }
+    );
+    const cgData = cgResp.ok ? await cgResp.json() : null;
 
     const btcPrice   = cgData?.bitcoin?.usd        ? '$' + cgData.bitcoin.usd.toLocaleString('en-US') : null;
     const btcChange  = cgData?.bitcoin?.usd_24h_change != null
@@ -5428,61 +5417,29 @@ async function loadMarket(forceRefresh) {
       ? (cgData.bitcoin.usd_24h_change > 1 ? 'up' : cgData.bitcoin.usd_24h_change < -1 ? 'down' : 'sideways')
       : 'sideways';
 
-    // Parse Fear & Greed
     let fearGreed = null, fearGreedLabel = null;
     try {
-      if (fgRespRaw.status === 'fulfilled' && fgRespRaw.value.ok) {
-        const fgData = await fgRespRaw.value.json();
-        if (fgData?.data?.[0]) {
-          fearGreed = parseInt(fgData.data[0].value);
-          fearGreedLabel = fgData.data[0].value_classification;
-        }
+      const fgResp = await fetch('https://api.alternative.me/fng/?limit=1');
+      const fgData = fgResp.ok ? await fgResp.json() : null;
+      if (fgData?.data?.[0]) {
+        fearGreed = parseInt(fgData.data[0].value);
+        fearGreedLabel = fgData.data[0].value_classification;
       }
     } catch(e) {}
 
-    // Parse news
     let newsItems = [];
+    // Fetch real-time news from backend using Groq compound-beta (web search AI)
     try {
-      if (newsRespRaw.status === 'fulfilled' && newsRespRaw.value.ok) {
-        const newsData = await newsRespRaw.value.json();
-        if (newsData?.news?.length) newsItems = newsData.news;
+      const newsResp = await fetch(API_BASE + '/api/news?lang=' + lang, {
+        signal: AbortSignal.timeout(15000),
+        headers: { 'ngrok-skip-browser-warning': '1' }
+      });
+      const newsData = newsResp.ok ? await newsResp.json() : null;
+      if (newsData?.news?.length) {
+        newsItems = newsData.news;
       }
-    } catch(e) { console.warn('api/news fetch failed:', e); }
-
-    // ── INSTANT preview: show prices immediately while AI works ─────
-    if (btcPrice || ethPrice) {
-      const partialData = {
-        sentiment: btcTrend === 'up' ? 'bullish' : btcTrend === 'down' ? 'bearish' : 'neutral',
-        sentiment_score: fearGreed != null ? fearGreed : 50,
-        btc_trend: btcTrend,
-        btc_price: btcPrice || '…',
-        btc_change_24h: btcChange || '0%',
-        eth_price: ethPrice || '…',
-        eth_change_24h: ethChange || '0%',
-        summary: '',
-        fear_greed: fearGreed != null ? fearGreed : 50,
-        fear_greed_label: fearGreedLabel || '',
-        market_cap: totalMcap || '…',
-        dominance_btc: '~50%',
-        top_news: newsItems.slice(0,5).map(n=>({title:n.title,source:n.source,impact:n.impact||'medium',direction:n.direction||'neutral'})),
-        upcoming: [],
-        sectors: [],
-        key_levels: []
-      };
-      if (loadingEl) loadingEl.style.display = 'none';
-      _renderMarket(partialData, th);
-      if (contentEl) { contentEl.style.display = 'flex'; }
-      if (liveDot) liveDot.style.display = 'block';
-      // Show subtle "AI is finishing..." indicator on the hero card
-      const heroCard = document.querySelector('.mkt-hero');
-      if (heroCard && !heroCard.querySelector('#mktAiPending')) {
-        const pending = document.createElement('div');
-        pending.id = 'mktAiPending';
-        const pendingLabel = {ru:'🤖 AI дополняет анализ…', uk:'🤖 AI доповнює аналіз…', en:'🤖 AI completing analysis…', cs:'🤖 AI dokončuje analýzu…'};
-        pending.style.cssText = 'font-size:10px;color:#7c7cdc;margin-top:10px;display:flex;align-items:center;gap:5px;';
-        pending.innerHTML = '<span style="width:6px;height:6px;background:#7c7cdc;border-radius:50%;animation:dotPulse 1.2s ease-in-out infinite;display:inline-block;"></span>' + (pendingLabel[currentLang]||pendingLabel.en);
-        heroCard.appendChild(pending);
-      }
+    } catch(e) {
+      console.warn('api/news fetch failed:', e);
     }
 
     const realDataContext = `
@@ -5539,7 +5496,7 @@ Based on the real data above, return ONLY this JSON (fill all fields, translate 
     ];
 
     // Use model waterfall — tries 4 models before giving up
-    const rawText = await groqCallFE(marketMsgs, GROQ_ANALYSIS_MODELS_FE, 1500, 0.3, { type: 'json_object' });
+    const rawText = await groqCallFE(marketMsgs, GROQ_ANALYSIS_MODELS_FE, 3000, 0.3, { type: 'json_object' });
 
     clearInterval(msgInterval);
 
@@ -5565,9 +5522,6 @@ Based on the real data above, return ONLY this JSON (fill all fields, translate 
     if (loadingEl) loadingEl.style.display = 'none';
     _renderMarket(m, th);
     _marketLoaded = true;
-    // Remove the "AI is finishing" pending indicator
-    const pendingEl = document.getElementById('mktAiPending');
-    if (pendingEl) pendingEl.remove();
 
     if (liveDot) liveDot.style.display = 'block';
     const upEl = document.getElementById('marketLastUpdate');
