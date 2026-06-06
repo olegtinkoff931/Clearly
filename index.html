@@ -1102,7 +1102,7 @@
       </div>
       <div class="mkt-seg-bar" id="marketSegBar">
         <button type="button" id="segMarketSignals" class="mkt-seg-btn active" onclick="setMarketMode('signals')" data-i18n="marketTabSignals">Signals</button>
-        <button type="button" id="segMarketWatchlist" class="mkt-seg-btn" onclick="setMarketMode('watchlist')">Активы</button>
+        <button type="button" id="segMarketWatchlist" class="mkt-seg-btn" onclick="setMarketMode('watchlist')" data-i18n="marketTabAssets">Активы</button>
       </div>
     </div>
     <div id="marketLoading" class="mkt-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:18px;">
@@ -1130,7 +1130,7 @@
     <div id="watchlistPanel" style="display:none;flex-direction:column;padding:12px;gap:12px;padding-bottom:80px;">
       <!-- Add asset input -->
       <div style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:12px 14px;">
-        <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;">➕ ДОБАВИТЬ АКТИВ</p>
+        <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;" data-i18n="watchlistAddLabel">➕ ДОБАВИТЬ АКТИВ</p>
         <div style="display:flex;gap:8px;">
           <input id="watchlistInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10"
             placeholder="BTC, ETH, SOL…"
@@ -1142,8 +1142,8 @@
       <!-- Asset list -->
       <div id="watchlistEmpty" style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;">
         <p style="font-size:32px;margin:0 0 12px;">👁</p>
-        <p style="font-size:15px;font-weight:600;color:#e8e8f0;margin:0 0 6px;">Нет отслеживаемых активов</p>
-        <p style="font-size:12px;color:#555;margin:0;">Добавьте монеты выше — увидите прогнозы и новости</p>
+        <p style="font-size:15px;font-weight:600;color:#e8e8f0;margin:0 0 6px;" data-i18n="watchlistEmptyTitle">Нет отслеживаемых активов</p>
+        <p style="font-size:12px;color:#555;margin:0;" data-i18n="watchlistEmptySub">Добавьте монеты выше — увидите прогнозы и новости</p>
       </div>
       <div id="watchlistItems" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
@@ -1160,7 +1160,7 @@
       <p id="watchlistModalPrice" style="font-size:24px;font-weight:700;color:#e8e8f0;margin:0 0 16px;"></p>
       <!-- Sentiment bar -->
       <div id="watchlistModalSentiment" style="background:#1a1a20;border-radius:12px;padding:12px 14px;margin-bottom:12px;">
-        <p style="font-size:10px;color:#555;letter-spacing:.7px;margin:0 0 8px;">📊 АНАЛИЗ НАСТРОЕНИЙ</p>
+        <p style="font-size:10px;color:#555;letter-spacing:.7px;margin:0 0 8px;" data-i18n="watchlistSentimentLabel">📊 АНАЛИЗ НАСТРОЕНИЙ</p>
         <div style="height:6px;border-radius:3px;background:#2e2e38;overflow:hidden;margin-bottom:8px;">
           <div id="wlSentBar" style="height:100%;background:linear-gradient(90deg,#3aaa6e,#5b5bdc);border-radius:3px;width:67%;transition:width .5s;"></div>
         </div>
@@ -1172,11 +1172,11 @@
       </div>
       <!-- AI Forecast -->
       <div id="watchlistModalForecast" style="background:linear-gradient(135deg,#1a1a28,#1e1e30);border:.5px solid #5b5bdc44;border-radius:12px;padding:12px 14px;margin-bottom:12px;">
-        <p style="font-size:10px;color:#a78bfa;letter-spacing:.7px;margin:0 0 8px;">🤖 AI ПРОГНОЗ</p>
-        <p id="wlForecastText" style="font-size:13px;color:#c0c0d8;line-height:1.6;margin:0;">Загрузка...</p>
+        <p style="font-size:10px;color:#a78bfa;letter-spacing:.7px;margin:0 0 8px;" data-i18n="watchlistForecastLabel">🤖 AI ПРОГНОЗ</p>
+        <p id="wlForecastText" style="font-size:13px;color:#c0c0d8;line-height:1.6;margin:0;" data-i18n="watchlistForecastLoading">Загрузка...</p>
       </div>
       <!-- Top news -->
-      <p style="font-size:10px;color:#555;letter-spacing:.7px;margin:0 0 8px;">📰 ГЛАВНЫЕ НОВОСТИ</p>
+      <p style="font-size:10px;color:#555;letter-spacing:.7px;margin:0 0 8px;" data-i18n="watchlistNewsLabel">📰 ГЛАВНЫЕ НОВОСТИ</p>
       <div id="watchlistModalNews" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;"></div>
     </div>
   </div>
@@ -1637,6 +1637,24 @@ const i18n = {
     offRetry:'Retry',
     offNotice:'App will refresh automatically when connection is restored',
     offBanner:'Offline — showing cached data',
+    marketTabAssets:'Assets',
+    watchlistAddLabel:'➕ ADD ASSET',
+    watchlistEmptyTitle:'No tracked assets',
+    watchlistEmptySub:'Add coins above — see forecasts and news',
+    watchlistSentimentLabel:'📊 SENTIMENT ANALYSIS',
+    watchlistBullish:'🟢 Bullish',
+    watchlistNeutral:'⚪ Neutral',
+    watchlistBearish:'🔴 Bearish',
+    watchlistForecastLabel:'🤖 AI FORECAST',
+    watchlistForecastLoading:'Loading...',
+    watchlistNewsLabel:'📰 TOP NEWS',
+    watchlistNewsLoading:'Loading news…',
+    watchlistNewsEmpty:'No news found.',
+    watchlistNewsError:'Error loading news.',
+    watchlistForecastError:'Error fetching forecast.',
+    watchlistLoadingPrice:'Loading…',
+    watchlistAnalyzing:'Analyzing the market…',
+    watchlistRemoveTitle:'Remove',
   },
   uk: {
     aiGreetOpen:'Привіт! 👋 Я Clearly AI — допоможу розібратися з ботом і відповім на питання з крипти.',
@@ -1888,6 +1906,24 @@ const i18n = {
     offRetry:'Повторити спробу',
     offNotice:'Застосунок оновиться автоматично при відновленні зв\'язку',
     offBanner:'Офлайн — дані з кешу',
+    marketTabAssets:'Активи',
+    watchlistAddLabel:'➕ ДОДАТИ АКТИВ',
+    watchlistEmptyTitle:'Немає відстежуваних активів',
+    watchlistEmptySub:'Додайте монети вище — побачите прогнози і новини',
+    watchlistSentimentLabel:'📊 АНАЛІЗ НАСТРОЇВ',
+    watchlistBullish:'🟢 Бичачі',
+    watchlistNeutral:'⚪ Нейтральні',
+    watchlistBearish:'🔴 Ведмежі',
+    watchlistForecastLabel:'🤖 AI ПРОГНОЗ',
+    watchlistForecastLoading:'Завантаження...',
+    watchlistNewsLabel:'📰 ГОЛОВНІ НОВИНИ',
+    watchlistNewsLoading:'Завантаження новин…',
+    watchlistNewsEmpty:'Новини не знайдено.',
+    watchlistNewsError:'Помилка завантаження новин.',
+    watchlistForecastError:'Помилка отримання прогнозу.',
+    watchlistLoadingPrice:'Завантаження…',
+    watchlistAnalyzing:'Аналізую ринок…',
+    watchlistRemoveTitle:'Видалити',
   },
   cs: {
     aiGreetOpen:'Ahoj! 👋 Jsem Clearly AI — pomohu s aplikací a zodpovím otázky o kryptu.',
@@ -2203,6 +2239,24 @@ const i18n = {
     offRetry:'Zkusit znovu',
     offNotice:'Aplikace se automaticky obnoví po obnovení připojení',
     offBanner:'Offline — data z mezipaměti',
+    marketTabAssets:'Aktiva',
+    watchlistAddLabel:'➕ PŘIDAT AKTIVUM',
+    watchlistEmptyTitle:'Žádná sledovaná aktiva',
+    watchlistEmptySub:'Přidejte mince výše — uvidíte prognózy a novinky',
+    watchlistSentimentLabel:'📊 ANALÝZA NÁLADY',
+    watchlistBullish:'🟢 Býčí',
+    watchlistNeutral:'⚪ Neutrální',
+    watchlistBearish:'🔴 Medvědí',
+    watchlistForecastLabel:'🤖 AI PROGNÓZA',
+    watchlistForecastLoading:'Načítání...',
+    watchlistNewsLabel:'📰 HLAVNÍ NOVINKY',
+    watchlistNewsLoading:'Načítám novinky…',
+    watchlistNewsEmpty:'Žádné novinky.',
+    watchlistNewsError:'Chyba načítání novinek.',
+    watchlistForecastError:'Chyba načítání prognózy.',
+    watchlistLoadingPrice:'Načítání…',
+    watchlistAnalyzing:'Analyzuji trh…',
+    watchlistRemoveTitle:'Odebrat',
   },
   ru: {
     aiGreetOpen:'Привет! 👋 Я Clearly AI — помогу разобраться с ботом и отвечу на вопросы по крипте.',
@@ -2453,6 +2507,24 @@ const i18n = {
     offRetry:'Повторить попытку',
     offNotice:'Приложение обновится автоматически при восстановлении связи',
     offBanner:'Нет сети — данные из кэша',
+    marketTabAssets:'Активы',
+    watchlistAddLabel:'➕ ДОБАВИТЬ АКТИВ',
+    watchlistEmptyTitle:'Нет отслеживаемых активов',
+    watchlistEmptySub:'Добавьте монеты выше — увидите прогнозы и новости',
+    watchlistSentimentLabel:'📊 АНАЛИЗ НАСТРОЕНИЙ',
+    watchlistBullish:'🟢 Бычьи',
+    watchlistNeutral:'⚪ Нейтральные',
+    watchlistBearish:'🔴 Медвежьи',
+    watchlistForecastLabel:'🤖 AI ПРОГНОЗ',
+    watchlistForecastLoading:'Загрузка...',
+    watchlistNewsLabel:'📰 ГЛАВНЫЕ НОВОСТИ',
+    watchlistNewsLoading:'Загрузка новостей…',
+    watchlistNewsEmpty:'Новости не найдены.',
+    watchlistNewsError:'Ошибка загрузки новостей.',
+    watchlistForecastError:'Ошибка при получении прогноза.',
+    watchlistLoadingPrice:'Загрузка…',
+    watchlistAnalyzing:'Анализирую рынок…',
+    watchlistRemoveTitle:'Удалить',
   }
 };
 function t(key, vars={}) {
@@ -4716,6 +4788,7 @@ async function setLang(lang) {
   if(me) me.style.display='none';
   const vMarket=document.getElementById('vMarket');
   if(vMarket && vMarket.style.display==='flex') loadMarket(true);
+  if(typeof watchlistRender === 'function') watchlistRender();
   showToast('settingsToast',t('langChanged'));
   if(currentUserId) {
     await apiFetch('/api/lang','POST',{user_id:currentUserId,lang});
@@ -7009,11 +7082,11 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
         <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1e1e30,#2a2a50);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#a78bfa;flex-shrink:0;">${coin.slice(0,3)}</div>
         <div style="flex:1;min-width:0;">
           <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${coin}/USDT</p>
-          <p id="wlPrice_${coin}" style="font-size:11px;color:#555;margin:0;">Загрузка…</p>
+          <p id="wlPrice_${coin}" style="font-size:11px;color:#555;margin:0;">${t('watchlistLoadingPrice')}</p>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <p id="wlChange_${coin}" style="font-size:12px;font-weight:600;margin:0 0 4px;color:#888;">—</p>
-          <button onclick="event.stopPropagation();watchlistRemove('${coin}')" style="background:none;border:none;color:#3a3a44;font-size:13px;cursor:pointer;padding:0;line-height:1;" title="Удалить">✕</button>
+          <button onclick="event.stopPropagation();watchlistRemove('${coin}')" style="background:none;border:none;color:#3a3a44;font-size:13px;cursor:pointer;padding:0;line-height:1;" title="${t('watchlistRemoveTitle')}">✕</button>
         </div>
         <div style="flex-shrink:0;"><i class="ti ti-chevron-right" style="font-size:13px;color:#333;"></i></div>
       </div>
@@ -7030,7 +7103,7 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
         changeEl.textContent = (up ? '+' : '') + data.change.toFixed(2) + '%';
         changeEl.style.color = up ? '#3aaa6e' : '#e05252';
       } else if (priceEl) {
-        priceEl.textContent = 'Нет данных (не на Binance)';
+        priceEl.textContent = t('watchlistNewsEmpty');
       }
     }
   };
@@ -7039,9 +7112,9 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
     const modal = document.getElementById('watchlistModal');
     if (!modal) return;
     document.getElementById('watchlistModalTitle').textContent = coin + '/USDT';
-    document.getElementById('watchlistModalPrice').textContent = 'Загрузка…';
-    document.getElementById('wlForecastText').textContent = 'Анализирую рынок…';
-    document.getElementById('watchlistModalNews').innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">Загрузка новостей…</p>';
+    document.getElementById('watchlistModalPrice').textContent = t('watchlistLoadingPrice');
+    document.getElementById('wlForecastText').textContent = t('watchlistAnalyzing');
+    document.getElementById('watchlistModalNews').innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">' + t('watchlistNewsLoading') + '</p>';
     modal.classList.add('open');
 
     // Fetch price & sentiment
@@ -7055,45 +7128,47 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
       const bear = Math.min(40, Math.max(5, 20 - data.change));
       const neut = Math.max(5, 100 - bull - bear);
       document.getElementById('wlSentBar').style.width = bull + '%';
-      document.getElementById('wlBullPct').textContent = `🟢 Бычьи — ${Math.round(bull)}%`;
-      document.getElementById('wlNeutPct').textContent = `⚪ Нейтральные — ${Math.round(neut)}%`;
-      document.getElementById('wlBearPct').textContent = `🔴 Медвежьи — ${Math.round(bear)}%`;
+      document.getElementById('wlBullPct').textContent = `${t('watchlistBullish')} — ${Math.round(bull)}%`;
+      document.getElementById('wlNeutPct').textContent = `${t('watchlistNeutral')} — ${Math.round(neut)}%`;
+      document.getElementById('wlBearPct').textContent = `${t('watchlistBearish')} — ${Math.round(bear)}%`;
     }
 
     // AI Forecast via backend Groq proxy
     try {
-      const priceInfo = data ? `Текущая цена: $${data.price.toFixed(4)}, изменение за 24ч: ${data.change.toFixed(2)}%` : '';
+      const langName = apiLangName();
+      const priceInfo = data ? `Current price: $${data.price.toFixed(4)}, 24h change: ${data.change.toFixed(2)}%` : '';
       const resp = await apiFetch('/api/groq', 'POST', {
         messages: [
           {
             role: 'system',
-            content: 'Ты — профессиональный крипто-аналитик. Давай краткие чёткие прогнозы на русском языке.'
+            content: `You are a professional crypto analyst. Give short, clear forecasts in ${langName}.`
           },
           {
             role: 'user',
-            content: `Дай краткий прогноз по монете ${coin} на ближайшие 24-48 часов. ${priceInfo}. Ответь на русском, 2-3 предложения, без лишних заголовков. Укажи ключевые уровни поддержки/сопротивления и общий сентимент.`
+            content: `Give a brief forecast for ${coin} for the next 24-48 hours. ${priceInfo}. Reply in ${langName}, 2-3 sentences, no extra headers. Include key support/resistance levels and overall sentiment.`
           }
         ],
         max_tokens: 400,
         temperature: 0.4
       });
       const text = resp && resp.text;
-      document.getElementById('wlForecastText').textContent = text || 'Не удалось получить прогноз.';
+      document.getElementById('wlForecastText').textContent = text || t('watchlistForecastError');
     } catch(e) {
-      document.getElementById('wlForecastText').textContent = 'Ошибка при получении прогноза.';
+      document.getElementById('wlForecastText').textContent = t('watchlistForecastError');
     }
 
     // News via backend Groq proxy
     try {
+      const langName = apiLangName();
       const newsResp = await apiFetch('/api/groq', 'POST', {
         messages: [
           {
             role: 'system',
-            content: 'Ты — крипто-аналитик. Отвечай ТОЛЬКО валидным JSON без markdown и комментариев.'
+            content: 'You are a crypto analyst. Reply ONLY with valid JSON, no markdown or comments.'
           },
           {
             role: 'user',
-            content: `Сгенерируй 3 типичные важные новости о криптовалюте ${coin} за последние 48 часов (на основе общих знаний о рынке). Ответь ТОЛЬКО в формате JSON: {"news":[{"title":"...","summary":"...","sentiment":"bullish|bearish|neutral","time":"..."}]}`
+            content: `Generate 3 typical important news about cryptocurrency ${coin} from the last 48 hours (based on general market knowledge). Reply ONLY in JSON format with titles and summaries in ${langName}: {"news":[{"title":"...","summary":"...","sentiment":"bullish|bearish|neutral","time":"..."}]}`
           }
         ],
         max_tokens: 600,
@@ -7123,10 +7198,10 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
           </div>`;
         }).join('');
       } else {
-        newsEl.innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">Новости не найдены.</p>';
+        newsEl.innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">' + t('watchlistNewsEmpty') + '</p>';
       }
     } catch(e) {
-      document.getElementById('watchlistModalNews').innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">Ошибка загрузки новостей.</p>';
+      document.getElementById('watchlistModalNews').innerHTML = '<p style="font-size:12px;color:#555;padding:8px 0;">' + t('watchlistNewsError') + '</p>';
     }
   };
 
