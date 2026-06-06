@@ -7148,8 +7148,10 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   }
   window.updateAssetsTab = updateAssetsTab;
 
-  // Init on page load
+  // Вызываем сразу и после загрузки DOM
+  updateAssetsTab();
   document.addEventListener('DOMContentLoaded', () => { updateAssetsTab(); });
+  setTimeout(() => { updateAssetsTab(); }, 300);
 
   window.watchlistRender = async function() {
     const list = wlLoad();
