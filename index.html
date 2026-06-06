@@ -476,7 +476,7 @@
     .qbtn { font-size:11px; color:#a78bfa; background:#18182a; border:.5px solid #5b5bdc33; border-radius:8px; padding:5px 11px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
 
     #vSubscription {
-      position:fixed; inset:0; z-index:9990; display:flex; flex-direction:column; overflow-y:auto;
+      position:fixed; inset:0; z-index:9999; display:flex; flex-direction:column; overflow-y:auto;
       background: linear-gradient(180deg, #0c2238 0%, #134e6f 38%, #ff9f43 115%);
     }
     #vSubscription::before {
@@ -6334,7 +6334,7 @@ init();
 
 
   <!-- ══ REFERRAL SCREEN ══════════════════════════════════════ -->
-  <div id="vReferral" style="position:fixed;inset:0;background:#0e0e10;z-index:9995;display:none;flex-direction:column;overflow-y:auto;">
+  <div id="vReferral" style="position:fixed;inset:0;background:#0e0e10;z-index:9999;display:none;flex-direction:column;overflow-y:auto;">
     <div style="flex-shrink:0;padding:16px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:.5px solid #1e1e26;">
       <button onclick="closeReferralScreen()" style="background:none;border:none;color:#7878cc;font-size:22px;cursor:pointer;padding:2px 8px 2px 0;line-height:1;">‹</button>
       <p style="font-size:16px;font-weight:700;color:#e8e8f0;margin:0;" data-i18n="refTitle">Партнёрская программа</p>
