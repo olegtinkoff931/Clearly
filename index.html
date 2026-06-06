@@ -446,18 +446,19 @@
       background:linear-gradient(180deg,transparent 0%,rgba(17,17,20,.96) 16px,rgba(17,17,20,.98) 100%);
       border-top:.5px solid #1e1e26;
       padding:6px 0 6px;
-      display:none;
+      display:flex;
       align-items:center;
       gap:0;
       transform:translateY(100%);
       transition:transform .35s cubic-bezier(.4,0,.2,1), opacity .3s;
       opacity:0;
+      pointer-events:none;
       backdrop-filter:blur(8px);
     }
     #quickWatchBar.visible {
-      display:flex;
       transform:translateY(0);
       opacity:1;
+      pointer-events:auto;
     }
     .qwb-open-btn {
       flex-shrink:0;
