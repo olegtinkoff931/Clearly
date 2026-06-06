@@ -5842,6 +5842,7 @@ function showSubscriptionScreen(highlightPlan, opts = {}) {
 
   const screen = document.getElementById('vSubscription');
   if (screen) screen.style.display = 'flex';
+  setAIFabVisible(false);
 
   const backBtn = document.getElementById('subBackBtn');
   if (backBtn) {
@@ -5855,6 +5856,7 @@ function showSubscriptionScreen(highlightPlan, opts = {}) {
 function hideSubscriptionScreen() {
   const screen = document.getElementById('vSubscription');
   if (screen) screen.style.display = 'none';
+  setAIFabVisible(true);
 
   const dest = _subReturnTo;
   _subReturnTo = null;
@@ -6412,6 +6414,7 @@ function openReferralScreen() {
   const el = document.getElementById('vReferral');
   if (!el) return;
   el.style.display = 'flex';
+  setAIFabVisible(false);
   applyTheme();
   applyI18n();
   // Set initial text for dynamic elements (removed data-i18n to avoid applyI18n overwrites)
@@ -6452,6 +6455,7 @@ function openReferralScreen() {
 function closeReferralScreen() {
   const el = document.getElementById('vReferral');
   if (el) el.style.display = 'none';
+  setAIFabVisible(true);
 }
 async function loadReferralData() {
   function resolveUid() {
