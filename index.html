@@ -3915,6 +3915,7 @@ function switchTab(tab) {
   } else {
     marketEl.style.display='none';
     marketEl.style.pointerEvents='none';
+    setAIFabVisible(true);
   }
   if(tab==='profile'){openProfileScreen();}
   else{closeProfileScreen();}
@@ -5146,6 +5147,7 @@ function setMarketMode(mode) {
     if (titleEl) titleEl.textContent = t('marketTitle');
     if (actions) actions.style.display = 'flex';
     if (watchPanel) watchPanel.style.display = 'none';
+    setAIFabVisible(true);
     if (_marketLoaded && contentEl) {
       contentEl.style.display = 'flex';
       if (liveDot) liveDot.style.display = 'block';
