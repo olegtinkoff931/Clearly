@@ -5818,6 +5818,7 @@ let _pendingPlanId = null;
 let _pendingPlanPaymentId = null;
 let _planPaymentMethod = null;
 let _planPayCheckInterval = null;
+let _pendingPlanCreatedAt = null;
 let _subReturnTo = null; // 'profile' | 'main' | null
 
 function restoreMainAppView() {
@@ -6030,6 +6031,7 @@ function closePlanPayModal() {
   pm2.classList.remove('open');
   _pendingPlanId = null;
   _pendingPlanPaymentId = null;
+  _pendingPlanCreatedAt = null;
   _planPaymentMethod = null;
   if (_planPayCheckInterval) { clearInterval(_planPayCheckInterval); _planPayCheckInterval = null; }
 }
@@ -6077,8 +6079,9 @@ async function confirmPlanPayment() {
     });
 
     if (resp.pay_url) {
-      // Open CryptoBot payment link
+      // Open CryptoBot/NOWPayments payment link
       _pendingPlanPaymentId = resp.payment_id;
+      _pendingPlanCreatedAt = new Date().toISOString();
       if (window.Telegram?.WebApp?.openLink) {
         window.Telegram.WebApp.openLink(resp.pay_url, {try_instant_view: false});
       } else {
@@ -6090,6 +6093,7 @@ async function confirmPlanPayment() {
     } else if (resp.payment_id) {
       // Manual payment — close modal, show pending screen
       _pendingPlanPaymentId = resp.payment_id;
+      _pendingPlanCreatedAt = new Date().toISOString();
       closePlanPayModal();
       showPlanPayPendingScreen(false);
     } else {
@@ -6141,9 +6145,9 @@ async function checkPlanPayment() {
   try {
     const resp = await apiFetch('/api/payment/check', 'POST', {
       payment_id: _pendingPlanPaymentId,
-      method: _planPaymentMethod,
+      method: _planPaymentMethod || 'nowpayments',
       amount: PLANS[_pendingPlanId]?.price || 0,
-      created_at: new Date().toISOString()
+      created_at: _pendingPlanCreatedAt || new Date().toISOString()
     });
     if (resp.confirmed) {
       clearInterval(_planPayCheckInterval);
