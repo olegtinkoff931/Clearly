@@ -2804,7 +2804,23 @@ async function init() {
   needsInitialLangChoice = false;
   renderChannelList();
   renderProfileScreen();
-  if (!hasPlan()) {
+
+  // Restore pending payment if user left app during payment flow
+  try {
+    const savedPayId = localStorage.getItem('_ppPayId');
+    const savedPlanId = localStorage.getItem('_ppPlanId');
+    const savedMethod = localStorage.getItem('_ppMethod');
+    const savedCreatedAt = localStorage.getItem('_ppCreatedAt');
+    if (savedPayId && savedPlanId && !hasPlan()) {
+      _pendingPlanPaymentId = savedPayId;
+      _pendingPlanId = savedPlanId;
+      _planPaymentMethod = savedMethod || 'NOWPAYMENTS';
+      _pendingPlanCreatedAt = savedCreatedAt || new Date().toISOString();
+      showPlanPayPendingScreen(true);
+    }
+  } catch(e) {}
+
+  if (!hasPlan() && !_pendingPlanPaymentId) {
     showSubscriptionScreen(null, { forced: true });
   } else {
     const vm = document.getElementById('vMain');
@@ -6128,6 +6144,11 @@ function showPlanPayPendingScreen(isAuto) {
   if (_planPayCheckInterval) clearInterval(_planPayCheckInterval);
   _planPayCheckInterval = setInterval(() => checkPlanPayment(), 10000);
   setTimeout(() => checkPlanPayment(), 3000);
+  // Persist payment state so it survives page reload / app switch
+  try { localStorage.setItem('_ppPayId', _pendingPlanPaymentId);
+        localStorage.setItem('_ppPlanId', _pendingPlanId);
+        localStorage.setItem('_ppMethod', _planPaymentMethod || 'NOWPAYMENTS');
+        localStorage.setItem('_ppCreatedAt', _pendingPlanCreatedAt || new Date().toISOString()); } catch(e){}
 }
 
 function cancelPlanPendingPayment() {
@@ -6136,6 +6157,8 @@ function cancelPlanPendingPayment() {
   _pendingPlanId = null;
   _pendingPlanPaymentId = null;
   _planPaymentMethod = null;
+  try { localStorage.removeItem('_ppPayId'); localStorage.removeItem('_ppPlanId');
+        localStorage.removeItem('_ppMethod'); localStorage.removeItem('_ppCreatedAt'); } catch(e){}
 }
 
 async function checkPlanPayment() {
@@ -6191,6 +6214,8 @@ function planPaymentConfirmed(planId) {
 }
 
 function planPaymentDone(planId) {
+  try { localStorage.removeItem('_ppPayId'); localStorage.removeItem('_ppPlanId');
+        localStorage.removeItem('_ppMethod'); localStorage.removeItem('_ppCreatedAt'); } catch(e){}
   document.getElementById('payPendingScreen').classList.remove('open');
   const subScreen = document.getElementById('vSubscription');
   if (subScreen) subScreen.style.display = 'none';
