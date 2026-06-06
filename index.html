@@ -442,23 +442,22 @@
 
     /* ── Quick Watchlist Bar (above bottom nav) ─────────────────── */
     #quickWatchBar {
-      position:fixed; bottom:62px; left:0; right:0; z-index:51;
+      position:fixed; bottom:62px; left:0; right:0; z-index:49;
       background:linear-gradient(180deg,transparent 0%,rgba(17,17,20,.96) 16px,rgba(17,17,20,.98) 100%);
       border-top:.5px solid #1e1e26;
       padding:6px 0 6px;
-      display:flex;
+      display:none;
       align-items:center;
       gap:0;
       transform:translateY(100%);
       transition:transform .35s cubic-bezier(.4,0,.2,1), opacity .3s;
       opacity:0;
-      pointer-events:none;
       backdrop-filter:blur(8px);
     }
     #quickWatchBar.visible {
+      display:flex;
       transform:translateY(0);
       opacity:1;
-      pointer-events:auto;
     }
     .qwb-open-btn {
       flex-shrink:0;
@@ -928,6 +927,7 @@
     <div class="bn" id="mainBottomNav" style="position:fixed;bottom:0;left:0;right:0;background:#111114;z-index:50;">
       <div class="ni ac" id="navChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
       <div class="ni" id="navMarket" onclick="switchTab('market')"><i class="ti ti-chart-line niv"></i><span data-i18n="navMarket">Market</span></div>
+      <div class="ni" id="navAssets" onclick="switchTab('assets')"><i class="ti ti-coin niv"></i><span data-i18n="navAssets">Assets</span></div>
       <div class="ni" id="navFeed" onclick="switchTab('feed')"><i class="ti ti-bell niv"></i><span data-i18n="navFeed">Alerts</span></div>
       <div class="ni" id="navProfile" onclick="switchTab('profile')"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
     </div>
@@ -1134,6 +1134,7 @@
     <div class="bn" style="flex-shrink:0;background:#111114;border-top:.5px solid #1e1e26;" id="profBottomNav">
       <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
       <div class="ni" id="profNavMarket" onclick="switchTab('market')"><i class="ti ti-chart-line niv"></i><span data-i18n="navMarket">Market</span></div>
+      <div class="ni" id="profNavAssets" onclick="switchTab('assets')"><i class="ti ti-coin niv"></i><span data-i18n="navAssets">Assets</span></div>
       <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-bell niv"></i><span data-i18n="navFeed">Alerts</span></div>
       <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
     </div>
@@ -1518,6 +1519,7 @@ const i18n = {
     paymentMethod:'💳 PAYMENT METHOD',
     skip:'Skip →',
     navMarket:'Market',
+    navAssets:'Assets',
     navFeed:'Alerts',
     feedTitle:'🔔 Alerts',
     packsRecommendSub:'Based on your answers. You can also add a second pack for a fuller feed.',
@@ -1734,7 +1736,7 @@ const i18n = {
     welcomeBtn:'Поїхали 🚀', doneTitle:'Все готово!',
     doneSub:'Налаштування збережені. Ласкаво просимо до <strong style="color:#b0a8ff;">Clearly</strong>!',
     startBtn:'Починаємо 🎯', navProfile:'Профіль', navNotif:'Сповіщення', navTheme:'Тема',
-    navSettings:'Налаштування', navChannels:'Канали', navFeed:'Сповіщення', navMarket:'Ринок', myChannels:'МОЇ КАНАЛИ',
+    navSettings:'Налаштування', navChannels:'Канали', navFeed:'Сповіщення', navMarket:'Ринок', navAssets:'Активи', myChannels:'МОЇ КАНАЛИ',
     delete:'🗑 Видалити', high:'🔴 Важливо', medium:'🟡 Середнє', low:'🟢 Не важливо', newChannel:'Новий канал',
     addChannelTitle:'➕ Додати канал', addChannelSub:'Введіть username каналу і оберіть важливість',
     labelUsername:'USERNAME КАНАЛУ', labelPriority:'ВАЖЛИВІСТЬ', addChannelBtn:'Додати канал',
@@ -2112,6 +2114,7 @@ const i18n = {
     paymentMethod:'💳 ZPŮSOB PLATBY',
     skip:'Přeskočit →',
     navMarket:'Trh',
+    navAssets:'Aktiva',
     navFeed:'Upozornění',
     feedTitle:'🔔 Upozornění',
     packsRecommendSub:'Na základě vašich odpovědí. Můžete přidat druhý balíček pro plnější feed.',
@@ -2336,7 +2339,7 @@ const i18n = {
     welcomeBtn:'Поехали 🚀', doneTitle:'Всё готово!',
     doneSub:'Настройки сохранены. Добро пожаловать в <strong style="color:#b0a8ff;">Clearly</strong>!',
     startBtn:'Приступаем 🎯', navProfile:'Профиль', navNotif:'Уведомления', navTheme:'Тема',
-    navSettings:'Настройки', navChannels:'Каналы', navFeed:'Уведомления', navMarket:'Рынок', myChannels:'МОИ КАНАЛЫ',
+    navSettings:'Настройки', navChannels:'Каналы', navFeed:'Уведомления', navMarket:'Рынок', navAssets:'Активы', myChannels:'МОИ КАНАЛЫ',
     delete:'🗑 Удалить', high:'🔴 Важно', medium:'🟡 Среднее', low:'🟢 Не важно', newChannel:'Новый канал',
     addChannelTitle:'➕ Добавить канал', addChannelSub:'Введите username канала и выберите важность',
     labelUsername:'USERNAME КАНАЛА', labelPriority:'ВАЖНОСТЬ', addChannelBtn:'Добавить канал',
@@ -4047,7 +4050,7 @@ let currentTab='channels';
 
 function switchTab(tab) {
   currentTab=tab;
-  ['channels','market','feed','profile'].forEach(tt=>{
+  ['channels','market','assets','feed','profile'].forEach(tt=>{
     const el=document.getElementById('nav'+tt.charAt(0).toUpperCase()+tt.slice(1));
     if(el) el.classList.toggle('ac',tt===tab);
     const profEl=document.getElementById('profNav'+tt.charAt(0).toUpperCase()+tt.slice(1));
@@ -4070,6 +4073,10 @@ function switchTab(tab) {
     marketEl.style.pointerEvents='auto';
     if (_marketMode === 'watchlist') setMarketMode('watchlist');
     else setMarketMode('signals');
+  } else if(tab==='assets'){
+    marketEl.style.display='flex';
+    marketEl.style.pointerEvents='auto';
+    setMarketMode('watchlist');
   } else {
     marketEl.style.display='none';
     marketEl.style.pointerEvents='none';
@@ -7358,9 +7365,6 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
   // Init on load
   document.addEventListener('DOMContentLoaded', () => {
     window.qwbRefresh();
-    // повторный вызов после полной отрисовки страницы
-    setTimeout(() => { window.qwbRefresh(); }, 500);
-    setTimeout(() => { window.qwbRefresh(); }, 1500);
   });
 })();
 // ══ END QUICK WATCHLIST BAR ═══════════════════════════════════════
