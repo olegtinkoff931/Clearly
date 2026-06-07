@@ -1316,7 +1316,7 @@
 
   <div id="vProfile" style="background:#111114;display:flex;flex-direction:column;position:absolute;inset:0;transform:translateX(100%);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;z-index:10;" class="themed-bg">
 
-    <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+    <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:70px;">
       <div style="padding:16px 16px 10px;border-bottom:.5px solid #222228;">
         <p style="font-size:10px;color:#444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;" data-i18n="profMyProfile">👤 MY PROFILE</p>
         <div id="profPlanInfo" style="margin-bottom:12px;"></div>
@@ -1356,13 +1356,7 @@
       <div class="toast" id="profileToast"></div>
     </div>
 
-    <div class="bn" style="flex-shrink:0;background:#111114;border-top:.5px solid #1e1e26;" id="profBottomNav">
-      <div class="ni" id="profNavChannels" onclick="switchTab('channels')"><i class="ti ti-layout-list niv"></i><span data-i18n="navChannels">Channels</span></div>
-      <div class="ni" id="profNavMarket" onclick="switchTab('market')"><i class="ti ti-chart-line niv"></i><span data-i18n="navMarket">Market</span></div>
-      <div class="ni" id="profNavAssets" onclick="switchTab('assets')"><i class="ti ti-coin niv"></i><span data-i18n="navAssets">Assets</span></div>
-      <div class="ni" id="profNavFeed" onclick="switchTab('feed')"><i class="ti ti-bell niv"></i><span data-i18n="navFeed">Alerts</span></div>
-      <div class="ni ac" id="profNavProfile"><i class="ti ti-user niv"></i><span data-i18n="navProfile">Profile</span></div>
-    </div>
+
   </div>
 
   <div id="vFeed">
@@ -2984,7 +2978,7 @@ function _applyThemeById(themeId) {
   document.documentElement.style.setProperty('--accent',th.accent);
   document.documentElement.style.setProperty('--accent-gradient',th.gradient);
   document.documentElement.style.setProperty('--app-bg', th.appBg || '#111114');
-  if(document.getElementById('profNavProfile')) _applyAccentToProfileNav();
+
   const profileAvEl=document.getElementById('profileAvatar');
   if(profileAvEl) profileAvEl.style.background=th.gradient;
   const profileBuyEl=document.getElementById('profileBuyBtn');
@@ -3089,7 +3083,7 @@ function _applyThemeById(themeId) {
     .lang-pill.active{border-color:${th.accent}88!important;background:${th.accent}11!important}
     .lang-pill.active .lang-pill-name{color:${th.accent}!important}
     .lang-pill.active .lang-pill-tag{color:${th.accent}!important}
-    body,.app-container,#vMain,#vTheme,#vNotif,#vSettings,#vProfile,#profBottomNav{background:${th.appBg || '#111114'}!important}
+    body,.app-container,#vMain,#vTheme,#vNotif,#vSettings,#vProfile{background:${th.appBg || '#111114'}!important}
     .fab{background:${th.gradient}!important}
     .save-btn{background:${th.accent}!important}
     #addChBtn{background:${th.gradient}!important}
@@ -4704,29 +4698,13 @@ function openProfileScreen() {
   vp.style.opacity='1';
   vp.style.pointerEvents='auto';
   vp.classList.add('active');
-  const mn=document.getElementById('mainBottomNav');
-  if(mn) mn.style.display='none';
   setAIFabVisible(false);
-  _applyAccentToProfileNav();
 }
 
 function _applyAccentToProfileNav() {
-  const th=themes.find(x=>x.id===currentTheme);
-  if(!th) return;
-  const profNavProfile=document.getElementById('profNavProfile');
-  if(profNavProfile) {
-    profNavProfile.style.color=th.accent;
-    const icon=profNavProfile.querySelector('.niv');
-    if(icon) icon.style.color=th.accent;
-    const label=profNavProfile.querySelector('span:not(.niv)');
-    if(label) label.style.color=th.accent;
-  }
-  ['profNavChannels','profNavFeed','profNavMarket'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){ el.style.color=''; const icon=el.querySelector('.niv'); if(icon) icon.style.color=''; }
-  });
+  // Profile tab highlight is now handled by switchTab via mainBottomNav
 }
-function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.style.transform='translateX(100%)';vp.style.opacity='0';vp.style.pointerEvents='none';vp.classList.remove('active'); const mn=document.getElementById('mainBottomNav'); if(mn) mn.style.display=''; setAIFabVisible(true); }
+function closeProfileScreen() { const vp=document.getElementById('vProfile');vp.style.transform='translateX(100%)';vp.style.opacity='0';vp.style.pointerEvents='none';vp.classList.remove('active'); setAIFabVisible(true); }
 
 function renderProfileScreen() {
   profileSelectedPacks=[...purchasedPacks];
