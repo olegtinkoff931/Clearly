@@ -1423,17 +1423,14 @@
     <div id="marketContent" style="display:none;padding:12px;flex-direction:column;gap:12px;padding-bottom:24px;"></div>
 
     <!-- ══ WATCHLIST PANEL (inside vMarket for correct visibility) ══ -->
-    <div id="watchlistPanel" style="display:none;flex-direction:column;padding:12px;gap:12px;padding-bottom:80px;">
+    <div id="watchlistPanel" style="display:none;flex-direction:column;padding:14px 12px;gap:10px;padding-bottom:80px;">
       <!-- Add asset input -->
-      <div style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:12px 14px;">
-        <p style="font-size:10px;color:#555;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;" data-i18n="watchlistAddLabel">➕ ДОБАВИТЬ АКТИВ</p>
-        <div style="display:flex;gap:8px;">
-          <input id="watchlistInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10"
-            placeholder="BTC, ETH, SOL…"
-            style="flex:1;background:#111114;border:.5px solid #2e2e38;border-radius:9px;padding:10px 12px;font-size:13px;color:#e8e8f0;outline:none;text-transform:uppercase;"
-            onkeydown="if(event.key==='Enter')watchlistAdd()">
-          <button onclick="watchlistAdd()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
-        </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="watchlistInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10"
+          placeholder="BTC, ETH, SOL…"
+          style="flex:1;background:#1a1a20;border:.5px solid #272730;border-radius:12px;padding:12px 14px;font-size:14px;color:#e8e8f0;outline:none;text-transform:uppercase;letter-spacing:.5px;"
+          onkeydown="if(event.key==='Enter')watchlistAdd()">
+        <button onclick="watchlistAdd()" style="background:linear-gradient(135deg,#6b6bff,#a78bfa);color:#fff;border:none;border-radius:12px;width:46px;height:46px;font-size:20px;font-weight:300;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">+</button>
       </div>
       <!-- Asset list -->
       <div id="watchlistEmpty" style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;">
@@ -1441,7 +1438,7 @@
         <p style="font-size:15px;font-weight:600;color:#e8e8f0;margin:0 0 6px;" data-i18n="watchlistEmptyTitle">Нет отслеживаемых активов</p>
         <p style="font-size:12px;color:#555;margin:0;" data-i18n="watchlistEmptySub">Добавьте монеты выше — увидите прогнозы и новости</p>
       </div>
-      <div id="watchlistItems" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div id="watchlistItems" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
   </div>
 
@@ -7433,17 +7430,16 @@ function openRefContact() { window.open('https://t.me/rvelikiy','_blank'); }
 
     // render skeleton first
     itemsEl.innerHTML = list.map(coin => `
-      <div class="wl-card" id="wlCard_${coin}" onclick="openWatchlistModal('${coin}')" style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:12px 14px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:12px;">
-        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1e1e30,#2a2a50);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#a78bfa;flex-shrink:0;">${coin.slice(0,3)}</div>
+      <div class="wl-card" id="wlCard_${coin}" onclick="openWatchlistModal('${coin}')" style="background:#1a1a20;border-radius:14px;border:.5px solid #272730;padding:14px 16px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:14px;">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1e1e30,#2a2a50);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#a78bfa;flex-shrink:0;letter-spacing:.3px;">${coin.slice(0,3)}</div>
         <div style="flex:1;min-width:0;">
-          <p style="font-size:13px;font-weight:700;color:#e8e8f0;margin:0 0 2px;">${coin}/USDT</p>
-          <p id="wlPrice_${coin}" style="font-size:11px;color:#555;margin:0;">${t('watchlistLoadingPrice')}</p>
+          <p style="font-size:14px;font-weight:700;color:#e8e8f0;margin:0 0 3px;">${coin}<span style="font-size:11px;font-weight:500;color:#3a3a50;">/USDT</span></p>
+          <p id="wlPrice_${coin}" style="font-size:12px;color:#555;margin:0;">—</p>
         </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <p id="wlChange_${coin}" style="font-size:12px;font-weight:600;margin:0 0 4px;color:#888;">—</p>
-          <button onclick="event.stopPropagation();watchlistRemove('${coin}')" style="background:none;border:none;color:#3a3a44;font-size:13px;cursor:pointer;padding:0;line-height:1;" title="${t('watchlistRemoveTitle')}">✕</button>
+        <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <p id="wlChange_${coin}" style="font-size:13px;font-weight:700;margin:0;color:#888;">—</p>
+          <button onclick="event.stopPropagation();watchlistRemove('${coin}')" style="background:none;border:none;color:#2e2e38;font-size:11px;cursor:pointer;padding:0;line-height:1;transition:color .15s;" title="${t('watchlistRemoveTitle')}">✕</button>
         </div>
-        <div style="flex-shrink:0;"><i class="ti ti-chevron-right" style="font-size:13px;color:#333;"></i></div>
       </div>
     `).join('');
 
