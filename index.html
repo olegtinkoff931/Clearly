@@ -597,6 +597,36 @@
     .sub-plan-btn.btn-gradient { background:linear-gradient(135deg,#ff6b35,#ffb347); color:#1a0a00; box-shadow:0 6px 18px rgba(255,120,40,.4); }
     .sub-plan-btn.btn-gradient:hover { opacity:.92; box-shadow:0 8px 22px rgba(255,140,50,.5); }
     .sub-plan-btn.btn-active { background:rgba(30,90,50,.65); border:1.5px solid #7ee08188; color:#9ef0a8; cursor:default; box-shadow:none; }
+
+    /* ── FREE TRIAL CARD ───────────────────────────────────────── */
+    .trial-card {
+      margin: 0 14px 4px;
+      background: linear-gradient(145deg, rgba(107,107,255,.18), rgba(167,139,250,.10));
+      border: 1.5px solid rgba(107,107,255,.55);
+      border-radius: 20px;
+      padding: 18px;
+      position: relative;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 28px rgba(107,107,255,.20), 0 8px 24px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+    }
+    .trial-card:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(107,107,255,.30), 0 12px 28px rgba(0,0,0,.22); }
+    .trial-card-badge { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #6b6bff, #a78bfa); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 16px; border-radius: 20px; white-space: nowrap; letter-spacing: .6px; box-shadow: 0 4px 14px rgba(107,107,255,.45); }
+    .trial-card-name { font-size: 18px; font-weight: 800; color: #e8e0ff; margin: 0 0 2px; }
+    .trial-card-desc { font-size: 11px; color: rgba(220,210,255,.75); margin: 0 0 12px; }
+    .trial-card-price-row { display: flex; align-items: baseline; gap: 10px; margin: 0 0 2px; }
+    .trial-card-price { font-size: 34px; font-weight: 800; color: #fff; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    .trial-card-price-sub { font-size: 13px; color: rgba(220,210,255,.65); }
+    .trial-card-period { font-size: 12px; color: rgba(200,190,255,.65); margin: 0 0 14px; }
+    .trial-card-features { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+    .trial-card-feature { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: rgba(230,225,255,.9); line-height: 1.4; }
+    .trial-card-feature .fcheck { color: #a78bfa; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .trial-card-btn { width: 100%; padding: 13px; border: none; border-radius: 14px; font-size: 14px; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, #6b6bff, #a78bfa); color: #fff; box-shadow: 0 6px 18px rgba(107,107,255,.4); transition: transform .15s, opacity .15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .trial-card-btn:hover { opacity: .92; box-shadow: 0 8px 22px rgba(107,107,255,.5); }
+    .trial-card-btn:active { transform: scale(.98); }
+    .trial-card-btn:disabled { opacity: .55; cursor: default; }
+    /* ── END FREE TRIAL CARD ──────────────────────────────────── */
     .sub-footer { padding:12px 20px 40px; text-align:center; font-size:11px; color:rgba(255,248,220,.65); line-height:1.6; }
 
     /* VIP */
@@ -1698,7 +1728,8 @@ const PLANS = {
 };
 
 let currentPlan = null;
-let currentSubEnd = null; // ISO date string of subscription end
+let currentSubEnd = null;
+let trialUsed = false; // ISO date string of subscription end
 
 function getPlan() { return currentPlan ? PLANS[currentPlan] : null; }
 function getMaxChannels() { const p=getPlan(); return p ? p.maxChannels : 0; }
@@ -3225,6 +3256,7 @@ async function init() {
   // Load plan from subscription API (authoritative source)
   try {
     const subData = await apiFetch('/api/subscription/' + currentUserId, 'GET');
+    if (subData) trialUsed = !!subData.trial_used;
     if (subData && subData.active) {
       currentPlan = subData.plan || null;
       currentSubEnd = subData.subscription_end || null;
@@ -6333,6 +6365,46 @@ function renderSubscriptionPlans(highlightId) {
     <span class="sub-summer-deco">🌴</span>`;
   container.appendChild(bannerDiv);
 
+  // ── Free Trial Card ──────────────────────────────────────────────
+  if (!currentPlan && !trialUsed) {
+    const proFeatures = (PLANS.pro.features[currentLang] || PLANS.pro.features.en);
+    const featHtml = proFeatures.map(f =>
+      `<div class="trial-card-feature"><span class="fcheck">✓</span><span>${f}</span></div>`
+    ).join('');
+    const trialCard = document.createElement('div');
+    trialCard.className = 'trial-card';
+    const trialBadgeLbl = currentLang === 'ru' ? '🎁 ТОЛЬКО НОВЫМ ПОЛЬЗОВАТЕЛЯМ' :
+                          currentLang === 'uk' ? '🎁 ТІЛЬКИ ДЛЯ НОВИХ' :
+                          currentLang === 'cs' ? '🎁 JEN PRO NOVÉ' : '🎁 NEW USERS ONLY';
+    const trialTitle    = currentLang === 'ru' ? 'Бесплатный пробный' :
+                          currentLang === 'uk' ? 'Безкоштовний пробний' :
+                          currentLang === 'cs' ? 'Zkušební verze zdarma' : 'Free Trial';
+    const trialDescTxt  = currentLang === 'ru' ? 'Попробуйте Pro бесплатно — 3 дня, все функции' :
+                          currentLang === 'uk' ? 'Спробуйте Pro безкоштовно — 3 дні, всі функції' :
+                          currentLang === 'cs' ? 'Vyzkoušejte Pro zdarma — 3 dny, všechny funkce' :
+                          'Try Pro for free — 3 days, all features included';
+    const trialBtnLbl   = currentLang === 'ru' ? '🚀 Активировать бесплатно' :
+                          currentLang === 'uk' ? '🚀 Активувати безкоштовно' :
+                          currentLang === 'cs' ? '🚀 Aktivovat zdarma' : '🚀 Start Free Trial';
+    const trialPeriod   = currentLang === 'ru' ? '3 дня · затем выберите тариф' :
+                          currentLang === 'uk' ? '3 дні · потім оберіть тариф' :
+                          currentLang === 'cs' ? '3 dny · poté zvolte plán' : '3 days · then choose a plan';
+    trialCard.innerHTML = `
+      <div class="trial-card-badge">${trialBadgeLbl}</div>
+      <p class="trial-card-name">${trialTitle}</p>
+      <p class="trial-card-desc">${trialDescTxt}</p>
+      <div class="trial-card-price-row">
+        <span class="trial-card-price">$0</span>
+        <span class="trial-card-price-sub">Pro ${currentLang === 'ru' ? 'на' : currentLang === 'uk' ? 'на' : 'for'} 3 ${currentLang === 'ru' ? 'дня' : currentLang === 'uk' ? 'дні' : currentLang === 'cs' ? 'dny' : 'days'}</span>
+      </div>
+      <p class="trial-card-period">${trialPeriod}</p>
+      <div class="trial-card-features">${featHtml}</div>
+      <button class="trial-card-btn" id="freeTrialBtn" onclick="activateFreeTrial()">${trialBtnLbl}</button>
+    `;
+    container.appendChild(trialCard);
+  }
+  // ────────────────────────────────────────────────────────────────
+
   const lbl = {
     current: t('subBtnCurrent'),
     choose: t('choosePlan'),
@@ -6388,6 +6460,49 @@ function renderSubscriptionPlans(highlightId) {
     `;
     container.appendChild(card);
   });
+}
+
+async function activateFreeTrial() {
+  if (!currentUserId) return;
+  const btn = document.getElementById('freeTrialBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ ...'; }
+  try {
+    const res = await apiFetch('/api/free-trial', 'POST', { user_id: currentUserId });
+    if (res && res.ok) {
+      currentPlan = res.plan || 'pro';
+      currentSubEnd = res.subscription_end || null;
+      trialUsed = true;
+      // Close subscription screen and open main app
+      const subScreen = document.getElementById('vSubscription');
+      if (subScreen) { subScreen.style.display = 'none'; }
+      const vm = document.getElementById('vMain');
+      if (vm) {
+        vm.className = 'view';
+        vm.style.cssText = 'overflow-y:auto; padding-bottom:70px; opacity:1; pointer-events:auto; display:flex; transform:none; position:absolute; inset:0;';
+      }
+      const nav = document.getElementById('mainBottomNav');
+      if (nav) { nav.style.display = ''; nav.style.opacity = '1'; }
+      const fab = document.getElementById('aiFab');
+      if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'auto'; }
+      renderChannelList();
+      renderProfileScreen();
+      const daysLabel = currentLang === 'ru' ? '3 дня Pro тарифа активированы!' :
+                        currentLang === 'uk' ? '3 дні Pro тарифу активовано!' :
+                        currentLang === 'cs' ? '3denní zkušební verze Pro aktivována!' :
+                        'Your 3-day Pro trial is active!';
+      showMainToast('🎉 ' + daysLabel);
+    } else {
+      const errCode = res && res.error;
+      let msg = 'Error, try again';
+      if (errCode === 'trial_already_used') msg = currentLang === 'ru' ? 'Пробный период уже использован' : 'Trial already used';
+      if (errCode === 'already_subscribed') msg = currentLang === 'ru' ? 'У вас уже есть активный тариф' : 'You already have an active plan';
+      if (btn) { btn.disabled = false; btn.textContent = '🚀 ' + (currentLang === 'ru' ? 'Активировать бесплатно' : 'Start Free Trial'); }
+      showMainToast('⚠️ ' + msg);
+    }
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 ' + (currentLang === 'ru' ? 'Активировать бесплатно' : 'Start Free Trial'); }
+    showMainToast('⚠️ Network error');
+  }
 }
 
 function selectPlan(planId) {
